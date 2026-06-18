@@ -1,0 +1,1340 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Employee Information Form | نموذج بيانات الموظف</title>
+  <meta name="description" content="Official employee information form for updating company records." />
+  <meta name="theme-color" content="#0b1f3a" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <script>window.EMPLOYEE_SEED = { generatedAt: null, records: [], departmentTranslationMap: {} };</script>
+  <script defer src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+  <style>
+    :root{
+      --ink:#0d1b2a; --navy:#0b1f3a; --navy2:#102b4c; --slate:#42526b; --muted:#6b778c; --line:#d9e2ec;
+      --gold:#b88a2d; --gold2:#d6b25e; --cream:#f7f3ea; --paper:#ffffff; --soft:#f4f7fb; --success:#0f8f5f; --danger:#c0392b; --warning:#a66b00;
+      --shadow:0 26px 80px rgba(9,28,53,.14); --softShadow:0 12px 30px rgba(9,28,53,.08); --radius:24px; --radius2:16px;
+      --font:"Inter","SF Pro Display","Segoe UI",Tahoma,Arial,sans-serif;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;min-height:100vh;font-family:var(--font);color:var(--ink);background:linear-gradient(135deg,#f9fbfd,#eef3f8 55%,#f7f3ea);overflow-x:hidden}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 8% 5%,rgba(184,138,45,.16),transparent 24rem),radial-gradient(circle at 90% 6%,rgba(11,31,58,.12),transparent 28rem)}
+    h1,h2,h3,p{margin-top:0} h1{font-size:clamp(30px,4.8vw,56px);letter-spacing:-.04em;line-height:1.05;margin-bottom:14px;color:var(--navy)} h2{font-size:clamp(24px,3vw,38px);letter-spacing:-.035em;margin-bottom:10px;color:var(--navy)} h3{font-size:18px;margin-bottom:8px;color:var(--navy)} .lead,p{color:var(--slate);line-height:1.8}.small{font-size:13px;color:var(--muted);line-height:1.75}.tiny{font-size:12px;color:var(--muted)}
+    .shell{width:min(1280px,calc(100% - 28px));min-height:calc(100vh - 28px);margin:14px auto;display:grid;grid-template-columns:330px minmax(0,1fr);gap:18px;position:relative;z-index:1}
+    .side,.main{border:1px solid rgba(217,226,236,.9);background:rgba(255,255,255,.86);box-shadow:var(--shadow);backdrop-filter:blur(20px);border-radius:var(--radius)}
+    .side{padding:20px;position:sticky;top:14px;height:calc(100vh - 28px);overflow:auto;display:flex;flex-direction:column;gap:16px}.main{min-height:calc(100vh - 28px);overflow:hidden;display:flex;flex-direction:column}
+    .brand{padding:22px;border-radius:22px;background:linear-gradient(160deg,var(--navy),var(--navy2));box-shadow:var(--softShadow);color:white;position:relative;overflow:hidden}.brand:after{content:"";position:absolute;inset:auto -30px -60px auto;width:160px;height:160px;border-radius:50%;border:1px solid rgba(214,178,94,.35)}
+    .mark{width:62px;height:62px;border-radius:18px;background:linear-gradient(145deg,var(--gold),var(--gold2));display:grid;place-items:center;color:#16110a;font-weight:950;font-size:22px;margin-bottom:16px;letter-spacing:-.03em;box-shadow:0 18px 32px rgba(0,0,0,.18);cursor:default;user-select:none}.brand h3{color:white;margin-bottom:6px}.brand p{color:rgba(255,255,255,.78);margin-bottom:0}.brand .mini-line{height:1px;background:linear-gradient(90deg,rgba(214,178,94,.9),transparent);margin:16px 0}.official-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(214,178,94,.38);background:rgba(255,255,255,.08);color:#f7e6bd;border-radius:999px;padding:7px 11px;font-weight:800;font-size:12px;margin-bottom:12px}
+    .panel{padding:16px;border-radius:20px;background:var(--paper);border:1px solid var(--line);box-shadow:0 8px 22px rgba(9,28,53,.04)}.sideTitle{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:900;margin-bottom:12px;color:var(--navy)}.progress{height:10px;background:#e8edf3;border-radius:99px;overflow:hidden}.bar{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--navy),var(--gold));transition:width .28s ease}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.stat{padding:12px;border-radius:16px;background:#f7f9fc;border:1px solid #e4ebf3}.stat strong{display:block;font-size:22px;color:var(--navy)}.stat span{font-size:12px;color:var(--muted);font-weight:700}
+    .steps{display:grid;gap:7px}.step{display:flex;align-items:center;gap:10px;padding:11px;border-radius:14px;background:transparent;border:1px solid transparent;color:#58677c;font:inherit;text-align:inherit;cursor:pointer}.step:hover{background:#f7f9fc;border-color:#edf1f6}.step.active{background:#edf4ff;border-color:#cfe0fa;color:#0d3a68}.step.done{color:#0f6848}.num{min-width:26px;height:26px;border-radius:9px;background:#e8edf3;display:grid;place-items:center;font-weight:900;font-size:12px}.step.done .num{background:var(--success);color:white}.step.active .num{background:var(--navy);color:white}.stepText{font-size:13px;font-weight:800;line-height:1.35}
+    .topbar{min-height:74px;padding:18px 24px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.78);display:flex;justify-content:space-between;gap:14px;align-items:center}.windowtitle{display:flex;gap:12px;align-items:center;font-weight:950;color:var(--navy)}.lock{width:38px;height:38px;border-radius:14px;background:#eef6f2;display:grid;place-items:center;color:var(--success)}.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.langToggle{min-width:92px}
+    button,input,textarea,select{font-family:inherit}.btn{border:0;min-height:44px;padding:0 17px;border-radius:13px;cursor:pointer;font-weight:900;color:var(--navy);background:#fff;border:1px solid var(--line);box-shadow:0 7px 18px rgba(9,28,53,.07);transition:.18s ease}.btn:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(9,28,53,.11)}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}.primary{color:white;background:linear-gradient(135deg,var(--navy),#163d69);border-color:transparent}.success{color:#101a12;background:linear-gradient(135deg,var(--gold2),#f1d891);border-color:transparent}.danger{color:#a32019;background:#fff5f4;border-color:#f0d0ce}.ghost{box-shadow:none;background:#f8fafc}.status-pill{background:#edf7f2;color:#0f6848;border-color:#d1eadc}
+    .content{flex:1;display:grid;place-items:center;padding:clamp(24px,4.2vw,58px)}.screen{width:min(860px,100%);display:none;animation:rise .25s ease}.screen.active{display:block}@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}.questionNo{display:inline-flex;align-items:center;gap:8px;margin-bottom:16px;color:#0d3a68;font-weight:900}.qbadge{width:32px;height:32px;border-radius:11px;background:#edf4ff;display:grid;place-items:center}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field{display:grid;gap:7px;margin-bottom:13px}.field.full{grid-column:1/-1}label{font-weight:900;font-size:14px;color:#172b4d}.required:after{content:" *";color:var(--danger)}.tip{font-size:12px;color:var(--muted);line-height:1.55}.input,textarea,select{width:100%;min-height:56px;border-radius:15px;border:1px solid #cfd8e3;background:#fff;padding:0 15px;font-size:16px;color:var(--ink);outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}textarea{padding:14px 15px;min-height:104px;resize:vertical}.input:focus,textarea:focus,select:focus{border-color:#2b5f94;box-shadow:0 0 0 4px rgba(22,61,105,.12)}.readonly{background:#f4f6f9;color:#667085}.error{color:var(--danger);font-size:12px;display:none}.field.invalid .input,.field.invalid textarea,.field.invalid select{border-color:rgba(192,57,43,.65);box-shadow:0 0 0 4px rgba(192,57,43,.09)}.field.invalid .error{display:block}
+    .choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.choice{min-height:58px;border-radius:16px;border:1px solid #cfd8e3;background:#fff;display:flex;align-items:center;gap:10px;padding:13px;font-weight:900;cursor:pointer}.choice input{width:18px;height:18px}.choice:has(input:checked){border-color:var(--gold);background:#fffaf0}.review{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}.reviewItem{padding:15px;border-radius:17px;background:#fff;border:1px solid #dfe7f0}.reviewItem span{display:block;color:var(--muted);font-size:12px;font-weight:900;margin-bottom:5px}.reviewItem strong{font-size:15px;word-break:break-word}.notice{padding:14px 16px;border-radius:16px;background:#edf4ff;border:1px solid #cfe0fa;color:#0d3a68;line-height:1.7}.notice.warn{background:#fff8e9;border-color:#efd8a6;color:#7a4a00}.notice.bad{background:#fff4f2;border-color:#f2c9c4;color:#93231b}.notice.ok{background:#eef8f2;border-color:#ccebd9;color:#0f6848}.navrow{display:flex;justify-content:space-between;gap:10px;margin-top:24px}.ltr{direction:ltr;text-align:left}.hidden{display:none!important}.loading{opacity:.7;pointer-events:none}.matchList{display:grid;gap:10px;margin-top:18px}.matchCard{border:1px solid #dfe7f0;background:white;border-radius:17px;padding:15px;text-align:inherit;cursor:pointer}.matchCard:hover{border-color:var(--gold);box-shadow:0 10px 28px rgba(184,138,45,.12)}.assetList{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}.assetItem{padding:12px;border:1px solid #dfe7f0;border-radius:15px;background:white;display:flex;gap:9px;align-items:flex-start;font-weight:800}.assetItem small{display:block;color:var(--muted);font-weight:700}.subcards{display:grid;gap:14px}.subcard{border:1px solid #dfe7f0;background:white;border-radius:18px;padding:15px}.subHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.familyTable,.adminTable{width:100%;border-collapse:collapse;font-size:13px;background:white;border-radius:16px;overflow:hidden}.familyTable th,.familyTable td,.adminTable th,.adminTable td{padding:11px;border-bottom:1px solid #edf1f6;text-align:inherit;white-space:nowrap}.familyTable th,.adminTable th{background:#f5f7fb;font-weight:950;color:var(--navy)}.tableWrap{overflow:auto;border-radius:16px;border:1px solid #dfe7f0;background:white}
+    .modal{position:fixed;inset:0;background:linear-gradient(135deg,#071627,#0c2340 55%,#0b1f3a);display:none;z-index:50;color:white}.modal.active{display:block}.modalCard{width:100%;height:100vh;overflow:auto;padding:0;background:transparent}.adminLayout{min-height:100vh;display:grid;grid-template-columns:310px minmax(0,1fr)}.adminSide{padding:26px;background:rgba(3,12,24,.42);border-inline-end:1px solid rgba(255,255,255,.12);display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh}.adminLogo{width:64px;height:64px;border-radius:20px;background:linear-gradient(145deg,var(--gold),var(--gold2));display:grid;place-items:center;color:#17120a;font-weight:950;font-size:22px}.adminSide h2{color:white}.adminSide p{color:rgba(255,255,255,.68)}.adminMain{padding:28px}.adminHero{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:20px;padding:24px;border-radius:26px;background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.13);box-shadow:0 22px 70px rgba(0,0,0,.18)}.adminHero h2{color:white}.adminHero .lead{color:rgba(255,255,255,.72)}.adminGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:16px 0}.kpi{padding:18px;border-radius:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);color:white}.kpi strong{display:block;font-size:34px;letter-spacing:-.05em}.kpi span{font-size:13px;color:rgba(255,255,255,.66);font-weight:900}.adminTools{padding:18px;border-radius:22px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);margin-bottom:14px}.tabs{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}.tab{border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(255,255,255,.08);color:white;padding:10px 15px;font-weight:900;cursor:pointer}.tab.active{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#17120a;border-color:transparent}.adminContentCard{background:#fff;color:var(--ink);border-radius:22px;padding:18px;box-shadow:0 18px 55px rgba(0,0,0,.18)}.admin-login-card{background:#fff;color:var(--ink);border-radius:22px;padding:24px;box-shadow:var(--shadow)}.admin-login-card p{color:var(--slate)}.admin-auth-ok{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.changeTag{display:inline-block;margin:2px;padding:4px 7px;border-radius:999px;background:#fff3d6;color:#7a4a00;font-weight:900;font-size:11px}.footerNote{margin-top:auto;padding:13px 14px;border-radius:16px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.62);font-size:12px;line-height:1.7}.admin-open .shell{display:none}.lang-en .screen,.lang-en .side,.lang-en .main{text-align:left}.lang-en .brand,.lang-en .sideTitle,.lang-en .topbar{direction:ltr}
+    @media (max-width:980px){.shell{grid-template-columns:1fr}.side{position:relative;height:auto}.formgrid,.review,.adminGrid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}.content{padding:22px}.side .panel:nth-of-type(2){display:none}.adminLayout{grid-template-columns:1fr}.adminSide{position:relative;height:auto}.adminHero{flex-direction:column}}@media print{.side,.topbar,.navrow{display:none}.shell{display:block}.main{box-shadow:none;border:0}.screen{display:block}}
+
+
+    /******************************************************************
+     * v5 responsive redesign
+     * The employee form must feel official, compact, and reliable on
+     * mobile, tablet, laptop, and large desktop screens. These rules
+     * intentionally override earlier layout decisions without touching
+     * the business logic or validation rules.
+     ******************************************************************/
+    :root{
+      --pageMax:1440px;
+      --mobilePad:12px;
+    }
+    body{font-size:15px;-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
+    .shell{width:min(var(--pageMax),calc(100% - 32px));align-items:start}
+    .side,.main{isolation:isolate}
+    .brand{min-height:0}
+    .brand h3,.brand p,.official-badge{position:relative;z-index:1;overflow-wrap:anywhere}
+    .mark{position:relative;z-index:1;flex:0 0 auto}
+    .official-badge{max-width:100%;white-space:normal;line-height:1.35}
+    .main{min-width:0}
+    .content{min-width:0}
+    .screen{max-width:920px}
+    .status-pill{display:none!important}
+    .topbar{position:relative;z-index:5}
+    .actions{min-width:0}
+    .btn{white-space:nowrap;touch-action:manipulation}
+    .input,textarea,select{max-width:100%}
+    .reviewItem,.field,.notice,.matchCard,.subcard{min-width:0}
+    .tableWrap{max-width:100%;-webkit-overflow-scrolling:touch}
+    .adminTable{min-width:760px}
+    .familyTable{min-width:760px}
+
+    @media (min-width:1181px){
+      .side{max-width:360px}
+      .main{min-height:calc(100vh - 28px)}
+    }
+
+    @media (max-width:1180px){
+      body:before{opacity:.7}
+      .shell{
+        width:min(100% - 20px,980px);
+        min-height:auto;
+        margin:10px auto 24px;
+        grid-template-columns:1fr;
+        gap:12px;
+      }
+      .side{
+        position:relative;
+        top:auto;
+        height:auto;
+        overflow:visible;
+        padding:12px;
+        display:grid;
+        grid-template-columns:minmax(0,1.35fr) minmax(260px,.65fr);
+        gap:12px;
+        border-radius:22px;
+      }
+      .brand{
+        grid-column:1/-1;
+        display:grid;
+        grid-template-columns:auto minmax(0,1fr);
+        align-items:center;
+        gap:10px 14px;
+        padding:16px 18px;
+        border-radius:20px;
+      }
+      .brand:after{width:118px;height:118px;inset:auto -26px -54px auto;opacity:.65}
+      .brand .mini-line{grid-column:1/-1;margin:4px 0 0}
+      .brand .small{grid-column:1/-1;font-size:12px;line-height:1.4}
+      .official-badge{margin:0;width:max-content;max-width:100%;font-size:11px;padding:6px 10px}
+      .mark{grid-row:1/span 3;margin:0;width:54px;height:54px;border-radius:16px;font-size:19px;box-shadow:0 12px 22px rgba(0,0,0,.14)}
+      .brand h3{font-size:clamp(20px,3.2vw,27px);line-height:1.2;margin:0}
+      .brand p{font-size:clamp(13px,2.1vw,15px);line-height:1.55;margin:0}
+      .progressPanel,.stepsPanel{padding:14px;border-radius:18px;box-shadow:none}
+      .progressPanel{grid-column:1}
+      .stepsPanel{grid-column:2;min-width:0}
+      .guidancePanel{display:none}
+      .steps{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:0 0 3px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+      .step{flex:0 0 auto;min-width:126px;padding:9px 10px;scroll-snap-align:start}
+      .stepText{font-size:12px;white-space:nowrap}
+      .main{min-height:auto;border-radius:22px;overflow:visible}
+      .topbar{
+        position:sticky;
+        top:0;
+        border-radius:22px 22px 0 0;
+        padding:12px 16px;
+        min-height:auto;
+        background:rgba(255,255,255,.92);
+        backdrop-filter:blur(18px);
+        box-shadow:0 8px 26px rgba(9,28,53,.07);
+      }
+      .windowtitle{font-size:14px;min-width:0}
+      .lock{width:34px;height:34px;border-radius:12px;flex:0 0 auto}
+      .content{place-items:start center;padding:clamp(18px,3.4vw,34px)}
+      .screen{width:min(900px,100%)}
+      h1{font-size:clamp(28px,5vw,42px)}
+      h2{font-size:clamp(23px,4vw,34px)}
+      .adminLayout{grid-template-columns:1fr}
+      .adminSide{
+        position:sticky;
+        top:0;
+        z-index:3;
+        height:auto;
+        padding:14px 18px;
+        flex-direction:row;
+        align-items:center;
+        gap:14px;
+        border-inline-end:0;
+        border-bottom:1px solid rgba(255,255,255,.12);
+        backdrop-filter:blur(16px);
+      }
+      .adminLogo{width:48px;height:48px;border-radius:16px;font-size:17px;flex:0 0 auto}
+      .adminSide h2{font-size:22px;margin:0}
+      .adminSide p{margin:0;font-size:13px;line-height:1.45}
+      .footerNote{display:none}
+      .adminMain{padding:18px}
+      .adminHero{border-radius:22px;padding:18px;align-items:stretch}
+      .adminGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+
+    @media (max-width:760px){
+      body{background:#f7f9fc}
+      body:before{display:none}
+      .shell{width:100%;margin:0;gap:0;min-height:100vh}
+      .side,.main{border-radius:0;border-left:0;border-right:0;box-shadow:none;background:rgba(255,255,255,.96)}
+      .side{
+        padding:10px var(--mobilePad);
+        grid-template-columns:1fr;
+        gap:10px;
+        border-bottom:0;
+      }
+      .brand{
+        grid-template-columns:50px minmax(0,1fr);
+        gap:7px 12px;
+        padding:14px;
+        border-radius:20px;
+        background:linear-gradient(145deg,#0a1d36,#12345b);
+      }
+      .brand:after{width:92px;height:92px;inset:auto -18px -44px auto;opacity:.5}
+      .mark{grid-row:1/span 3;width:48px;height:48px;border-radius:15px;font-size:17px;align-self:start}
+      .official-badge{font-size:10.5px;padding:5px 9px;line-height:1.25}
+      .brand h3{font-size:clamp(19px,5vw,23px);line-height:1.25}
+      .brand p{font-size:13px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+      .brand .mini-line,.brand .small{display:none}
+      .progressPanel{display:block;padding:12px;border-radius:17px}
+      .stepsPanel{display:none}
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}
+      .stat{padding:9px 10px;border-radius:13px}
+      .stat strong{font-size:18px}
+      .stat span{font-size:11px}
+      .topbar{
+        border-radius:0;
+        padding:10px var(--mobilePad);
+        align-items:stretch;
+        gap:9px;
+        position:sticky;
+        top:0;
+      }
+      .windowtitle{width:100%;justify-content:space-between;gap:8px;font-size:13px}
+      .lock{width:30px;height:30px;border-radius:10px}
+      .actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .actions .btn{min-height:40px;min-width:0;padding:0 10px;font-size:12px;border-radius:12px;overflow:hidden;text-overflow:ellipsis}
+      .langToggle{min-width:0}
+      .content{padding:18px var(--mobilePad) 24px;display:block}
+      .screen{width:100%}
+      .questionNo{font-size:13px;margin-bottom:10px}
+      .qbadge{width:28px;height:28px;border-radius:10px}
+      h1{font-size:clamp(25px,7vw,31px);line-height:1.17;margin-bottom:10px;letter-spacing:-.025em}
+      h2{font-size:clamp(22px,6vw,28px);line-height:1.2}
+      h3{font-size:17px}
+      .lead,p{line-height:1.65}
+      .formgrid,.review{grid-template-columns:1fr!important;gap:8px}
+      .field{margin-bottom:10px;gap:6px}
+      label{font-size:13px;line-height:1.4}
+      .tip{font-size:11.5px}
+      .input,textarea,select{min-height:52px;border-radius:14px;font-size:16px;padding-inline:13px}
+      textarea{min-height:92px;padding-block:12px}
+      .choices,.assetList{grid-template-columns:1fr;gap:8px}
+      .choice,.assetItem{border-radius:14px;min-height:52px;padding:11px}
+      .reviewItem{border-radius:14px;padding:12px}
+      .notice{border-radius:14px;padding:12px 13px;font-size:13px}
+      .subHead{align-items:flex-start;gap:8px;flex-direction:column}
+      .subcard{padding:12px;border-radius:15px}
+      .matchCard{border-radius:15px;padding:12px}
+      .navrow{
+        position:sticky;
+        bottom:0;
+        z-index:8;
+        margin:18px calc(var(--mobilePad) * -1) -24px;
+        padding:10px var(--mobilePad) calc(10px + env(safe-area-inset-bottom));
+        background:rgba(247,249,252,.95);
+        border-top:1px solid #e2e8f0;
+        backdrop-filter:blur(16px);
+      }
+      .navrow .btn{flex:1;min-width:0}
+      .adminSide{padding:11px 12px;align-items:center;overflow:hidden}
+      .adminSide>div:nth-child(2){min-width:0}
+      .adminSide h2{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .adminSide p{display:none}
+      .adminLogo{width:42px;height:42px;border-radius:14px;font-size:15px}
+      .adminMain{padding:12px}
+      .adminHero{padding:14px;border-radius:18px;gap:12px;flex-direction:column}
+      .adminHero h2{font-size:24px}
+      .adminHero .actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
+      .adminGrid{grid-template-columns:1fr 1fr;gap:10px}
+      .kpi{padding:13px;border-radius:16px}
+      .kpi strong{font-size:25px}
+      .adminTools{padding:12px;border-radius:18px}
+      .tabs{display:flex;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+      .tab{flex:0 0 auto;padding:9px 12px;font-size:12px}
+      .adminTools .actions{display:grid;grid-template-columns:1fr;gap:8px;width:100%}
+      .adminContentCard{padding:10px;border-radius:18px}
+      .admin-login-card{padding:16px;border-radius:18px}
+      .admin-login-card .formgrid{grid-template-columns:1fr!important}
+      .adminTable{min-width:720px;font-size:12px}
+      .adminTable th,.adminTable td{padding:9px}
+    }
+
+    @media (max-width:430px){
+      :root{--mobilePad:10px}
+      .brand{grid-template-columns:44px minmax(0,1fr);padding:12px;border-radius:18px}
+      .mark{width:42px;height:42px;border-radius:13px;font-size:15px}
+      .official-badge{font-size:10px;padding:4px 8px}
+      .brand h3{font-size:19px}
+      .brand p{font-size:12.5px;-webkit-line-clamp:2}
+      .actions{grid-template-columns:1fr 1fr}
+      .actions .btn{font-size:11.5px;padding:0 8px}
+      .windowtitle span:last-child{max-width:calc(100vw - 72px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .stats{grid-template-columns:1fr 1fr}
+      .adminGrid{grid-template-columns:1fr}
+      .adminHero .actions{grid-template-columns:1fr}
+    }
+
+    @media (max-width:340px){
+      .brand{grid-template-columns:1fr}
+      .mark{grid-row:auto;margin-bottom:2px}
+      .actions{grid-template-columns:1fr}
+      .navrow{flex-direction:column}
+    }
+
+    @media (hover:none){
+      .btn:hover,.matchCard:hover{transform:none;box-shadow:0 7px 18px rgba(9,28,53,.07)}
+    }
+
+
+    /******************************************************************
+     * v6 laptop + favicon pass
+     * Fixes mid-size laptop clipping, removes excessive vertical centering,
+     * and makes every primary section visible across common viewport heights.
+     ******************************************************************/
+    html, body { width:100%; max-width:100%; }
+    .content{ place-items:start center; }
+    .screen{ max-width:840px; }
+    .topbar{ flex-wrap:wrap; }
+    .actions{ justify-content:flex-start; }
+
+    @media (min-width:1181px) and (max-width:1480px){
+      .shell{
+        width:calc(100% - 22px);
+        grid-template-columns:minmax(280px,310px) minmax(0,1fr);
+        gap:14px;
+        margin:11px auto;
+        min-height:calc(100svh - 22px);
+      }
+      .side{
+        top:11px;
+        height:calc(100svh - 22px);
+        padding:14px;
+        gap:12px;
+        border-radius:22px;
+      }
+      .main{ min-height:calc(100svh - 22px); border-radius:22px; }
+      .brand{ padding:17px; border-radius:20px; }
+      .mark{ width:56px; height:56px; border-radius:17px; margin-bottom:12px; font-size:20px; }
+      .official-badge{ font-size:11px; padding:6px 10px; margin-bottom:10px; }
+      .brand h3{ font-size:22px; line-height:1.25; margin-bottom:6px; }
+      .brand p{ font-size:13px; line-height:1.55; }
+      .brand .mini-line{ margin:12px 0; }
+      .brand .small{ font-size:12px; line-height:1.45; }
+      .panel{ padding:13px; border-radius:18px; }
+      .stats{ gap:8px; }
+      .stat{ padding:10px; border-radius:14px; }
+      .stat strong{ font-size:20px; }
+      .step{ padding:9px 10px; border-radius:13px; }
+      .stepText{ font-size:12px; }
+      .num{ min-width:24px; height:24px; border-radius:8px; }
+      .topbar{ min-height:0; padding:12px 18px; gap:10px; }
+      .windowtitle{ font-size:14px; }
+      .lock{ width:34px; height:34px; border-radius:12px; }
+      .btn{ min-height:40px; padding:0 14px; border-radius:12px; font-size:13px; }
+      .content{ padding:26px clamp(22px,3vw,40px) 34px; }
+      .screen{ width:min(780px,100%); }
+      h1{ font-size:clamp(32px,4.1vw,46px); line-height:1.12; margin-bottom:10px; }
+      h2{ font-size:clamp(24px,3vw,34px); }
+      .lead,p{ line-height:1.65; }
+      .questionNo{ margin-bottom:12px; }
+      .formgrid{ gap:12px; }
+      .field{ margin-bottom:10px; }
+      .input,textarea,select{ min-height:52px; border-radius:14px; }
+      textarea{ min-height:92px; }
+      .navrow{ margin-top:18px; }
+    }
+
+    @media (min-width:1181px) and (max-height:850px){
+      .content{ padding-top:18px; padding-bottom:22px; }
+      h1{ font-size:clamp(30px,3.55vw,40px); margin-bottom:8px; }
+      h2{ font-size:clamp(23px,2.6vw,31px); }
+      .lead,p{ line-height:1.55; }
+      .questionNo{ margin-bottom:9px; }
+      .qbadge{ width:28px; height:28px; border-radius:10px; }
+      .brand{ padding:14px; }
+      .mark{ width:48px; height:48px; border-radius:15px; margin-bottom:9px; font-size:18px; }
+      .brand h3{ font-size:20px; }
+      .brand p{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+      .brand .mini-line,.brand .small{ display:none; }
+      .guidancePanel{ display:none; }
+      .progressPanel,.stepsPanel{ padding:12px; }
+      .step{ padding:7px 9px; }
+      .stats{ margin-top:8px; }
+      .stat strong{ font-size:18px; }
+      .topbar{ padding:10px 16px; }
+      .formgrid{ gap:10px; }
+      .input,textarea,select{ min-height:48px; }
+      .field{ gap:5px; margin-bottom:8px; }
+      label{ font-size:13px; }
+      .tip{ font-size:11px; line-height:1.45; }
+      .navrow{ margin-top:14px; }
+    }
+
+    @media (min-width:761px) and (max-width:1180px){
+      .content{ place-items:start center; }
+      .screen{ width:min(820px,100%); }
+      h1{ font-size:clamp(30px,4.4vw,42px); }
+      .topbar{ flex-wrap:wrap; }
+      .actions{ justify-content:flex-start; }
+    }
+
+    @media (max-width:760px){
+      .content{ place-items:start stretch; }
+      .screen{ max-width:none; }
+      .brand{ min-width:0; }
+      .brand h3,.brand p{ overflow-wrap:anywhere; }
+      .actions .btn{ white-space:normal; line-height:1.25; }
+    }
+
+
+    /******************************************************************
+     * v7 hard responsive fix
+     * Root cause fixed: the desktop/laptop layout was using a locked
+     * viewport-height panel (.main overflow hidden + .side fixed height).
+     * On laptop viewports and browser zoom levels, lower form sections were
+     * clipped instead of letting the document scroll naturally.
+     *
+     * This pass makes the page document-flow based on laptops/desktops,
+     * keeps the sidebar sticky, prevents horizontal clipping, and provides
+     * compact low-height rules for 1366x768 / 1440x900 / 1536x864 screens.
+     ******************************************************************/
+    html,body{
+      min-width:0!important;
+      overflow-x:hidden!important;
+      overflow-y:auto!important;
+    }
+    body{
+      min-height:100svh!important;
+    }
+    .shell{
+      width:min(1680px, calc(100vw - 24px))!important;
+      max-width:calc(100vw - 24px)!important;
+      min-height:auto!important;
+      align-items:start!important;
+      overflow:visible!important;
+    }
+    .side{
+      height:auto!important;
+      max-height:calc(100svh - 24px)!important;
+      overflow-y:auto!important;
+      overflow-x:hidden!important;
+      scrollbar-gutter:stable both-edges;
+    }
+    .main{
+      min-height:auto!important;
+      height:auto!important;
+      overflow:visible!important;
+    }
+    .content{
+      flex:0 0 auto!important;
+      min-height:0!important;
+      display:block!important;
+      place-items:unset!important;
+      padding:clamp(18px, 3vw, 44px)!important;
+    }
+    .screen{
+      width:min(940px,100%)!important;
+      max-width:100%!important;
+      margin-inline:auto!important;
+    }
+    .topbar{
+      overflow:visible!important;
+    }
+    .actions{
+      min-width:0!important;
+      max-width:100%!important;
+    }
+    .actions .btn{
+      max-width:100%!important;
+    }
+    .brand,.panel,.screen,.content,.main,.side,.topbar{
+      min-width:0!important;
+    }
+
+    @media (min-width:1181px){
+      .shell{
+        grid-template-columns:minmax(300px, 360px) minmax(0, 1fr)!important;
+        gap:16px!important;
+        margin:12px auto 28px!important;
+      }
+      .side{
+        top:12px!important;
+        padding:16px!important;
+        gap:12px!important;
+      }
+      .main{
+        border-radius:24px!important;
+      }
+      .topbar{
+        min-height:auto!important;
+        padding:14px 18px!important;
+      }
+      .content{
+        padding-top:clamp(22px, 3.2vw, 42px)!important;
+      }
+    }
+
+    @media (min-width:1181px) and (max-width:1536px){
+      .shell{
+        width:calc(100vw - 18px)!important;
+        max-width:calc(100vw - 18px)!important;
+        grid-template-columns:minmax(270px, 305px) minmax(0, 1fr)!important;
+        gap:12px!important;
+        margin:9px auto 24px!important;
+      }
+      .side{
+        top:9px!important;
+        max-height:calc(100svh - 18px)!important;
+        padding:12px!important;
+        gap:10px!important;
+        border-radius:20px!important;
+      }
+      .main{
+        border-radius:20px!important;
+      }
+      .brand{
+        padding:13px 14px!important;
+        border-radius:18px!important;
+      }
+      .mark{
+        width:48px!important;
+        height:48px!important;
+        border-radius:15px!important;
+        font-size:18px!important;
+        margin-bottom:8px!important;
+      }
+      .official-badge{
+        font-size:10.5px!important;
+        padding:5px 9px!important;
+        margin-bottom:8px!important;
+      }
+      .brand h3{
+        font-size:19px!important;
+        line-height:1.22!important;
+        margin-bottom:5px!important;
+      }
+      .brand p{
+        font-size:12.5px!important;
+        line-height:1.45!important;
+      }
+      .brand .mini-line{
+        margin:9px 0!important;
+      }
+      .brand .small{
+        font-size:11.5px!important;
+        line-height:1.35!important;
+      }
+      .panel{
+        padding:11px!important;
+        border-radius:16px!important;
+      }
+      .sideTitle{
+        margin-bottom:8px!important;
+        font-size:12px!important;
+      }
+      .stats{
+        margin-top:8px!important;
+        gap:7px!important;
+      }
+      .stat{
+        padding:8px!important;
+        border-radius:12px!important;
+      }
+      .stat strong{
+        font-size:17px!important;
+      }
+      .stat span{
+        font-size:10.5px!important;
+      }
+      .step{
+        padding:7px 8px!important;
+        gap:8px!important;
+        border-radius:12px!important;
+      }
+      .num{
+        min-width:22px!important;
+        height:22px!important;
+        border-radius:8px!important;
+        font-size:11px!important;
+      }
+      .stepText{
+        font-size:11.5px!important;
+      }
+      .topbar{
+        padding:10px 14px!important;
+        gap:9px!important;
+      }
+      .windowtitle{
+        font-size:13px!important;
+      }
+      .lock{
+        width:32px!important;
+        height:32px!important;
+        border-radius:11px!important;
+      }
+      .btn{
+        min-height:38px!important;
+        padding:0 12px!important;
+        border-radius:11px!important;
+        font-size:12px!important;
+      }
+      .content{
+        padding:18px clamp(18px,2.4vw,30px) 28px!important;
+      }
+      .screen{
+        width:min(820px,100%)!important;
+      }
+      h1{
+        font-size:clamp(30px,3.65vw,43px)!important;
+        line-height:1.13!important;
+        margin-bottom:8px!important;
+      }
+      .lead,p{
+        line-height:1.55!important;
+      }
+      .questionNo{
+        margin-bottom:9px!important;
+      }
+      .formgrid{
+        gap:11px!important;
+      }
+      .field{
+        margin-bottom:8px!important;
+      }
+      .input,textarea,select{
+        min-height:48px!important;
+        border-radius:13px!important;
+      }
+      .tip{
+        font-size:11px!important;
+        line-height:1.4!important;
+      }
+    }
+
+    @media (min-width:1181px) and (max-height:820px){
+      .brand{
+        display:grid!important;
+        grid-template-columns:48px minmax(0,1fr)!important;
+        gap:6px 10px!important;
+        align-items:center!important;
+      }
+      .mark{
+        grid-row:1 / span 3!important;
+        margin-bottom:0!important;
+      }
+      .official-badge{
+        width:max-content!important;
+        max-width:100%!important;
+        margin:0!important;
+      }
+      .brand h3{
+        margin:0!important;
+      }
+      .brand p{
+        margin:0!important;
+        display:-webkit-box!important;
+        -webkit-line-clamp:2!important;
+        -webkit-box-orient:vertical!important;
+        overflow:hidden!important;
+      }
+      .brand .mini-line,
+      .brand .small,
+      .guidancePanel{
+        display:none!important;
+      }
+      .progressPanel{
+        flex:0 0 auto!important;
+      }
+      .stepsPanel{
+        flex:1 1 auto!important;
+        min-height:0!important;
+      }
+      .steps{
+        gap:4px!important;
+      }
+      .content{
+        padding-top:16px!important;
+        padding-bottom:22px!important;
+      }
+      h1{
+        font-size:clamp(29px,3.2vw,38px)!important;
+      }
+      .navrow{
+        margin-top:12px!important;
+      }
+    }
+
+    @media (min-width:761px) and (max-width:1180px){
+      .shell{
+        width:calc(100vw - 18px)!important;
+        max-width:calc(100vw - 18px)!important;
+      }
+      .side{
+        max-height:none!important;
+        overflow:visible!important;
+      }
+      .main{
+        overflow:visible!important;
+      }
+      .content{
+        display:block!important;
+        padding:20px!important;
+      }
+      .screen{
+        width:min(860px,100%)!important;
+      }
+    }
+
+    @media (max-width:760px){
+      .shell{
+        width:100%!important;
+        max-width:100%!important;
+      }
+      .side{
+        max-height:none!important;
+        overflow:visible!important;
+      }
+      .main{
+        overflow:visible!important;
+      }
+      .content{
+        display:block!important;
+        padding:18px var(--mobilePad) 28px!important;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <div class="brand">
+        <div class="official-badge" data-i18n="topTitle">تحديث بيانات الموظف</div>
+        <div class="mark" id="secretAdminMark">HR</div>
+        <h3 data-i18n="formTitle">نموذج بيانات الموظف</h3>
+        <p data-i18n="formSubtitle">يرجى مراجعة بياناتك وتعبئة الحقول المطلوبة بدقة لاعتمادها في سجلات الشركة.</p>
+        <div class="mini-line"></div>
+        <p class="small">Human Resources Department</p>
+      </div>
+      <div class="panel progressPanel">
+        <div class="sideTitle"><span data-i18n="progress">التقدم</span><span id="progressText">0%</span></div>
+        <div class="progress"><div class="bar" id="progressBar"></div></div>
+        <div class="stats"><div class="stat"><strong id="completedFields">0</strong><span data-i18n="completed">مكتملة</span></div><div class="stat"><strong id="remainingFields">0</strong><span data-i18n="remaining">متبقية</span></div></div>
+      </div>
+      <div class="panel stepsPanel">
+        <div class="sideTitle"><span data-i18n="steps">الخطوات</span><span id="secretAdminWord">●</span></div>
+        <div class="steps" id="stepsNav"></div>
+      </div>
+      <div class="panel guidancePanel">
+        <div class="sideTitle"><span data-i18n="guidance">إرشادات التعبئة</span><span>✓</span></div>
+        <p class="small" data-i18n="guidanceText">اكتب الأسماء الإنجليزية بالأحرف الإنجليزية فقط، والأسماء العربية باللغة العربية فقط. الحقول المعبأة مسبقًا يمكن تعديلها عند وجود خطأ، وسيتم حفظ التعديل للمراجعة.</p>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="windowtitle"><span class="lock">✓</span><span id="topTitle">تحديث بيانات الموظف</span></div>
+        <div class="actions"><button class="btn ghost langToggle" id="langToggle">English</button><button class="btn ghost" id="saveDraftBtn" data-i18n="saveDraft">حفظ مسودة</button><button class="btn ghost" id="resetBtn" data-i18n="reset">مسح الشاشة</button><button class="btn status-pill" id="firebaseState" data-i18n="local">وضع محلي</button></div>
+      </header>
+      <section class="content" id="content"></section>
+    </main>
+  </div>
+
+  <div class="modal" id="adminModal" aria-hidden="true">
+    <div class="modalCard">
+      <div class="adminLayout">
+        <aside class="adminSide">
+          <div class="adminLogo">HR</div>
+          <div>
+            <h2 data-i18n="adminTitle">لوحة الإدارة</h2>
+            <p data-i18n="adminLead">متابعة حالة تعبئة النماذج، مراجعة التعديلات، وتنزيل ملفات Excel المطلوبة.</p>
+          </div>
+          <div class="footerNote">هذه الشاشة مخصصة للإدارة فقط. الدخول والصلاحيات تعتمد على Firebase Authentication و Firestore Rules.</div>
+        </aside>
+        <main class="adminMain">
+          <div class="adminHero">
+            <div><h2 data-i18n="adminTitle">لوحة الإدارة</h2><p class="lead" data-i18n="adminLead">متابعة حالة تعبئة النماذج، مراجعة التعديلات، وتنزيل ملفات Excel المطلوبة.</p></div>
+            <div class="actions"><button class="btn ghost" id="refreshAdminBtn" data-i18n="refresh">تحديث البيانات</button><button class="btn danger" id="closeAdminBtn" data-i18n="close">عودة للنموذج</button></div>
+          </div>
+          <div id="adminAuthPanel" class="notice warn" style="margin:14px 0" data-i18n="authChecking">جاري فحص صلاحية الدخول...</div>
+          <div id="adminDashboardPanel" style="display:none">
+            <div class="adminGrid">
+              <div class="kpi"><strong id="kpiTotal">0</strong><span data-i18n="kpiTotal">إجمالي الموظفين</span></div>
+              <div class="kpi"><strong id="kpiDone">0</strong><span data-i18n="kpiDone">مكتمل</span></div>
+              <div class="kpi"><strong id="kpiMissing">0</strong><span data-i18n="kpiMissing">لم يعبئوا</span></div>
+              <div class="kpi"><strong id="kpiChanges">0</strong><span data-i18n="kpiChanges">تعديلات</span></div>
+            </div>
+            <div class="adminTools">
+              <div class="tabs"><button class="tab active" data-tab="submissions" data-i18n="tabSubmissions">النتائج</button><button class="tab" data-tab="missing" data-i18n="tabMissing">لم يعبئوا</button><button class="tab" data-tab="changes" data-i18n="tabChanges">التعديلات</button><button class="tab" data-tab="seed" data-i18n="tabDirectory">قاعدة الموظفين</button></div>
+              <div class="actions" style="margin-top:12px"><button class="btn success" id="exportEmployeesBtn" data-i18n="exportEmployees">تنزيل Employees Excel</button><button class="btn success" id="exportFamilyBtn" data-i18n="exportFamily">تنزيل Family Excel</button><button class="btn success" id="exportAssetsBtn" data-i18n="exportAssets">تنزيل Assets Excel</button><button class="btn ghost" id="importSeedBtn" data-i18n="importSeed">استيراد قاعدة الموظفين</button><button class="btn ghost" id="downloadSeedBtn" data-i18n="downloadSeed">تنزيل نسخة JSON</button></div>
+            </div>
+            <input id="seedFileInput" type="file" accept=".json,application/json" style="display:none" />
+            <div class="adminContentCard"><div id="adminTabContent"></div></div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+    /******************** Firebase optional config ********************/
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKleLDK-Dg9smbhwIDuNz-0j3j0lX39eI",
+      authDomain: "rawan-f903d.firebaseapp.com",
+      projectId: "rawan-f903d",
+      storageBucket: "rawan-f903d.firebasestorage.app",
+      messagingSenderId: "1003852548044",
+      appId: "1:1003852548044:web:5702e871713e47ea32ff69"
+    };
+    const FIREBASE_ENABLED = !firebaseConfig.apiKey.includes('REPLACE_WITH');
+    const ADMIN_UID = 'PwyarKYD7iTs1sbE0rTLqHrkqdv1';
+    let fb = {enabled:false, db:null, auth:null, currentUser:null};
+    let adminAllowed = false;
+    async function initFirebase(){
+      if(!FIREBASE_ENABLED) return;
+      try{
+        const appMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js');
+        const fsMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js');
+        const authMod = await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js');
+        const app = appMod.initializeApp(firebaseConfig);
+        const auth = authMod.getAuth(app);
+        fb = {enabled:true, db:fsMod.getFirestore(app), auth, ...fsMod, ...authMod};
+        fb.onAuthStateChanged(auth, async user => { fb.currentUser = user; if(user) adminAllowed = await checkAdmin(); });
+        try { if(!auth.currentUser) await fb.signInAnonymously(auth); } catch(e) { console.warn('Anonymous sign-in failed', e); }
+        $('#firebaseState').textContent = uiLang === 'ar' ? 'متصل' : 'Connected';
+      }catch(err){ console.warn(err); $('#firebaseState').textContent = uiLang === 'ar' ? 'تعذر الاتصال' : 'Connection issue'; }
+    }
+
+    /******************** Constants ********************/
+    let SEED = window.EMPLOYEE_SEED || {records:[]};
+    let EMPLOYEES = (SEED.records || []).map(r => ({...r}));
+    const ASSETS = [
+      [31,'Screen | شاشة'],[30,'Scanner | الماسح الصوئي'],[29,'Laptop Bag | حقيبة لابتوب'],[28,'Company Stamp | ختم الشركة'],[27,'Keyboard / Mouse | لوحة المفاتيح / فأرة'],[26,'Camera | كاميرا'],[25,'Printer | طابعة'],[24,'Petty Cash | عهدة نقدية'],[23,'Bus | باص'],[22,'PC Monitor | شاشة الكمبيوتر'],[21,'Tools | أدوات'],[20,'Passport | جواز سفر'],[19,'Equipment | معدات'],[18,'Furniture | أثاث'],[17,'Visa Card | بطاقة فيزا'],[16,'Phone | هاتف'],[15,'Headset | سماعات'],[14,'Document | مستند'],[13,'Tablet | تابلت'],[12,'Monitors | شاشات عرض ومراقبة'],[11,'Networking Equipment | معدات شبكات'],[10,'TV | شاشة تلفاز'],[9,'Motorcycle | دراجة نارية'],[8,'Uniform | لباس عمل موحد'],[7,'Keys / Accessories | مفتاح / بطاقة دخول'],[6,'Car | سيارة'],[5,'Desktop PC | جهاز حاسوب'],[4,'SIM Card | شريحة هاتف'],[3,'Laptop | حاسوب محمول'],[2,'Mobile | محمول'],[1,'Other | أُخرى']
+    ];
+    const BANKS = [
+      'البنك العربي (Arab Bank)','بنك الإسكان للتجارة والتمويل (Housing Bank for Trade and Finance)','بنك الاتحاد (Bank al Etihad)','البنك الأهلي الأردني (Jordan Ahli Bank)','بنك الأردن (Bank of Jordan)','بنك القاهرة عمان (Cairo Amman Bank)','كابيتال بنك / بنك المال الأردني (Capital Bank of Jordan)','بنك الكويت الأردني (Jordan Kuwait Bank)','بنك الاستثمار العربي الأردني (Arab Jordan Investment Bank - AJIB)','البنك التجاري الأردني (Jordan Commercial Bank)','المؤسسة العربية المصرفية - الأردن (Bank ABC Jordan)','البنك الاستثماري (INVESTBANK)','بنك سوسيتيه جنرال - الأردن (Société Générale de Banque Jordanie)','البنك الإسلامي الأردني (Jordan Islamic Bank)','البنك العربي الإسلامي الدولي (Islamic International Arab Bank)','بنك صفوة الإسلامي (Safwa Islamic Bank)','مصرف الراجحي (Al-Rajhi Bank)','سيتي بنك (Citibank N.A)','ستاندرد تشارترد (Standard Chartered Bank)'
+    ];
+    const RE = {
+      enName:/^[A-Za-z][A-Za-z\s.'\-]*$/,
+      arName:/^[\u0600-\u06FF\s]+$/,
+      email:/^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      mobile:/^(\+962|00962|0)?7[789]\d{7}$|^\+?[0-9]{7,15}$/,
+      ibanJO:/^JO[0-9A-Z]{28}$/,
+      number:/^[0-9]+$/,
+      passport:/^[A-Za-z0-9\-\/]{4,20}$/
+    };
+    const $ = s => document.querySelector(s);
+    const $$ = s => [...document.querySelectorAll(s)];
+    const todayISO = () => new Date().toISOString().slice(0,10);
+    const isJordanian = data => /jordan|اردن|أردن/i.test((data.nationality||'').trim());
+    const needsFamily = data => ['Married','Divorced','Widowed'].includes(data.maritalStatus);
+
+    const state = {
+      current:0, matched:null, matches:[], data:{}, family:[], assets:[], noAssets:false, submitted:false, adminTab:'submissions', submissions: loadLocalSubmissions()
+    };
+
+    let uiLang = localStorage.getItem('zenhr_ui_lang') || 'ar';
+    const I18N = {
+      ar:{
+        saveDraft:'حفظ مسودة', reset:'مسح الشاشة', connected:'متصل', local:'وضع محلي', connectionIssue:'تعذر الاتصال',
+        formTitle:'نموذج بيانات الموظف', formSubtitle:'يرجى مراجعة بياناتك وتعبئة الحقول المطلوبة بدقة لاعتمادها في سجلات الشركة.',
+        progress:'التقدم', completed:'مكتملة', remaining:'متبقية', steps:'الخطوات', guidance:'إرشادات التعبئة',
+        guidanceText:'اكتب الأسماء الإنجليزية بالأحرف الإنجليزية فقط، والأسماء العربية باللغة العربية فقط. الحقول المعبأة مسبقًا يمكن تعديلها عند وجود خطأ، وسيتم حفظ التعديل للمراجعة.',
+        topTitle:'تحديث بيانات الموظف', next:'التالي', prev:'السابق', select:'اختر...',
+        loginTitle:'دخول الموظف', loginHero:'مرحبًا، يرجى إدخال بيانات التحقق', loginLead:'سيتم عرض البيانات المتوفرة لدينا للمراجعة والتكميل.', loginDob:'تاريخ الميلاد', loginInitial:'أول حرف من الاسم بالإنجليزية', loginInitialTip:'مثال: O إذا كان الاسم Omar', showData:'عرض بياناتي',
+        reviewTitle:'مراجعة البيانات الموجودة', reviewHero:'هذه البيانات المسجلة لدينا', reviewLead:'راجع البيانات المعروضة. إذا وجدت خطأ يمكنك تعديله في الخطوات التالية، وسيظهر التعديل للإدارة.', hiddenSalary:'الراتب وبيانات الضمان غير ظاهرة للموظف، وتستخدم فقط لأغراض الإدارة والتصدير.',
+        namesTitle:'الأسماء الرسمية', namesSub:'تأكد من كتابة الاسم كما يجب أن يظهر في سجلات الشركة.', identityTitle:'الهوية والجواز', identitySub:'تظهر بعض الحقول تلقائيًا حسب الجنسية والحالة الاجتماعية.', contactTitle:'معلومات التواصل', contactSub:'يرجى إدخال بيانات تواصل فعّالة وصحيحة.', employmentTitle:'الوظيفة والعقد', employmentSub:'بعض القيم تكون ثابتة أو محسوبة تلقائيًا حسب بيانات الشركة.', bankTitle:'المعلومات البنكية', bankSub:'يرجى التأكد من صحة بيانات البنك والآيبان.',
+        assetsTitle:'العهد', assetsHero:'هل لديك عهدة من الشركة؟', assetsLead:'اختر “ليس لدي عهدة” أو حدد العهد الموجودة لديك. كل عهدة محددة تحتاج اسم/وصف وتاريخ استلام.', noAssets:'ليس لدي عهدة', hasAssets:'لدي عهدة',
+        familyTitle:'العائلة', familyNotRequired:'لا توجد أسئلة عائلة لهذه الحالة', familyNotRequiredLead:'حسب الحالة الاجتماعية المختارة لا تظهر أسئلة أفراد العائلة.', familyRequiredNote:'أسئلة العائلة تظهر فقط للمتزوجين أو المطلقين أو الأرامل.', familyHero:'بيانات أفراد العائلة', familyLead:'أضف الزوج/الزوجة والأولاد حسب الحاجة. كل حقل داخل الفرد المضاف إجباري.', addFamily:'+ إضافة فرد عائلة',
+        submitTitle:'المراجعة النهائية', submitHero:'آخر خطوة', submitLead:'تأكد أن كل شيء صحيح قبل الإرسال. سيتم حفظ البيانات والتعديلات للإدارة.', submitBtn:'إرسال البيانات', changesCount:'عدد التعديلات على البيانات المعبأة مسبقًا',
+        adminTitle:'لوحة الإدارة', adminLead:'متابعة حالة تعبئة النماذج، مراجعة التعديلات، وتنزيل ملفات Excel المطلوبة.', close:'عودة للنموذج', refresh:'تحديث البيانات', authChecking:'جاري فحص صلاحية الدخول...', adminLogin:'دخول الإدارة', email:'البريد الإلكتروني', password:'كلمة المرور', login:'دخول', setupAdmin:'تهيئة صلاحية الأدمن والـ collections', signOut:'تسجيل خروج',
+        kpiTotal:'إجمالي الموظفين', kpiDone:'مكتمل', kpiMissing:'لم يعبئوا', kpiChanges:'تعديلات', tabSubmissions:'النتائج', tabMissing:'لم يعبئوا', tabChanges:'التعديلات', tabDirectory:'قاعدة الموظفين', exportEmployees:'تنزيل Employees Excel', exportFamily:'تنزيل Family Excel', exportAssets:'تنزيل Assets Excel', importSeed:'استيراد قاعدة الموظفين', downloadSeed:'تنزيل نسخة JSON',
+        langOther:'English'
+      },
+      en:{
+        saveDraft:'Save draft', reset:'Clear form', connected:'جاهز', local:'جاهز', connectionIssue:'تنبيه اتصال',
+        formTitle:'Employee Information Form', formSubtitle:'Please review your details and complete all required fields accurately for company records.',
+        progress:'Progress', completed:'Completed', remaining:'Remaining', steps:'Steps', guidance:'Filling guidance',
+        guidanceText:'English name fields must be completed in English letters only, and Arabic name fields in Arabic only. Pre-filled values may be corrected when needed; changes are recorded for review.',
+        topTitle:'Employee Data Update', next:'Next', prev:'Previous', select:'Select...',
+        loginTitle:'Employee verification', loginHero:'Welcome, please enter your verification details', loginLead:'We will show the data available in company records for your review and completion.', loginDob:'Date of birth', loginInitial:'First letter of English first name', loginInitialTip:'Example: O if the name is Omar', showData:'Show my data',
+        reviewTitle:'Review existing information', reviewHero:'Information currently on record', reviewLead:'Review the details below. If anything is incorrect, you may correct it in the next steps and the change will be visible to management.', hiddenSalary:'Salary and social security details are hidden from employees and used only for administration and export.',
+        namesTitle:'Official names', namesSub:'Please make sure the name is written exactly as it should appear in company records.', identityTitle:'Identity and passport', identitySub:'Some fields appear automatically depending on nationality and marital status.', contactTitle:'Contact information', contactSub:'Please provide accurate and active contact details.', employmentTitle:'Employment and contract', employmentSub:'Some values are fixed or calculated automatically based on company records.', bankTitle:'Bank information', bankSub:'Please verify your bank details and IBAN carefully.',
+        assetsTitle:'Assets', assetsHero:'Do you hold any company assets?', assetsLead:'Select “I do not have company assets” or choose the assets you currently hold. Each selected asset requires a name/description and holding date.', noAssets:'I do not have company assets', hasAssets:'I have company assets',
+        familyTitle:'Family', familyNotRequired:'Family information is not required for this status', familyNotRequiredLead:'Based on the selected marital status, family member questions are not shown.', familyRequiredNote:'Family member questions appear only for married, divorced, or widowed employees.', familyHero:'Family members', familyLead:'Add spouse and/or children where applicable. All fields inside each added member are required.', addFamily:'+ Add family member',
+        submitTitle:'Final review', submitHero:'Final step', submitLead:'Please make sure all information is correct before submitting. Your data and changes will be saved for management review.', submitBtn:'Submit information', changesCount:'Number of changes to pre-filled values',
+        adminTitle:'Management Dashboard', adminLead:'Track form completion, review employee changes, and download the required Excel files.', close:'Back to form', refresh:'Refresh data', authChecking:'Checking access permission...', adminLogin:'Management login', email:'Email', password:'Password', login:'Login', setupAdmin:'Initialize admin access and collections', signOut:'Sign out',
+        kpiTotal:'Total employees', kpiDone:'Completed', kpiMissing:'Not submitted', kpiChanges:'Changes', tabSubmissions:'Submissions', tabMissing:'Not submitted', tabChanges:'Changes', tabDirectory:'Employee directory', exportEmployees:'Download Employees Excel', exportFamily:'Download Family Excel', exportAssets:'Download Assets Excel', importSeed:'Import employee directory', downloadSeed:'Download JSON copy',
+        langOther:'العربية'
+      }
+    };
+    function t(key){ return (I18N[uiLang] && I18N[uiLang][key]) || I18N.ar[key] || key; }
+    function setLang(lang){ uiLang = lang; localStorage.setItem('zenhr_ui_lang', lang); document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'; document.body.classList.toggle('lang-en', lang === 'en'); applyStaticI18n(); render(); }
+    function stepTitle(s){ return uiLang === 'ar' ? s.titleAr : s.titleEn; }
+    const steps = [
+      {id:'login', titleAr:'الدخول', titleEn:'Verification'}, {id:'review', titleAr:'مراجعة البيانات', titleEn:'Review'}, {id:'names', titleAr:'الأسماء', titleEn:'Names'}, {id:'identity', titleAr:'الهوية والجواز', titleEn:'Identity'}, {id:'contact', titleAr:'التواصل', titleEn:'Contact'}, {id:'employment', titleAr:'الوظيفة والعقد', titleEn:'Employment'}, {id:'bank', titleAr:'البنك', titleEn:'Bank'}, {id:'assets', titleAr:'العهد', titleEn:'Assets'}, {id:'family', titleAr:'العائلة', titleEn:'Family'}, {id:'submit', titleAr:'الإرسال', titleEn:'Submit'}
+    ];
+
+    const fields = [
+      {k:'firstNameEn', label:'الاسم الأول - باللغة الإنجليزية / First Name En', section:'names', type:'text', req:true, tip:'English letters only. مثال: Omar', pattern:'enName'},
+      {k:'secondNameEn', label:'الاسم الثاني - باللغة الإنجليزية / Second Name En', section:'names', type:'text', req:true, tip:'English only, no Arabic letters.', pattern:'enName'},
+      {k:'thirdNameEn', label:'الاسم الثالث - باللغة الإنجليزية / Third Name En', section:'names', type:'text', req:true, tip:'English only.', pattern:'enName'},
+      {k:'lastNameEn', label:'الاسم الرابع - باللغة الإنجليزية / Last Name En', section:'names', type:'text', req:true, tip:'English only.', pattern:'enName'},
+      {k:'firstNameAr', label:'الاسم الأول - باللغة العربية / First Name Ar', section:'names', type:'text', req:true, tip:'عربي فقط. مثال: روان', pattern:'arName'},
+      {k:'secondNameAr', label:'الاسم الثاني - باللغة العربية / Second Name Ar', section:'names', type:'text', req:true, tip:'عربي فقط.', pattern:'arName'},
+      {k:'thirdNameAr', label:'الاسم الثالث - باللغة العربية / Third Name Ar', section:'names', type:'text', req:true, tip:'عربي فقط.', pattern:'arName'},
+      {k:'lastNameAr', label:'الاسم الرابع - باللغة العربية / Last Name Ar', section:'names', type:'text', req:true, tip:'عربي فقط.', pattern:'arName'},
+      {k:'passportNumber', label:'Passport_Number / رقم الجواز', section:'identity', type:'text', req:true, tip:'أرقام وحروف إنجليزية فقط بدون مسافات.', pattern:'passport'},
+      {k:'passportIssueDate', label:'Passport Issue Date / تاريخ إصدار جواز السفر', section:'identity', type:'date', req:true, tip:'yyyy-mm-dd'},
+      {k:'passportExpiryDate', label:'Passport Expiry Date / تاريخ انتهاء جواز السفر', section:'identity', type:'date', req:true, tip:'يجب أن يكون بعد تاريخ الإصدار.'},
+      {k:'laborCardId', label:'Labor Card ID / بطاقة العمل', section:'identity', type:'text', req:data=>!isJordanian(data), show:data=>!isJordanian(data), tip:'لغير الأردنيين فقط.'},
+      {k:'laborCardExpiry', label:'Labor Card Expiry / تاريخ انتهاء بطاقة العمل', section:'identity', type:'date', req:data=>!isJordanian(data), show:data=>!isJordanian(data), tip:'لغير الأردنيين فقط.'},
+      {k:'residentId', label:'Resident ID / رقم الإقامة', section:'identity', type:'text', req:data=>!isJordanian(data), show:data=>!isJordanian(data), tip:'لغير الأردنيين فقط.'},
+      {k:'molNumber', label:'MOL Number / رقم الموظف داخل وزارة العمل', section:'identity', type:'text', req:data=>!isJordanian(data), show:data=>!isJordanian(data), tip:'لغير الأردنيين فقط.'},
+      {k:'birthdate', label:'Birthdate / تاريخ الميلاد', section:'identity', type:'date', req:true, tip:'yyyy-mm-dd'},
+      {k:'gender', label:'Gender / الجنس', section:'identity', type:'select', req:true, opts:['Male','Female'], tip:'اختر الجنس كما هو مطلوب في ZenHR.'},
+      {k:'maritalStatus', label:'Marital Status / الحالة الاجتماعية', section:'identity', type:'select', req:true, opts:['Single','Married','Divorced','Widowed'], tip:'تظهر أسئلة العائلة تلقائيًا حسب الاختيار.'},
+      {k:'religion', label:'Religion / الديانة', section:'identity', type:'select', req:true, opts:['Islam','Christian','Other'], tip:'اختيار من القائمة فقط.'},
+      {k:'nationality', label:'Nationality / الجنسية', section:'identity', type:'text', req:true, tip:'مثال: Jordanian'},
+      {k:'nationalId', label:'National ID / الرقم الوطني', section:'identity', type:'text', req:true, tip:'للأردنيين أرقام فقط، عادة 10 خانات.'},
+      {k:'workEmail', label:'Work_Email / الايميل الخاص بالعمل', section:'contact', type:'email', req:false, tip:'قابل للتعديل لأن بعض الموظفين قد لا يملكون بريد عمل.', pattern:'email'},
+      {k:'personalEmail', label:'Personal_Email / الايميل الشخصي', section:'contact', type:'email', req:true, tip:'يفضل بريد شخصي فعال.', pattern:'email'},
+      {k:'mobileNumber', label:'Mobile Number / رقم الجوال', section:'contact', type:'tel', req:true, tip:'مثال: 079xxxxxxx أو +96279xxxxxxx', pattern:'mobile'},
+      {k:'phoneNumber', label:'Phone Number', section:'contact', type:'tel', req:true, tip:'إذا لا يوجد رقم أرضي، اكتب رقم الجوال مرة أخرى.', pattern:'mobile'},
+      {k:'extensionNumber', label:'Extension Number / رقم الاتصال الفرعي', section:'contact', type:'text', req:false, tip:'اختياري.'},
+      {k:'address', label:'Address / العنوان السكني للموظف', section:'contact', type:'textarea', req:true, tip:'اكتب العنوان بأكبر قدر ممكن من الوضوح.'},
+      {k:'attendanceCardId', label:'Attendance Card ID / رقم الموظف داخل جهاز البصمة', section:'employment', type:'text', req:true, tip:'إن لم تعرفه اكتب Not available.'},
+      {k:'hiringDate', label:'Hiring Date / تاريخ التعيين', section:'employment', type:'date', req:true, tip:'من الضمان الاجتماعي أو العقد إن وجد.'},
+      {k:'endOfProbationDate', label:'End_of_Probation_Date / نهاية فترة التجربة', section:'employment', type:'date', req:true, tip:'تُحسب تلقائيًا 90 يوم من تاريخ التعيين.', readonly:true},
+      {k:'contractType', label:'Contract_Type / نوع العقد', section:'employment', type:'select', req:true, opts:['Limited','Unlimited'], tip:'Limited أو Unlimited.'},
+      {k:'contractDuration', label:'Contract Duration / مدة العقد', section:'employment', type:'text', req:true, tip:'ثابتة: 1 year', readonly:true},
+      {k:'endOfContractDate', label:'End_Of_Contract_Date / تاريخ انتهاء العقد', section:'employment', type:'date', req:data=>data.contractType==='Limited', show:data=>data.contractType!=='Unlimited', tip:'إلزامي للعقد المحدد.'},
+      {k:'positionEn', label:'Position in English / المسمى الوظيفي بالإنجليزية', section:'employment', type:'text', req:true, tip:'English job title only.', pattern:'enLoose'},
+      {k:'positionAr', label:'Position in Arabic / المسمى الوظيفي بالعربية', section:'employment', type:'text', req:true, tip:'Arabic job title only.', pattern:'arName'},
+      {k:'workLocationEn', label:'Work Location in English / موقع العمل بالإنجليزية', section:'employment', type:'text', req:true, tip:'مثال: Jordan'},
+      {k:'workLocationAr', label:'Work Location in Arabic / موقع العمل بالعربية', section:'employment', type:'text', req:true, tip:'القيمة الافتراضية: الأردن', pattern:'arName'},
+      {k:'departmentEn', label:'Department in English / اسم الدائرة بالإنجليزية', section:'employment', type:'text', req:true, tip:'مأخوذ من الاستبيان إن وجد.'},
+      {k:'departmentAr', label:'Department in Arabic / اسم الدائرة بالعربية', section:'employment', type:'text', req:true, tip:'تمت ترجمتها مبدئيًا ويمكن مراجعتها.', pattern:'arName'},
+      {k:'sectionEn', label:'Section in English / اسم القسم بالإنجليزية', section:'employment', type:'text', req:true, tip:'اكتب القسم/الفريق باللغة الإنجليزية.'},
+      {k:'sectionAr', label:'Section in Arabic / اسم القسم بالعربية', section:'employment', type:'text', req:true, tip:'اكتب القسم/الفريق باللغة العربية.', pattern:'arName'},
+      {k:'workType', label:'Work Type', section:'employment', type:'text', req:true, readonly:true, tip:'ثابتة: Full time'},
+      {k:'paymentMethod', label:'Payment Method', section:'bank', type:'text', req:true, readonly:true, tip:'ثابتة: Bank Transfer'},
+      {k:'bankName', label:'Bank Name / اسم بنك الموظف', section:'bank', type:'select', req:true, opts:BANKS, tip:'اختر البنك من القائمة.'},
+      {k:'bankBranch', label:'Bank Branch / فرع بنك الموظف', section:'bank', type:'text', req:true, tip:'اكتب اسم الفرع.'},
+      {k:'accountNumber', label:'Account Number / رقم حساب البنك', section:'bank', type:'text', req:true, tip:'أرقام فقط قدر الإمكان.'},
+      {k:'ibanNumber', label:'IBAN Number / رقم الآيبان', section:'bank', type:'text', req:true, tip:'للأردن يجب أن يبدأ JO ويكون 30 خانة.', pattern:'ibanJO'},
+      {k:'commercialRegister', label:'Commercial Register / اسم السجل التجاري', section:'employment', type:'text', req:true, tip:'اكتب اسم الشركة/السجل التجاري كما يجب أن يظهر في ZenHR. يتم تعبئته تلقائيًا من اسم الشركة عند توفره.'}
+    ];
+
+    /******************** Rendering ********************/
+    function render(){
+      renderSteps(); updateProgress();
+      const step = steps[state.current]; $('#topTitle').textContent = stepTitle(step);
+      const content = $('#content');
+      const map = {login:screenLogin,review:screenReview,names:()=>screenFields('names',t('namesTitle'),t('namesSub')),identity:()=>screenFields('identity',t('identityTitle'),t('identitySub')),contact:()=>screenFields('contact',t('contactTitle'),t('contactSub')),employment:()=>screenFields('employment',t('employmentTitle'),t('employmentSub')),bank:()=>screenFields('bank',t('bankTitle'),t('bankSub')),assets:screenAssets,family:screenFamily,submit:screenSubmit};
+      content.innerHTML = map[step.id]();
+      bindScreen();
+    }
+    function renderSteps(){
+      $('#stepsNav').innerHTML = steps.map((s,i)=>`<button class="step ${i===state.current?'active':''} ${i<state.current?'done':''}" data-goto="${i}"><span class="num">${i+1}</span><span class="stepText">${stepTitle(s)}</span></button>`).join('');
+      $$('[data-goto]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.goto; if(i<=state.current || state.matched || i===0){ state.current=i; render(); }});
+    }
+    function screenWrap(no,title,body,extra=''){
+      const prev = state.current>0 ? `<button class="btn ghost" id="prevBtn">${t('prev')}</button>` : '<span></span>';
+      const next = extra || `<button class="btn primary" id="nextBtn">${t('next')}</button>`;
+      return `<div class="screen active"><div class="questionNo"><span class="qbadge">${no}</span><span>${title}</span></div>${body}<div class="navrow">${prev}${next}</div></div>`;
+    }
+    function screenLogin(){
+      return screenWrap(1,t('loginTitle'),`<h1>${t('loginHero')}</h1><p class="lead">${t('loginLead')}</p>
+      <div class="formgrid"><div class="field"><label class="required">${t('loginDob')}</label><input class="input ltr" id="loginDob" type="date"><div class="tip">yyyy-mm-dd</div></div><div class="field"><label class="required">${t('loginInitial')}</label><input class="input ltr" id="loginInitial" maxlength="1" placeholder="A"><div class="tip">${t('loginInitialTip')}</div></div></div>
+      <div id="loginResult"></div>`, `<button class="btn primary" id="loginBtn">${t('showData')}</button>`);
+    }
+    function screenReview(){
+      const r = state.matched || {};
+      const labels = uiLang === 'ar'
+        ? ['الرقم المؤقت','الاسم الإنجليزي','الاسم العربي','الشركة','الإيميل العملي','الجنسية','الحالة الاجتماعية','تاريخ الميلاد','المسمى','الدائرة']
+        : ['Temporary ID','English name','Arabic name','Company','Work email','Nationality','Marital status','Birthdate','Position','Department'];
+      const vals = [r.employmentNumber,r.fullNameEn,r.fullNameAr,r.company,r.workEmail,r.nationality,r.maritalStatus,r.birthdate,r.positionEn||r.positionAr,r.departmentEn];
+      const items = labels.map((l,i)=>[l, vals[i]]);
+      return screenWrap(2,t('reviewTitle'),`<h1>${t('reviewHero')}</h1><p class="lead">${t('reviewLead')}</p><div class="review">${items.map(([k,v])=>`<div class="reviewItem"><span>${k}</span><strong>${escapeHtml(v||'—')}</strong></div>`).join('')}</div><div class="notice warn">${t('hiddenSalary')}</div>`);
+    }
+    function screenFields(section,title,subtitle){
+      const fs = fields.filter(f=>f.section===section && shouldShow(f));
+      return screenWrap(steps.findIndex(s=>s.id===section)+1,title,`<h1>${title}</h1><p class="lead">${subtitle}</p><div class="formgrid">${fs.map(fieldHtml).join('')}</div>`);
+    }
+    function fieldHtml(f){
+      const val = state.data[f.k] ?? '';
+      const required = isRequired(f);
+      const ro = f.readonly ? ' readonly' : '';
+      const cls = f.type==='textarea' ? 'field full' : 'field';
+      if(f.type==='select'){
+        return `<div class="${cls}" data-field="${f.k}"><label class="${required?'required':''}">${f.label}</label><select class="input" id="${f.k}"><option value="">${t('select')}</option>${(f.opts||[]).map(o=>`<option ${String(val)===String(o)?'selected':''}>${escapeHtml(o)}</option>`).join('')}</select><div class="tip">${f.tip||''}</div><div class="error"></div></div>`;
+      }
+      if(f.type==='textarea'){
+        return `<div class="${cls}" data-field="${f.k}"><label class="${required?'required':''}">${f.label}</label><textarea id="${f.k}" class="input" ${ro}>${escapeHtml(val)}</textarea><div class="tip">${f.tip||''}</div><div class="error"></div></div>`;
+      }
+      return `<div class="${cls}" data-field="${f.k}"><label class="${required?'required':''}">${f.label}</label><input class="input ${f.readonly?'readonly':''} ${['email','tel','date'].includes(f.type)?'ltr':''}" id="${f.k}" type="${f.type||'text'}" value="${escapeAttr(val)}" ${ro}><div class="tip">${f.tip||''}</div><div class="error"></div></div>`;
+    }
+    function screenAssets(){
+      return screenWrap(8,t('assetsTitle'),`<h1>${t('assetsHero')}</h1><p class="lead">${t('assetsLead')}</p>
+      <div class="choices"><label class="choice"><input type="radio" name="assetMode" value="none" ${state.noAssets?'checked':''}> ${t('noAssets')}</label><label class="choice"><input type="radio" name="assetMode" value="has" ${!state.noAssets?'checked':''}> ${t('hasAssets')}</label></div>
+      <div id="assetArea" class="${state.noAssets?'hidden':''}" style="margin-top:16px"><div class="assetList">${ASSETS.map(([id,name])=>`<label class="assetItem"><input type="checkbox" class="assetCheck" value="${id}" ${state.assets.some(a=>a.assetId==id)?'checked':''}><span>${name}<small>Asset_ID: ${id}</small></span></label>`).join('')}</div><div class="subcards" id="assetDetails" style="margin-top:16px"></div></div>`);
+    }
+    function screenFamily(){
+      if(!needsFamily(state.data)) return screenWrap(9,t('familyTitle'),`<h1>${t('familyNotRequired')}</h1><p class="lead">${t('familyNotRequiredLead')}</p><div class="notice">${t('familyRequiredNote')}</div>`);
+      return screenWrap(9,t('familyTitle'),`<h1>${t('familyHero')}</h1><p class="lead">${t('familyLead')}</p><div class="actions"><button class="btn ghost" id="addFamilyBtn">${t('addFamily')}</button></div><div class="subcards" id="familyCards" style="margin-top:16px"></div>`);
+    }
+    function screenSubmit(){
+      const changes = computeChanges();
+      const labels = uiLang === 'ar' ? ['الاسم','الشركة','الحالة الاجتماعية','البنك','العهد','العائلة'] : ['Name','Company','Marital status','Bank','Assets','Family'];
+      const values = [fullNameFromData(),state.data.company,state.data.maritalStatus,state.data.bankName,state.noAssets?t('noAssets'):state.assets.length+' assets',needsFamily(state.data)?state.family.length+' members':'Not required'];
+      return screenWrap(10,t('submitTitle'),`<h1>${t('submitHero')}</h1><p class="lead">${t('submitLead')}</p><div class="notice">${t('changesCount')}: <strong>${changes.length}</strong></div><div class="review">${labels.map((k,i)=>`<div class="reviewItem"><span>${k}</span><strong>${escapeHtml(values[i]||'—')}</strong></div>`).join('')}</div><div id="finalErrors"></div>`, `<button class="btn ghost" id="prevBtn">${t('prev')}</button><button class="btn success" id="submitBtn">${t('submitBtn')}</button>`);
+    }
+    function bindScreen(){
+      $('#prevBtn')?.addEventListener('click',()=>{state.current=Math.max(0,state.current-1);render();});
+      $('#nextBtn')?.addEventListener('click',()=>nextStep());
+      $('#loginBtn')?.addEventListener('click',loginEmployee);
+      $('#loginInitial')?.addEventListener('input',e=>e.target.value=e.target.value.replace(/[^A-Za-z]/g,'').toUpperCase());
+      $$('.input').forEach(el=>el.addEventListener('input',onFieldInput));
+      $$('.input').forEach(el=>el.addEventListener('change',onFieldInput));
+      if($('#assetArea')) bindAssets();
+      if($('#familyCards')) bindFamily();
+      $('#submitBtn')?.addEventListener('click',submitForm);
+    }
+    function onFieldInput(e){
+      const k=e.target.id; state.data[k]=e.target.value;
+      if(k==='hiringDate') state.data.endOfProbationDate=addDays(e.target.value,90);
+      if(k==='contractType' && e.target.value==='Unlimited') state.data.endOfContractDate='';
+      saveDraft(false); updateProgress();
+      if(['hiringDate','contractType','nationality','maritalStatus'].includes(k)) render(); else validateField(k);
+    }
+    function nextStep(){
+      const id=steps[state.current].id;
+      if(id!=='login' && !validateCurrent()) return;
+      if(state.current<steps.length-1){ state.current++; render(); }
+    }
+
+    /******************** Login and data ********************/
+    async function loginEmployee(){
+      const dob=$('#loginDob').value, init=($('#loginInitial').value||'').toUpperCase(); const out=$('#loginResult');
+      if(!dob || !init){out.innerHTML='<div class="notice bad" style="margin-top:14px">أدخل تاريخ الميلاد وأول حرف.</div>';return;}
+      out.innerHTML='<div class="notice" style="margin-top:14px">جاري البحث عن بياناتك...</div>';
+      const matches = await findEmployeesByLogin(dob, init);
+      if(!matches.length){out.innerHTML='<div class="notice bad" style="margin-top:14px">لم نجد موظف بهذه البيانات. تأكد من التاريخ والحرف، أو تواصل مع HR.</div>';return;}
+      state.matches=matches;
+      if(matches.length===1){ selectEmployee(matches[0]); return; }
+      out.innerHTML = `<div class="notice warn" style="margin-top:14px">وجدنا أكثر من نتيجة. اختر اسمك:</div><div class="matchList">${matches.map((m,i)=>`<button class="matchCard" data-pick="${i}"><strong>${escapeHtml(m.fullNameEn||m.fullNameAr)}</strong><div class="small">${escapeHtml(m.company||'')} • ${escapeHtml(m.workEmail||'لا يوجد إيميل')}</div></button>`).join('')}</div>`;
+      $$('[data-pick]').forEach(b=>b.onclick=()=>selectEmployee(matches[+b.dataset.pick]));
+    }
+    async function findEmployeesByLogin(dob, init){
+      const localMatches = () => EMPLOYEES.filter(e=>(e.birthdateKey||e.birthdate)===dob && (e.firstInitialKey||'').toUpperCase()===init);
+      if(!fb.enabled) return localMatches();
+      try{
+        const key = loginKey(dob, init);
+        const idxSnap = await fb.getDoc(fb.doc(fb.db,'loginIndex',key));
+        if(idxSnap.exists()){
+          const ids = idxSnap.data().employeeIds || [];
+          const docs = await Promise.all(ids.map(id => fb.getDoc(fb.doc(fb.db,'employeeDirectory',id))));
+          const found = docs.filter(s=>s.exists()).map(s=>({...s.data(), employmentNumber:s.id, temporaryId:s.id}));
+          if(found.length) return found;
+        }
+      }catch(e){ console.warn('Firestore login lookup failed, falling back to local seed', e); }
+      return localMatches();
+    }
+    function selectEmployee(emp){
+      state.matched = emp;
+      const previous = (state.submissions[emp.employmentNumber]?.employee || state.submissions[emp.employmentNumber]?.answers) || loadDraft(emp.employmentNumber) || {};
+      state.data = defaultsFromEmployee(emp, previous);
+      state.assets = state.submissions[emp.employmentNumber]?.assets || previous.assets || [];
+      state.noAssets = state.submissions[emp.employmentNumber]?.noAssets ?? previous.noAssets ?? false;
+      state.family = state.submissions[emp.employmentNumber]?.familyMembers || previous.familyMembers || initialFamilyFromSurvey(emp);
+      state.current=1; saveDraft(false); render();
+    }
+    function defaultsFromEmployee(emp, previous={}){
+      const d = {...emp, ...previous};
+      d.company = d.company || d.commercialRegister || '';
+      d.contractDuration = d.contractDuration || '1 year';
+      d.workType = 'Full time'; d.paymentMethod = 'Bank Transfer';
+      d.directManagerEmploymentNo=''; d.supervisorEmploymentNo='';
+      d.allowances1=''; d.allowances2=''; d.allowances3='';
+      d.workLocationAr = d.workLocationAr || 'الأردن'; d.workLocationEn = d.workLocationEn || 'Jordan';
+      d.commercialRegister = d.commercialRegister || d.company || '';
+      if(!d.phoneNumber && d.mobileNumber) d.phoneNumber=d.mobileNumber;
+      if(!d.endOfProbationDate && d.hiringDate) d.endOfProbationDate=addDays(d.hiringDate,90);
+      if(!d.sectionEn && d.departmentEn) d.sectionEn=d.departmentEn;
+      if(!d.sectionAr && d.departmentAr) d.sectionAr=d.departmentAr;
+      return d;
+    }
+    function initialFamilyFromSurvey(emp){
+      const raw=(emp.kidsRaw||'').trim(); if(!raw || /^(n\/a|none|not yet|0|-)$/i.test(raw)) return [];
+      return raw.split(/\n|;/).map(x=>x.trim()).filter(Boolean).map(line=>{
+        const m=line.match(/(.+?)\s+(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/);
+        return {relation:'Child', firstName: m?m[1].split(/\s+/)[0]:line, secondName:'', thirdName:'', lastName:state.data?.lastNameEn||'', birthdate:m?normalizeDateInput(m[2]):'', gender:'', maritalStatus:'Single'};
+      });
+    }
+
+    /******************** Validation ********************/
+    function shouldShow(f){ return !f.show || f.show(state.data); }
+    function isRequired(f){ return typeof f.req==='function' ? f.req(state.data) : !!f.req; }
+    function validateField(k){
+      const f=fields.find(x=>x.k===k); if(!f || !shouldShow(f)) return true;
+      const wrap=document.querySelector(`[data-field="${k}"]`); if(!wrap) return true;
+      const val=(state.data[k]||'').trim(); let msg='';
+      if(isRequired(f) && !val) msg='هذا الحقل إجباري.';
+      if(!msg && val && f.pattern){
+        if(f.pattern==='enName' && !RE.enName.test(val)) msg='اكتب بالإنجليزية فقط بدون أحرف عربية.';
+        if(f.pattern==='arName' && !RE.arName.test(val)) msg='اكتب بالعربية فقط بدون أحرف إنجليزية.';
+        if(f.pattern==='email' && !RE.email.test(val)) msg='صيغة الإيميل غير صحيحة.';
+        if(f.pattern==='mobile' && !RE.mobile.test(val.replace(/\s/g,''))) msg='رقم الهاتف غير صحيح.';
+        if(f.pattern==='ibanJO' && !RE.ibanJO.test(val.replace(/\s/g,'').toUpperCase())) msg='الآيبان الأردني يجب أن يبدأ JO ويكون 30 خانة.';
+        if(f.pattern==='passport' && !RE.passport.test(val)) msg='رقم الجواز يجب أن يحتوي أرقام/حروف إنجليزية فقط.';
+        if(f.pattern==='enLoose' && /[\u0600-\u06FF]/.test(val)) msg='هذا الحقل يجب أن يكون بالإنجليزية.';
+      }
+      if(!msg && k==='passportExpiryDate' && state.data.passportIssueDate && val <= state.data.passportIssueDate) msg='تاريخ انتهاء الجواز يجب أن يكون بعد تاريخ الإصدار.';
+      if(!msg && k==='nationalId' && isJordanian(state.data) && !/^\d{10}$/.test(val)) msg='للأردنيين يفضل أن يكون الرقم الوطني 10 أرقام.';
+      wrap.classList.toggle('invalid',!!msg); const err=wrap.querySelector('.error'); if(err) err.textContent=msg; return !msg;
+    }
+    function validateCurrent(){
+      const id=steps[state.current].id; let ok=true;
+      fields.filter(f=>f.section===id).forEach(f=>{ if(!validateField(f.k)) ok=false; });
+      if(id==='assets') ok=validateAssets() && ok;
+      if(id==='family') ok=validateFamily() && ok;
+      return ok;
+    }
+    function validateAll(){
+      let ok=true; fields.forEach(f=>{ if(shouldShow(f)){ const fake={classList:{toggle(){}}}; if(!validateFieldNoDom(f)) ok=false; }});
+      if(!validateAssets()) ok=false; if(!validateFamily()) ok=false; return ok;
+    }
+    function validateFieldNoDom(f){
+      const val=(state.data[f.k]||'').trim();
+      if(isRequired(f) && !val) return false;
+      if(val && f.pattern==='enName' && !RE.enName.test(val)) return false;
+      if(val && f.pattern==='arName' && !RE.arName.test(val)) return false;
+      if(val && f.pattern==='email' && !RE.email.test(val)) return false;
+      if(val && f.pattern==='mobile' && !RE.mobile.test(val.replace(/\s/g,''))) return false;
+      if(val && f.pattern==='ibanJO' && !RE.ibanJO.test(val.replace(/\s/g,'').toUpperCase())) return false;
+      if(val && f.pattern==='passport' && !RE.passport.test(val)) return false;
+      if(val && f.pattern==='enLoose' && /[\u0600-\u06FF]/.test(val)) return false;
+      if(f.k==='passportExpiryDate' && state.data.passportIssueDate && val <= state.data.passportIssueDate) return false;
+      return true;
+    }
+
+    /******************** Assets and Family ********************/
+    function bindAssets(){
+      $$('input[name="assetMode"]').forEach(r=>r.onchange=()=>{state.noAssets=r.value==='none'; if(state.noAssets) state.assets=[]; render();});
+      $$('.assetCheck').forEach(c=>c.onchange=()=>{ const id=+c.value; const label=ASSETS.find(a=>a[0]===id)?.[1]||''; if(c.checked){ if(!state.assets.some(a=>a.assetId===id)) state.assets.push({assetId:id, assetType:label, assetName:label.split('|')[0].trim(), description:'', holdingDate:todayISO()}); } else { state.assets=state.assets.filter(a=>a.assetId!==id); } renderAssetDetails(); saveDraft(false); });
+      renderAssetDetails();
+    }
+    function renderAssetDetails(){
+      const box=$('#assetDetails'); if(!box) return;
+      box.innerHTML=state.assets.map((a,i)=>`<div class="subcard"><div class="subHead"><strong>${escapeHtml(a.assetType)}</strong><button class="btn danger" data-remove-asset="${i}">حذف</button></div><div class="formgrid"><div class="field"><label class="required">Asset_Name</label><input class="input" data-asset="${i}" data-ak="assetName" value="${escapeAttr(a.assetName||'')}"></div><div class="field"><label class="required">Holding date / تاريخ الاستلام</label><input class="input ltr" type="date" data-asset="${i}" data-ak="holdingDate" value="${escapeAttr(a.holdingDate||'')}"></div><div class="field full"><label class="required">Description</label><textarea class="input" data-asset="${i}" data-ak="description">${escapeHtml(a.description||'')}</textarea></div></div></div>`).join('');
+      $$('[data-asset]').forEach(el=>el.oninput=()=>{state.assets[+el.dataset.asset][el.dataset.ak]=el.value;saveDraft(false);});
+      $$('[data-remove-asset]').forEach(b=>b.onclick=()=>{state.assets.splice(+b.dataset.removeAsset,1);render();});
+    }
+    function validateAssets(){
+      if(state.noAssets) return true;
+      if(!state.assets.length){ showInline('assetArea','اختر عهدة واحدة على الأقل أو اختر ليس لدي عهدة.'); return false; }
+      return state.assets.every(a=>a.assetName && a.description && a.holdingDate);
+    }
+    function bindFamily(){ renderFamilyCards(); $('#addFamilyBtn')?.addEventListener('click',()=>{state.family.push({relation:'Child',firstName:'',secondName:'',thirdName:'',lastName:state.data.lastNameEn||'',birthdate:'',gender:'',maritalStatus:'Single'});renderFamilyCards();}); }
+    function renderFamilyCards(){
+      const box=$('#familyCards'); if(!box) return;
+      box.innerHTML = state.family.map((m,i)=>`<div class="subcard"><div class="subHead"><strong>فرد عائلة ${i+1}</strong><button class="btn danger" data-remove-family="${i}">حذف</button></div><div class="formgrid">
+        ${familyField(i,'relation','Relation / صلة القرابة','select',['Spouse','Child','Father','Mother','Other'])}${familyField(i,'firstName','First Name','text')}${familyField(i,'secondName','Second Name','text')}${familyField(i,'thirdName','Third Name','text')}${familyField(i,'lastName','Last Name','text')}${familyField(i,'birthdate','Birthdate','date')}${familyField(i,'gender','Gender','select',['Male','Female'])}${familyField(i,'maritalStatus','Marital Status','select',['Single','Married','Divorced','Widowed'])}</div></div>`).join('') || '<div class="notice warn">أضف فرد عائلة واحد على الأقل، أو راجع الحالة الاجتماعية إذا لا يوجد.</div>';
+      $$('[data-family]').forEach(el=>el.oninput=el.onchange=()=>{state.family[+el.dataset.family][el.dataset.fk]=el.value;saveDraft(false);});
+      $$('[data-remove-family]').forEach(b=>b.onclick=()=>{state.family.splice(+b.dataset.removeFamily,1);renderFamilyCards();});
+    }
+    function familyField(i,k,label,type,opts=[]){
+      const val=state.family[i]?.[k]||'';
+      if(type==='select') return `<div class="field"><label class="required">${label}</label><select class="input" data-family="${i}" data-fk="${k}"><option value="">${t('select')}</option>${opts.map(o=>`<option ${val===o?'selected':''}>${o}</option>`).join('')}</select></div>`;
+      return `<div class="field"><label class="required">${label}</label><input class="input ${type==='date'?'ltr':''}" type="${type}" data-family="${i}" data-fk="${k}" value="${escapeAttr(val)}"></div>`;
+    }
+    function validateFamily(){
+      if(!needsFamily(state.data)) return true;
+      if(!state.family.length) return false;
+      return state.family.every(m=>m.relation&&m.firstName&&m.secondName&&m.thirdName&&m.lastName&&m.birthdate&&m.gender&&m.maritalStatus);
+    }
+
+    /******************** Save, submit, admin ********************/
+    function loadLocalSubmissions(){ try{return JSON.parse(localStorage.getItem('zenhrSubmissionsV2')||'{}')}catch{return {}} }
+    function saveLocalSubmissions(){ localStorage.setItem('zenhrSubmissionsV2',JSON.stringify(state.submissions)); }
+    function loadDraft(id){ try{return JSON.parse(localStorage.getItem('zenhrDraft_'+id)||'null')}catch{return null} }
+    function saveDraft(show=true){ if(!state.matched) return; const payload={...state.data, assets:state.assets, noAssets:state.noAssets, familyMembers:state.family, savedAt:new Date().toISOString()}; localStorage.setItem('zenhrDraft_'+state.matched.employmentNumber,JSON.stringify(payload)); if(show) toast('تم حفظ المسودة على هذا الجهاز.'); }
+    async function submitForm(){
+      const ok=validateAll(); if(!ok){ $('#finalErrors').innerHTML='<div class="notice bad" style="margin-top:12px">يوجد حقول ناقصة أو غير صحيحة. ارجع للخطوات السابقة.</div>'; return; }
+      if(fb.enabled && !fb.auth.currentUser){ try { await fb.signInAnonymously(fb.auth); } catch(e) { console.warn(e); } }
+      const id=state.matched.employmentNumber;
+      const changes = computeChanges();
+      const now = new Date().toISOString();
+      const payload={
+        employeeId:id,
+        temporaryEmploymentNumber:id,
+        submittedAt:state.submissions[id]?.submittedAt || now,
+        updatedAt:now,
+        status:'Completed',
+        employee:{...state.data, employeeName:fullNameFromData(), company:state.data.company||''},
+        familyMembers:needsFamily(state.data)?state.family:[],
+        assets:state.noAssets?[]:state.assets,
+        changeSummary:changes,
+        clientInfo:{userAgent:navigator.userAgent, timezone:Intl.DateTimeFormat().resolvedOptions().timeZone || '', authUid:fb.currentUser?.uid || ''}
+      };
+      state.submissions[id]=payload; saveLocalSubmissions();
+      if(fb.enabled){
+        try{
+          await fb.setDoc(fb.doc(fb.db,'submissions',id),payload,{merge:true});
+          for(const c of changes){
+            const logId = `${id}_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+            await fb.setDoc(fb.doc(fb.db,'editLogs',logId),{...c, employeeId:id, employeeName:fullNameFromData(), changedAt:now, authUid:fb.currentUser?.uid || ''});
+          }
+        } catch(e){ console.warn(e); toast('تم الحفظ محليًا، لكن فشل Firebase. تأكد من القواعد والصلاحيات.'); }
+      }
+      state.submitted=true; localStorage.removeItem('zenhrDraft_'+id);
+      $('#content').innerHTML=`<div class="screen active"><div class="questionNo"><span class="qbadge">✓</span><span>تم الإرسال</span></div><h1>شكرًا لك 🌟</h1><p class="lead">تم حفظ بياناتك بنجاح. إذا احتاجت HR أي توضيح سيتم التواصل معك.</p><div class="notice">رقمك المؤقت: <strong>${escapeHtml(id)}</strong></div></div>`;
+      updateProgress();
+    }
+    function computeChanges(){
+      const base=state.matched||{}; const changes=[];
+      Object.keys(state.data).forEach(k=>{
+        if(['assets','familyMembers'].includes(k)) return;
+        const before=(base[k]??'').toString().trim(); const after=(state.data[k]??'').toString().trim();
+        if(before && after && before!==after) changes.push({field:k,before,after});
+      });
+      return changes;
+    }
+    function openAdmin(){ document.body.classList.add('admin-open'); $('#adminModal').classList.add('active'); renderAdminAuth(); }
+    function closeAdmin(){ document.body.classList.remove('admin-open'); $('#adminModal').classList.remove('active'); }
+    async function checkAdmin(){
+      if(!fb.enabled || !fb.auth?.currentUser) return false;
+      try{
+        const snap = await fb.getDoc(fb.doc(fb.db,'admins',fb.auth.currentUser.uid));
+        return snap.exists() && snap.data().active === true;
+      }catch(e){ console.warn(e); return false; }
+    }
+    async function renderAdminAuth(){
+      const panel=$('#adminAuthPanel'), dash=$('#adminDashboardPanel');
+      if(!fb.enabled){ panel.className='notice bad'; panel.innerHTML= uiLang==='ar' ? 'الاتصال غير مفعّل.' : 'Connection is not enabled.'; dash.style.display='none'; return; }
+      adminAllowed = await checkAdmin();
+      if(adminAllowed){
+        panel.className='notice ok';
+        panel.innerHTML=`<div class="admin-auth-ok"><strong>${uiLang==='ar'?'تم تسجيل الدخول للإدارة':'Management access confirmed'}</strong><button class="btn ghost" id="adminSignOutBtn">${t('signOut')}</button></div>`;
+        $('#adminSignOutBtn').onclick=async()=>{ await fb.signOut(fb.auth); try{ await fb.signInAnonymously(fb.auth); }catch(e){console.warn(e);} adminAllowed=false; dash.style.display='none'; renderAdminAuth(); };
+        dash.style.display='block'; await loadAdmin(); return;
+      }
+      const uid = fb.auth.currentUser?.uid || '';
+      const bootstrapHint = uid===ADMIN_UID ? `<div class="notice warn" style="margin-top:14px">${uiLang==='ar'?'تم التعرف على حساب الأدمن، لكن صلاحية الأدمن لم تُنشأ بعد. اضغط التهيئة مرة واحدة.':'Admin account detected, but the admin document has not been created yet. Initialize once.'}</div><button class="btn success" id="bootstrapAdminBtn" style="margin-top:10px">${t('setupAdmin')}</button>` : '';
+      panel.className='admin-login-card'; dash.style.display='none';
+      panel.innerHTML=`<h2>${t('adminLogin')}</h2><p>${uiLang==='ar'?'يرجى تسجيل الدخول لمتابعة النتائج وإدارة التصدير.':'Please sign in to review results and manage exports.'}</p><div class="formgrid" style="margin-top:14px"><div class="field"><label>${t('email')}</label><input class="input ltr" id="adminEmail" type="email" autocomplete="username"></div><div class="field"><label>${t('password')}</label><input class="input ltr" id="adminPassword" type="password" autocomplete="current-password"></div></div><div class="actions"><button class="btn primary" id="adminLoginBtn">${t('login')}</button></div>${bootstrapHint}`;
+      $('#adminLoginBtn').onclick=async()=>{
+        try{ await fb.signInWithEmailAndPassword(fb.auth,$('#adminEmail').value,$('#adminPassword').value); await renderAdminAuth(); }
+        catch(e){ console.warn(e); toast(uiLang==='ar'?'فشل دخول الأدمن. تأكد من الإيميل وكلمة السر.':'Login failed. Please verify email and password.'); }
+      };
+      $('#bootstrapAdminBtn')?.addEventListener('click',bootstrapAdmin);
+    }
+    async function bootstrapAdmin(){
+      if(!fb.enabled || fb.auth.currentUser?.uid !== ADMIN_UID){ toast('يجب الدخول بحساب الأدمن الصحيح أولًا.'); return; }
+      try{
+        await fb.setDoc(fb.doc(fb.db,'admins',ADMIN_UID),{role:'admin', active:true, createdAt:new Date().toISOString()},{merge:true});
+        await fb.setDoc(fb.doc(fb.db,'meta','setup'),{initializedAt:new Date().toISOString(), collections:['admins','employeeDirectory','loginIndex','submissions','editLogs']},{merge:true});
+        toast('تم إنشاء صلاحية الأدمن. الآن يمكنك استيراد بيانات الموظفين.');
+        await renderAdminAuth();
+      }catch(e){ console.warn(e); toast('لم تنجح التهيئة. استخدم قواعد Firestore الجديدة الموجودة في الملف.'); }
+    }
+    async function loadAdmin(){
+      if(!adminAllowed){ await renderAdminAuth(); return; }
+      if(fb.enabled){
+        try{
+          const subSnap=await fb.getDocs(fb.collection(fb.db,'submissions')); state.submissions={}; subSnap.forEach(d=>state.submissions[d.id]=d.data()); saveLocalSubmissions();
+          const dirSnap=await fb.getDocs(fb.collection(fb.db,'employeeDirectory')); const directory=[]; dirSnap.forEach(d=>directory.push({...d.data(), employmentNumber:d.id, temporaryId:d.id})); if(directory.length) EMPLOYEES=directory;
+        }catch(e){console.warn(e); toast('تعذر تحميل بيانات الأدمن من Firestore.');}
+      }
+      renderAdmin();
+    }
+    function renderAdmin(){
+      const submitted=Object.values(state.submissions); const submittedIds=new Set(submitted.map(s=>s.employeeId)); const missing=EMPLOYEES.filter(e=>!submittedIds.has(e.employmentNumber)); const changes=submitted.flatMap(s=>(s.changeSummary||s.changes||[]).map(c=>({...c,employeeId:s.employeeId,employeeName:submissionName(s),company:submissionCompany(s)})));
+      $('#kpiTotal').textContent=EMPLOYEES.length; $('#kpiDone').textContent=submitted.length; $('#kpiMissing').textContent=missing.length; $('#kpiChanges').textContent=changes.length;
+      const box=$('#adminTabContent');
+      if(state.adminTab==='submissions') box.innerHTML=tableHtml(['Employee ID','Name','Company','Submitted At','Changes'], submitted.map(s=>[s.employeeId,submissionName(s),submissionCompany(s),formatDT(s.submittedAt),(s.changeSummary||s.changes||[]).length]));
+      if(state.adminTab==='missing') box.innerHTML=tableHtml(['Employee ID','Name EN','Name AR','Company','Work Email','Birthdate'], missing.map(e=>[e.employmentNumber,e.fullNameEn,e.fullNameAr,e.company,e.workEmail,e.birthdate]));
+      if(state.adminTab==='changes') box.innerHTML=tableHtml(['Employee ID','Name','Field','Before','After'], changes.map(c=>[c.employeeId,c.employeeName,c.field,c.before,c.after]));
+      if(state.adminTab==='seed') box.innerHTML=tableHtml(['Employee ID','Name EN','Name AR','Company','Work Email','DOB'], EMPLOYEES.map(e=>[e.employmentNumber,e.fullNameEn,e.fullNameAr,e.company,e.workEmail,e.birthdate]));
+    }
+    function tableHtml(headers, rows){ return `<div class="tableWrap"><table class="adminTable"><thead><tr>${headers.map(h=>`<th>${escapeHtml(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${escapeHtml(c??'')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`; }
+    async function importSeedToFirebase(){
+      if(!fb.enabled){toast('Firebase غير مفعل.');return;}
+      if(!adminAllowed){toast('سجل دخول الأدمن أولًا.');return;}
+      if(!EMPLOYEES.length){ $('#seedFileInput').click(); return; }
+      await uploadSeedRecords(EMPLOYEES);
+    }
+    async function handleSeedFile(ev){
+      const file=ev.target.files?.[0]; if(!file) return;
+      try{
+        const json=JSON.parse(await file.text());
+        const records=(json.records||json.employees||json||[]).map(r=>({...r}));
+        if(!Array.isArray(records) || !records.length){ toast('ملف seed غير صحيح.'); return; }
+        SEED=json; EMPLOYEES=records;
+        await uploadSeedRecords(records);
+      }catch(e){ console.warn(e); toast('تعذر قراءة ملف seed.'); }
+      ev.target.value='';
+    }
+    async function uploadSeedRecords(records){
+      if(!confirm(`سيتم رفع ${records.length} موظف إلى Firestore وإنشاء loginIndex. متابعة؟`)) return;
+      let count=0;
+      for(const raw of records){
+        const e={...raw}; const id=e.employmentNumber || e.temporaryId; if(!id) continue;
+        await fb.setDoc(fb.doc(fb.db,'employeeDirectory',id),e,{merge:true});
+        const key=loginKey(e.birthdateKey||e.birthdate, e.firstInitialKey||String(e.firstNameEn||'').slice(0,1));
+        if(key) await fb.setDoc(fb.doc(fb.db,'loginIndex',key),{employeeIds:fb.arrayUnion(id), updatedAt:new Date().toISOString()},{merge:true});
+        count++;
+      }
+      await fb.setDoc(fb.doc(fb.db,'meta','directory'),{count, importedAt:new Date().toISOString()},{merge:true});
+      toast('تم رفع قاعدة الموظفين وإنشاء Collections تلقائيًا.');
+      await loadAdmin();
+    }
+
+    /******************** Export ********************/
+    function buildEmployeeRows(){
+      return Object.values(state.submissions).map(s=>{ const a=submissionEmployee(s), seed=findEmployeeSeed(s.employeeId)||{}; return {
+        'Employment_Number':s.employeeId,'First Name En':a.firstNameEn,'Second Name En':a.secondNameEn,'Third Name En':a.thirdNameEn,'Last Name En':a.lastNameEn,'First Name Ar':a.firstNameAr,'Second Name Ar':a.secondNameAr,'Third Name Ar':a.thirdNameAr,'Last Name Ar':a.lastNameAr,'Passport_Number':a.passportNumber,'Passport Issue Date':a.passportIssueDate,'Passport Expiry Date':a.passportExpiryDate,'Labor Card ID':a.laborCardId,'Labor Card Expiry':a.laborCardExpiry,'Resident ID':a.residentId,'MOL Number':a.molNumber,'Hiring Date':a.hiringDate,'End_of_Probation_Date':a.endOfProbationDate,'Work_Email':a.workEmail,'Personal_Email':a.personalEmail,'Birthdate':a.birthdate,'Mobile Number':a.mobileNumber,'Phone Number':a.phoneNumber,'Extension Number':a.extensionNumber,'Gender':a.gender,'Marital Status':a.maritalStatus,'Religion':a.religion,'National ID':a.nationalId,'Nationality':a.nationality,'Address':a.address,'Attendance Card ID':a.attendanceCardId,'Contract_Type':a.contractType,'Contract Duration':a.contractDuration,'End_Of_Contract_Date':a.endOfContractDate,'Direct Manager Employment No':a.directManagerEmploymentNo||'','Supervisor Employment No':a.supervisorEmploymentNo||'','Position in English':a.positionEn,'Position in Arabic':a.positionAr,'Work Location in English':a.workLocationEn,'Work Location in Arabic':a.workLocationAr,'Department in English':a.departmentEn,'Department in Arabic':a.departmentAr,'Section in English':a.sectionEn,'Section in Arabic':a.sectionAr,'Work Type':a.workType,'Payment Method':a.paymentMethod,'Bank Name':a.bankName,'Bank Branch':a.bankBranch,'Account Number':a.accountNumber,'IBAN Number':a.ibanNumber,'Basic Salary':seed.basicSalary||a.basicSalary||'','Social Security Salary':seed.socialSecuritySalary||'','Social Security Number':seed.socialSecurityNumber||'','Allowances 1':'','Allowances 2':'','Allowances 3':'','Commercial Register':a.commercialRegister||a.company||'', 'Submitted At':s.submittedAt, 'Changes Count':(s.changeSummary||s.changes||[]).length}; });
+    }
+    function buildFamilyRows(){ return Object.values(state.submissions).flatMap(s=>(s.familyMembers||[]).map(m=>({'Employment_Number':s.employeeId,'Relation':m.relation,"Family Member's First Name":m.firstName,"Family Member's Second Name":m.secondName,"Family Member's Third Name":m.thirdName,"Family Member's Last Name":m.lastName,'Birthdate':m.birthdate,'Gender':m.gender,'Marital Status':m.maritalStatus}))); }
+    function buildAssetRows(){ return Object.values(state.submissions).flatMap(s=>(s.assets||[]).map(a=>({'Asset_ID':a.assetId,'Asset_Type':a.assetType,'Asset_Name':a.assetName,'Description':a.description,'Holder_ID (Employment_Number)':s.employeeId,'Holding date':a.holdingDate}))); }
+    function exportRows(rows, filename, sheetName='Sheet1'){
+      if(window.XLSX){ const wb=XLSX.utils.book_new(); const ws=XLSX.utils.json_to_sheet(rows); XLSX.utils.book_append_sheet(wb,ws,sheetName); XLSX.writeFile(wb,filename); return; }
+      const csv = toCSV(rows); downloadBlob(csv, filename.replace(/\.xlsx$/i,'.csv'), 'text/csv;charset=utf-8');
+    }
+    function toCSV(rows){ if(!rows.length) return ''; const headers=Object.keys(rows[0]); return [headers.join(','),...rows.map(r=>headers.map(h=>'"'+String(r[h]??'').replace(/"/g,'""')+'"').join(','))].join('\n'); }
+
+    /******************** Helpers ********************/
+    function loginKey(dob, init){ if(!dob || !init) return ''; return `${dob}_${String(init).trim().slice(0,1).toUpperCase()}`; }
+    function submissionEmployee(s){ return s.employee || s.answers || {}; }
+    function submissionName(s){ const a=submissionEmployee(s); return a.employeeName || [a.firstNameEn,a.secondNameEn,a.thirdNameEn,a.lastNameEn].filter(Boolean).join(' ') || s.employeeName || ''; }
+    function submissionCompany(s){ const a=submissionEmployee(s); return a.company || s.company || ''; }
+    function findEmployeeSeed(id){ return EMPLOYEES.find(e=>e.employmentNumber===id || e.temporaryId===id) || {}; }
+    function updateProgress(){
+      const visible=fields.filter(f=>shouldShow(f)); const total=visible.filter(f=>isRequired(f)).length; const done=visible.filter(f=>isRequired(f) && (state.data[f.k]||'').trim()).length + (state.noAssets||state.assets.length?1:0) + (!needsFamily(state.data)||state.family.length?1:0);
+      const denominator=total+2; const pct=Math.round((done/Math.max(1,denominator))*100); $('#progressBar').style.width=Math.min(100,pct)+'%'; $('#progressText').textContent=Math.min(100,pct)+'%'; $('#completedFields').textContent=done; $('#remainingFields').textContent=Math.max(0,denominator-done);
+    }
+    function fullNameFromData(){ return [state.data.firstNameEn,state.data.secondNameEn,state.data.thirdNameEn,state.data.lastNameEn].filter(Boolean).join(' ') || state.data.fullNameEn || state.data.fullNameAr || ''; }
+    function addDays(iso,days){ if(!iso) return ''; const d=new Date(iso+'T00:00:00'); if(isNaN(d)) return ''; d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+    function normalizeDateInput(s){ const m=s.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/); if(!m) return ''; const d=String(m[1]).padStart(2,'0'), mo=String(m[2]).padStart(2,'0'); return `${m[3]}-${mo}-${d}`; }
+    function escapeHtml(v){ return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+    function escapeAttr(v){ return escapeHtml(v).replace(/'/g,'&#39;'); }
+    function formatDT(x){ try{return new Date(x).toLocaleString('en-GB')}catch{return x||''} }
+    function downloadBlob(content,filename,type='application/json'){ const blob=new Blob([content],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
+    function toast(msg){ const t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;bottom:20px;left:20px;z-index:80;background:rgba(21,32,51,.92);color:white;padding:12px 16px;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.22);font-weight:800'; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
+    function showInline(id,msg){ const el=document.getElementById(id); if(el && !el.querySelector('.inlineErr')) el.insertAdjacentHTML('beforeend',`<div class="notice bad inlineErr" style="margin-top:12px">${escapeHtml(msg)}</div>`); }
+
+    function applyStaticI18n(){
+      document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.dataset.i18n); });
+      const btn = document.getElementById('langToggle'); if(btn) btn.textContent=t('langOther');
+      const fs = document.getElementById('firebaseState'); if(fs && (fs.textContent==='Local Mode' || fs.textContent==='وضع محلي' || fs.textContent==='Offline draft')) fs.textContent=t('local');
+    }
+
+    /******************** Events ********************/
+    $('#secretAdminMark').addEventListener('dblclick',openAdmin); $('#secretAdminWord')?.addEventListener('dblclick',openAdmin); $('#langToggle')?.addEventListener('click',()=>setLang(uiLang==='ar'?'en':'ar')); applyStaticI18n();
+    $('#closeAdminBtn').onclick=closeAdmin; $('#refreshAdminBtn').onclick=loadAdmin; $('#importSeedBtn').onclick=importSeedToFirebase; $('#seedFileInput').addEventListener('change',handleSeedFile);
+    $('#downloadSeedBtn').onclick=()=>downloadBlob(JSON.stringify({generatedAt:new Date().toISOString(), records:EMPLOYEES},null,2),'employee-seed.json');
+    $('#exportEmployeesBtn').onclick=()=>exportRows(buildEmployeeRows(),'zenhr-employees.xlsx','Employees');
+    $('#exportFamilyBtn').onclick=()=>exportRows(buildFamilyRows(),'zenhr-family-members.xlsx','Family');
+    $('#exportAssetsBtn').onclick=()=>exportRows(buildAssetRows(),'zenhr-assets.xlsx','Assets');
+    $$('.tab').forEach(t=>t.onclick=()=>{ $$('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active'); state.adminTab=t.dataset.tab; renderAdmin(); });
+    $('#saveDraftBtn').onclick=()=>saveDraft(true); $('#resetBtn').onclick=()=>{ if(confirm('مسح بيانات الشاشة الحالية؟')){ state.current=0; state.matched=null; state.data={}; state.family=[]; state.assets=[]; state.noAssets=false; render(); }};
+    window.addEventListener('keydown',e=>{ if(e.key==='Enter' && (e.metaKey||e.ctrlKey)) nextStep(); if(e.key==='Escape') closeAdmin(); });
+
+    document.documentElement.lang = uiLang; document.documentElement.dir = uiLang === 'ar' ? 'rtl' : 'ltr'; document.body.classList.toggle('lang-en', uiLang === 'en'); await initFirebase(); applyStaticI18n(); render();
+  </script>
+</body>
+</html>
