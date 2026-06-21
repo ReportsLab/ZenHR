@@ -1,8 +1,10 @@
 {
-  "version": "10.0.0",
-  "build": "2026-06-19-admin-separation",
+  "version": "10.1.0",
+  "build": "2026-06-22-employee-simple-login-admin-create-date-controls",
   "files": [
     "index.html",
-    "admin.html"
+    "admin.html",
+    "employee-demo-seed.json",
+    "firestore.rules"
   ]
 }

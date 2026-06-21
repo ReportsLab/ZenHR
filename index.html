@@ -6,11 +6,11 @@
   <title>Employee Information Form | نموذج بيانات الموظف</title>
   <meta name="description" content="Official employee information form for company records." />
   <meta name="theme-color" content="#0b1f3a" />
-  <meta name="app-version" content="10.0.0" />
+  <meta name="app-version" content="10.1.0" />
   <link rel="icon" href="./favicon.ico" sizes="any" />
   <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
-  <script>window.EMPLOYEE_SEED = { generatedAt: null, records: [], departmentTranslationMap: {} };</script>
+  <script>window.EMPLOYEE_SEED = {"generatedAt":"2026-06-22T00:00:00+03:00","records":[{"employmentNumber":"DEMO-2026","temporaryId":"DEMO-2026","firstInitialKey":"S","birthdateKey":"1988-05-14","firstNameEn":"Sami","secondNameEn":"Khaled","thirdNameEn":"Yousef","lastNameEn":"Haddad","fullNameEn":"Sami Khaled Yousef Haddad","firstNameAr":"سامي","secondNameAr":"خالد","thirdNameAr":"يوسف","lastNameAr":"حداد","fullNameAr":"سامي خالد يوسف حداد","company":"Dar Al-Dawaa","commercialRegister":"Dar Al-Dawaa","workEmail":"sami.haddad.demo@dadgroup.com","personalEmail":"sami.demo@example.com","mobileNumber":"+962798054014","phoneNumber":"+962798054014","extensionNumber":"1024","address":"Amman, Jordan - Demo address for training only","passportNumber":"P1234567","passportIssueDate":"2022-03-10","passportExpiryDate":"2032-03-09","birthdate":"1988-05-14","gender":"Male","maritalStatus":"Married","religion":"Islam","nationality":"Jordanian","nationalId":"9880514321","attendanceCardId":"AC-DEMO-2026","hiringDate":"2024-01-15","endOfProbationDate":"2024-04-14","contractType":"Limited","contractDuration":"1 year","endOfContractDate":"2026-12-31","positionEn":"Sales Representative","positionAr":"مندوب مبيعات","workLocationEn":"Jordan","workLocationAr":"الأردن","departmentEn":"Sales","departmentAr":"المبيعات","sectionEn":"Retail Team","sectionAr":"فريق التجزئة","workType":"Full time","paymentMethod":"Bank Transfer","bankName":"البنك العربي (Arab Bank)","bankBranch":"Amman Main Branch","accountNumber":"1234567890","ibanNumber":"JO94CBJO0010000000000131000302","basicSalary":"750","socialSecuritySalary":"750","socialSecurityNumber":"SS-DEMO-2026","kidsRaw":"Lina 12-05-2016; Omar 09-09-2019"}],"departmentTranslationMap":{"Sales":"المبيعات"}};</script>
   <script defer src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <style>
 
@@ -37,6 +37,18 @@ button,input,select,textarea{font-family:inherit} h1,h2,h3,p{margin-top:0} h1{fo
 button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
 
 .brandMark,#secretAdminWord{cursor:pointer}
+
+/* v10.1 employee-first login and easy date controls */
+body.employee-login-mode .journeyLayout{display:block;width:min(580px,100%);padding-top:clamp(18px,5vh,72px)}
+body.employee-login-mode .journeyPanel,body.employee-login-mode .topSearch,body.employee-login-mode .topActions > :not(.langToggle){display:none!important}
+body.employee-login-mode .employeeTop{width:min(580px,100%);grid-template-columns:1fr auto;border-radius:24px;padding:14px 16px}
+body.employee-login-mode .brandMini span{display:none}
+body.employee-login-mode .formStage{width:100%}
+.employeeLoginCard{padding:clamp(24px,5vw,42px);border-radius:32px;background:rgba(255,255,255,.94)}
+.employeeLoginBrand{display:flex;align-items:center;gap:12px;margin-bottom:22px}.employeeLoginBrand strong{display:block;color:var(--navy)}.employeeLoginBrand span{display:block;font-size:12px;color:var(--muted);margin-top:2px}.employeeLoginCard h1{font-size:clamp(28px,5vw,44px);margin-bottom:8px}.loginFormGrid{grid-template-columns:1fr;margin-top:18px}.loginSubmitBtn{width:100%;margin-top:14px;min-height:52px;border-radius:16px}
+.dateControl{display:grid;grid-template-columns:minmax(110px,1fr) minmax(90px,.75fr) minmax(90px,.75fr);gap:8px;align-items:end}.dateHidden{display:none!important}.dateSegment{display:grid;gap:5px;margin:0}.dateSegment span{font-size:10px;font-weight:950;color:var(--muted);letter-spacing:.02em}.datePart{width:100%;min-height:46px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);padding:0 12px;outline:none;font-weight:800}.datePart:focus{border-color:#275b91;box-shadow:0 0 0 4px rgba(18,62,104,.11)}.datePart:disabled{background:#f1f5f9;color:#738296;cursor:not-allowed}
+@media (max-width:640px){body.employee-login-mode .enterpriseApp{padding:10px}body.employee-login-mode .journeyLayout{padding-top:18px}.employeeLoginCard{border-radius:24px}.dateControl{grid-template-columns:1fr 1fr}.dateSegment:first-child{grid-column:1/-1}.employeeTop{gap:8px}.brandMini strong{font-size:13px}}
+
 </style>
 </head>
 <body>
@@ -106,7 +118,7 @@ button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
       appId: "1:1003852548044:web:5702e871713e47ea32ff69"
     };
     const FIREBASE_ENABLED = !firebaseConfig.apiKey.includes('REPLACE_WITH');
-    const APP_VERSION = '10.0.0';
+    const APP_VERSION = '10.1.0';
     const ADMIN_UID = 'PwyarKYD7iTs1sbE0rTLqHrkqdv1';
     let fb = {enabled:false, db:null, auth:null, currentUser:null};
     let adminAllowed = false;
@@ -150,7 +162,7 @@ button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
     const needsFamily = data => ['Married','Divorced','Widowed'].includes(data.maritalStatus);
 
     const state = {
-      current:0, matched:null, matches:[], data:{}, family:[], assets:[], noAssets:false, submitted:false, adminTab:'submissions', submissions: loadLocalSubmissions(), scanOpen:false, searchQuery:'', lastSavedAt:null
+      current:1, matched:null, matches:[], data:{}, family:[], assets:[], noAssets:false, submitted:false, adminTab:'submissions', submissions: loadLocalSubmissions(), scanOpen:false, searchQuery:'', lastSavedAt:null
     };
 
     let uiLang = localStorage.getItem('zenhr_ui_lang') || 'ar';
@@ -228,7 +240,7 @@ button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
       {k:'endOfProbationDate', label:'End_of_Probation_Date / نهاية فترة التجربة', section:'employment', type:'date', req:true, tip:'تُحسب تلقائيًا 90 يوم من تاريخ التعيين.', readonly:true},
       {k:'contractType', label:'Contract_Type / نوع العقد', section:'employment', type:'select', req:true, opts:['Limited','Unlimited'], tip:'Limited أو Unlimited.'},
       {k:'contractDuration', label:'Contract Duration / مدة العقد', section:'employment', type:'text', req:true, tip:'ثابتة: 1 year', readonly:true},
-      {k:'endOfContractDate', label:'End_Of_Contract_Date / تاريخ انتهاء العقد', section:'employment', type:'date', req:data=>data.contractType==='Limited', show:data=>data.contractType!=='Unlimited', tip:'إلزامي للعقد المحدد.'},
+      {k:'endOfContractDate', label:'End_Of_Contract_Date / تاريخ انتهاء العقد', section:'employment', type:'date', req:data=>data.contractType==='Limited', tip:'يمكن للموظف تعديله عند الحاجة. إلزامي للعقد المحدد.'},
       {k:'positionEn', label:'Position in English / المسمى الوظيفي بالإنجليزية', section:'employment', type:'text', req:true, tip:'English job title only.', pattern:'enLoose'},
       {k:'positionAr', label:'Position in Arabic / المسمى الوظيفي بالعربية', section:'employment', type:'text', req:true, tip:'Arabic job title only.', pattern:'arName'},
       {k:'workLocationEn', label:'Work Location in English / موقع العمل بالإنجليزية', section:'employment', type:'text', req:true, tip:'مثال: Jordan'},
@@ -263,6 +275,7 @@ button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
     };
     function tr(ar,en){ return uiLang === 'ar' ? ar : en; }
     function render(){
+      document.body.classList.toggle('employee-login-mode', !state.matched);
       renderSteps(); updateProgress(); renderIdentityHeader(); renderSideAlerts();
       const step = steps[state.current] || steps[0];
       const top = $('#topTitle'); if(top) top.textContent = stepTitle(step);
@@ -318,8 +331,7 @@ button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
       return `<div class="screenCard"><div class="sectionIntro"><div class="sectionIcon">${meta.icon||'•'}</div><div class="sectionMeta"><strong>${stepTitle(steps[state.current])}</strong><h1>${title}</h1><p class="lead">${desc}</p></div><div class="sectionProgress"><div class="sideTitle"><span>${tr('إكمال القسم','Section completion')}</span><span>${secStats.pct}%</span></div><div class="progress"><div class="bar" style="width:${secStats.pct}%"></div></div><p class="tiny" style="margin:8px 0 0">${secStats.done}/${secStats.total} ${tr('حقول مكتملة','fields complete')}</p></div></div>${state.scanOpen?missingPanelHtml():''}${body}<div class="navrow">${prev}${next}</div></div>`;
     }
     function screenLogin(){
-      const body = `<div class="stateGrid"><div class="stateCard"><b>1</b><span>${tr('أدخل تاريخ الميلاد','Enter date of birth')}</span></div><div class="stateCard"><b>A</b><span>${tr('أول حرف إنجليزي','First English initial')}</span></div><div class="stateCard"><b>✓</b><span>${tr('مطابقة آمنة','Secure match')}</span></div><div class="stateCard"><b>↻</b><span>${tr('استكمال لاحق','Resume later')}</span></div></div><div class="notice warn">${tr('استخدم تاريخ الميلاد كما هو مسجل لدى الشركة، وأول حرف من اسمك باللغة الإنجليزية فقط.','Use the date of birth recorded by the company and the first letter of your English name only.')}</div><div class="formgrid" style="margin-top:16px"><div class="field"><div class="fieldTop"><label class="required">${t('loginDob')}</label><span class="fieldStatus">${tr('مطلوب','Required')}</span></div><input class="input ltr" id="loginDob" type="date"><div class="tip">yyyy-mm-dd</div></div><div class="field"><div class="fieldTop"><label class="required">${t('loginInitial')}</label><span class="fieldStatus">A-Z</span></div><input class="input ltr" id="loginInitial" maxlength="1" placeholder="A"><div class="tip">${t('loginInitialTip')}</div></div></div><div id="loginResult"></div>`;
-      return screenWrap('login',body,`<button class="btn primary" id="loginBtn" type="button">${t('showData')}</button>`);
+      return `<div class="screenCard employeeLoginCard"><div class="employeeLoginBrand"><div class="brandMark">HR</div><div><strong>${t('loginTitle')}</strong><span>Human Resources Department</span></div></div><h1>${t('loginHero')}</h1><p class="lead">${t('loginLead')}</p><div class="formgrid loginFormGrid"><div class="field"><div class="fieldTop"><label class="required">${t('loginDob')}</label><span class="fieldStatus">YYYY-MM-DD</span></div>${dateControl('loginDob','',{birthdate:true})}<div class="tip">${tr('اختر السنة مباشرة ثم الشهر واليوم.','Choose the year directly, then month and day.')}</div></div><div class="field"><div class="fieldTop"><label class="required">${t('loginInitial')}</label><span class="fieldStatus">A-Z</span></div><input class="input ltr" id="loginInitial" maxlength="1" placeholder="A"><div class="tip">${t('loginInitialTip')}</div></div></div><button class="btn primary loginSubmitBtn" id="loginBtn" type="button">${t('showData')}</button><div id="loginResult"></div></div>`;
     }
     function screenReview(){
       const r = state.matched || {}; const draft = r.employmentNumber ? loadDraft(r.employmentNumber) : null;
@@ -340,8 +352,49 @@ button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
       let input=''; const common=`id="${f.k}" class="input ${f.type==='date'||f.type==='email'||f.type==='tel'?'ltr':''} ${f.readonly?'readonly':''}" ${f.readonly?'readonly':''}`;
       if(f.type==='select') input=`<select ${common}><option value="">${t('select')}</option>${(f.opts||[]).map(o=>`<option value="${escapeAttr(o)}" ${val===o?'selected':''}>${escapeHtml(o)}</option>`).join('')}</select>`;
       else if(f.type==='textarea') input=`<textarea ${common} placeholder="${escapeAttr(f.tip||'')}">${escapeHtml(val)}</textarea>`;
+      else if(f.type==='date') input=dateControl(f.k,val,{readonly:f.readonly,birthdate:f.k==='birthdate'});
       else input=`<input ${common} type="${f.type||'text'}" value="${escapeAttr(val)}" list="${datalistFor(f)}" placeholder="${escapeAttr(f.tip||'')}">`;
       return `<div class="field ${f.type==='textarea'?'full':''} ${cls}" data-field="${f.k}"><div class="fieldTop"><label class="${req?'required':''}">${escapeHtml(f.label)}</label><span class="fieldStatus">${status}</span></div>${input}<div class="tip">${escapeHtml(f.tip||'')}</div>${changed?`<div class="changeNote">${tr('تم تعديل هذا الحقل عن القيمة المسجلة لدى الشركة.','This field was changed from the company record.')}</div>`:''}<div class="error"></div></div>`;
+    }
+    function parseISODate(v){
+      const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      return {year:m?m[1]:'', month:m?m[2]:'', day:m?m[3]:''};
+    }
+    function dateControl(id,val,opts={}){
+      const p=parseISODate(val);
+      const currentYear=new Date().getFullYear();
+      const minYear=opts.birthdate?1930:1900;
+      const maxYear=opts.birthdate?currentYear:currentYear+15;
+      const disabled=opts.readonly?'disabled':'';
+      const readonly=opts.readonly?'readonly':'';
+      const months=Array.from({length:12},(_,i)=>String(i+1).padStart(2,'0'));
+      const days=Array.from({length:31},(_,i)=>String(i+1).padStart(2,'0'));
+      return `<div class="dateControl" data-date-control="${escapeAttr(id)}"><input type="hidden" id="${escapeAttr(id)}" class="input ltr dateHidden" value="${escapeAttr(val||'')}" ${readonly}><label class="dateSegment"><span>${tr('السنة','Year')}</span><input class="datePart ltr" type="number" inputmode="numeric" min="${minYear}" max="${maxYear}" placeholder="YYYY" value="${escapeAttr(p.year)}" data-date-part="year" data-date-target="${escapeAttr(id)}" ${disabled}></label><label class="dateSegment"><span>${tr('الشهر','Month')}</span><select class="datePart ltr" data-date-part="month" data-date-target="${escapeAttr(id)}" ${disabled}><option value="">MM</option>${months.map(m=>`<option value="${m}" ${p.month===m?'selected':''}>${m}</option>`).join('')}</select></label><label class="dateSegment"><span>${tr('اليوم','Day')}</span><select class="datePart ltr" data-date-part="day" data-date-target="${escapeAttr(id)}" ${disabled}><option value="">DD</option>${days.map(d=>`<option value="${d}" ${p.day===d?'selected':''}>${d}</option>`).join('')}</select></label></div>`;
+    }
+    function bindDateControls(scope=document){
+      scope.querySelectorAll('.dateControl').forEach(ctrl=>{
+        ctrl.querySelectorAll('[data-date-part]').forEach(part=>{
+          part.oninput=part.onchange=()=>updateDateControl(ctrl);
+        });
+      });
+    }
+    function updateDateControl(ctrl){
+      const id=ctrl.dataset.dateControl;
+      const y=ctrl.querySelector('[data-date-part="year"]')?.value?.trim()||'';
+      const m=ctrl.querySelector('[data-date-part="month"]')?.value||'';
+      const d=ctrl.querySelector('[data-date-part="day"]')?.value||'';
+      const hidden=document.getElementById(id);
+      if(!hidden) return;
+      const old=hidden.value;
+      if(/^\d{4}$/.test(y) && m && d){
+        const dt=new Date(`${y}-${m}-${d}T00:00:00`);
+        const valid=dt.getFullYear()===+y && String(dt.getMonth()+1).padStart(2,'0')===m && String(dt.getDate()).padStart(2,'0')===d;
+        hidden.value=valid?`${y}-${m}-${d}`:'';
+      }else hidden.value='';
+      if(hidden.value!==old){
+        hidden.dispatchEvent(new Event('input',{bubbles:true}));
+        hidden.dispatchEvent(new Event('change',{bubbles:true}));
+      }
     }
     function screenAssets(){
       const checkedNone=state.noAssets?'checked':'';
@@ -367,13 +420,13 @@ button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
       $('#loginInitial')?.addEventListener('input',e=>e.target.value=e.target.value.replace(/[^A-Za-z]/g,'').toUpperCase());
       $$('.input').forEach(el=>el.addEventListener('input',onFieldInput));
       $$('.input').forEach(el=>el.addEventListener('change',onFieldInput));
+      bindDateControls();
       $$('[data-jump-field]').forEach(b=>b.addEventListener('click',()=>jumpToField(b.dataset.jumpField)));
       if($('#assetArea')) bindAssets(); if($('#familyCards')) bindFamily(); $('#submitBtn')?.addEventListener('click',submitForm);
     }
     function onFieldInput(e){
       const k=e.target.id; state.data[k]=e.target.value;
       if(k==='hiringDate') state.data.endOfProbationDate=addDays(e.target.value,90);
-      if(k==='contractType' && e.target.value==='Unlimited') state.data.endOfContractDate='';
       saveDraft(false); updateProgress(); renderSideAlerts(); updateAutosaveStatus(tr('جارٍ الحفظ...','Saving...'));
       if(['hiringDate','contractType','nationality','maritalStatus'].includes(k)) render(); else validateField(k);
     }
@@ -506,9 +559,10 @@ button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
     }
     function renderAssetDetails(){
       const box=$('#assetDetails'); if(!box) return;
-      box.innerHTML=state.assets.map((a,i)=>`<div class="subcard"><div class="subHead"><strong>${escapeHtml(a.assetType)}</strong><button class="btn danger" data-remove-asset="${i}">${tr('حذف','Remove')}</button></div><div class="formgrid"><div class="field"><label class="required">Asset_Name</label><input class="input" data-asset="${i}" data-ak="assetName" value="${escapeAttr(a.assetName||'')}"></div><div class="field"><label class="required">Holding date / تاريخ الاستلام</label><input class="input ltr" type="date" data-asset="${i}" data-ak="holdingDate" value="${escapeAttr(a.holdingDate||'')}"></div><div class="field full"><label class="required">Description</label><textarea class="input" data-asset="${i}" data-ak="description">${escapeHtml(a.description||'')}</textarea></div></div></div>`).join('');
+      box.innerHTML=state.assets.map((a,i)=>`<div class="subcard"><div class="subHead"><strong>${escapeHtml(a.assetType)}</strong><button class="btn danger" data-remove-asset="${i}">${tr('حذف','Remove')}</button></div><div class="formgrid"><div class="field"><label class="required">Asset_Name</label><input class="input" data-asset="${i}" data-ak="assetName" value="${escapeAttr(a.assetName||'')}"></div><div class="field"><label class="required">Holding date / تاريخ الاستلام</label>${dateControl(`assetDate_${i}_holdingDate`,a.holdingDate||'').replace(`id="assetDate_${i}_holdingDate"`,`id="assetDate_${i}_holdingDate" data-asset="${i}" data-ak="holdingDate"`)}</div><div class="field full"><label class="required">Description</label><textarea class="input" data-asset="${i}" data-ak="description">${escapeHtml(a.description||'')}</textarea></div></div></div>`).join('');
       $$('[data-asset]').forEach(el=>el.oninput=()=>{state.assets[+el.dataset.asset][el.dataset.ak]=el.value;saveDraft(false);});
       $$('[data-remove-asset]').forEach(b=>b.onclick=()=>{state.assets.splice(+b.dataset.removeAsset,1);render();});
+      bindDateControls($('#assetDetails')||document);
     }
     function validateAssets(){
       if(state.noAssets) return true;
@@ -522,11 +576,13 @@ button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
         ${familyField(i,'relation','Relation / صلة القرابة','select',['Spouse','Child','Father','Mother','Other'])}${familyField(i,'firstName','First Name','text')}${familyField(i,'secondName','Second Name','text')}${familyField(i,'thirdName','Third Name','text')}${familyField(i,'lastName','Last Name','text')}${familyField(i,'birthdate','Birthdate','date')}${familyField(i,'gender','Gender','select',['Male','Female'])}${familyField(i,'maritalStatus','Marital Status','select',['Single','Married','Divorced','Widowed'])}</div></div>`).join('') || '<div class="notice warn">أضف فرد عائلة واحد على الأقل، أو راجع الحالة الاجتماعية إذا لا يوجد.</div>';
       $$('[data-family]').forEach(el=>el.oninput=el.onchange=()=>{state.family[+el.dataset.family][el.dataset.fk]=el.value;saveDraft(false);});
       $$('[data-remove-family]').forEach(b=>b.onclick=()=>{state.family.splice(+b.dataset.removeFamily,1);renderFamilyCards();});
+      bindDateControls($('#familyCards')||document);
     }
     function familyField(i,k,label,type,opts=[]){
       const val=state.family[i]?.[k]||'';
       if(type==='select') return `<div class="field"><label class="required">${label}</label><select class="input" data-family="${i}" data-fk="${k}"><option value="">${t('select')}</option>${opts.map(o=>`<option ${val===o?'selected':''}>${o}</option>`).join('')}</select></div>`;
-      return `<div class="field"><label class="required">${label}</label><input class="input ${type==='date'?'ltr':''}" type="${type}" data-family="${i}" data-fk="${k}" value="${escapeAttr(val)}"></div>`;
+      if(type==='date') return `<div class="field"><label class="required">${label}</label>${dateControl(`familyDate_${i}_${k}`,val).replace(`id="familyDate_${i}_${k}"`,`id="familyDate_${i}_${k}" data-family="${i}" data-fk="${k}"`)}</div>`;
+      return `<div class="field"><label class="required">${label}</label><input class="input" type="${type}" data-family="${i}" data-fk="${k}" value="${escapeAttr(val)}"></div>`;
     }
     function validateFamily(){
       if(!needsFamily(state.data)) return true;
@@ -790,7 +846,7 @@ button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
     $('#fieldSearch')?.addEventListener('input',renderFieldSearchResults);
     applyStaticI18n();
     $('#saveDraftBtn').onclick=()=>saveDraft(true);
-    $('#resetBtn').onclick=()=>{ if(confirm('مسح بيانات الشاشة الحالية؟')){ state.current=0; state.matched=null; state.data={}; state.family=[]; state.assets=[]; state.noAssets=false; render(); }};
+    $('#resetBtn').onclick=()=>{ if(confirm('مسح بيانات الشاشة الحالية؟')){ state.current=1; state.matched=null; state.data={}; state.family=[]; state.assets=[]; state.noAssets=false; render(); }};
     window.addEventListener('keydown',e=>{ if(e.key==='Enter' && (e.metaKey||e.ctrlKey)) nextStep(); if(e.key==='Escape') closeAdmin(); });
     setInterval(()=>{ if(state.matched) saveDraft(false); },5000);
 
