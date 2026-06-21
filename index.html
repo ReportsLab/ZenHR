@@ -6,11 +6,11 @@
   <title>Employee Information Form | نموذج بيانات الموظف</title>
   <meta name="description" content="Official employee information form for company records." />
   <meta name="theme-color" content="#0b1f3a" />
-  <meta name="app-version" content="10.1.0" />
+  <meta name="app-version" content="10.1.1" />
   <link rel="icon" href="./favicon.ico" sizes="any" />
   <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
-  <script>window.EMPLOYEE_SEED = {"generatedAt":"2026-06-22T00:00:00+03:00","records":[{"employmentNumber":"DEMO-2026","temporaryId":"DEMO-2026","firstInitialKey":"S","birthdateKey":"1988-05-14","firstNameEn":"Sami","secondNameEn":"Khaled","thirdNameEn":"Yousef","lastNameEn":"Haddad","fullNameEn":"Sami Khaled Yousef Haddad","firstNameAr":"سامي","secondNameAr":"خالد","thirdNameAr":"يوسف","lastNameAr":"حداد","fullNameAr":"سامي خالد يوسف حداد","company":"Dar Al-Dawaa","commercialRegister":"Dar Al-Dawaa","workEmail":"sami.haddad.demo@dadgroup.com","personalEmail":"sami.demo@example.com","mobileNumber":"+962798054014","phoneNumber":"+962798054014","extensionNumber":"1024","address":"Amman, Jordan - Demo address for training only","passportNumber":"P1234567","passportIssueDate":"2022-03-10","passportExpiryDate":"2032-03-09","birthdate":"1988-05-14","gender":"Male","maritalStatus":"Married","religion":"Islam","nationality":"Jordanian","nationalId":"9880514321","attendanceCardId":"AC-DEMO-2026","hiringDate":"2024-01-15","endOfProbationDate":"2024-04-14","contractType":"Limited","contractDuration":"1 year","endOfContractDate":"2026-12-31","positionEn":"Sales Representative","positionAr":"مندوب مبيعات","workLocationEn":"Jordan","workLocationAr":"الأردن","departmentEn":"Sales","departmentAr":"المبيعات","sectionEn":"Retail Team","sectionAr":"فريق التجزئة","workType":"Full time","paymentMethod":"Bank Transfer","bankName":"البنك العربي (Arab Bank)","bankBranch":"Amman Main Branch","accountNumber":"1234567890","ibanNumber":"JO94CBJO0010000000000131000302","basicSalary":"750","socialSecuritySalary":"750","socialSecurityNumber":"SS-DEMO-2026","kidsRaw":"Lina 12-05-2016; Omar 09-09-2019"}],"departmentTranslationMap":{"Sales":"المبيعات"}};</script>
+  <script>window.EMPLOYEE_SEED = {"demoPurpose":"Training seed with intentional mistakes and intentionally blank fields. Login keys are valid; profile fields include controlled errors for instructor demonstration.","loginInformation":{"employmentNumber":"OWIP-SALEH-001","temporaryId":"OWIP-SALEH-001","firstInitialKey":"S","birthdateKey":"1988-05-14"},"records":[{"employmentNumber":"OWIP-SALEH-001","temporaryId":"OWIP-SALEH-001","firstInitialKey":"S","birthdateKey":"1988-05-14","firstNameEn":"Saleh","secondNameEn":"","thirdNameEn":"Yousef","lastNameEn":"Haddad","fullNameEn":"Saleh Yousef Haddad","firstNameAr":"صالح","secondNameAr":"","thirdNameAr":"يوسف","lastNameAr":"حداد","fullNameAr":"صالح يوسف حداد","company":"OWIP","commercialRegister":"OWIP","workEmail":"","personalEmail":"saleh.demo.example.com","mobileNumber":"+96279ABC5014","phoneNumber":"","extensionNumber":"","address":"","passportNumber":"","passportIssueDate":"2032-03-10","passportExpiryDate":"2022-03-09","birthdate":"1988-05-14","gender":"Male","maritalStatus":"Married","religion":"Islam","nationality":"Jordanian","nationalId":"98A51","attendanceCardId":"","hiringDate":"2024-01-15","endOfProbationDate":"2023-12-31","contractType":"Limited","contractDuration":"","endOfContractDate":"2024-01-01","positionEn":"Patent Translator","positionAr":"مترجم براءات اختراع","workLocationEn":"Jordan","workLocationAr":"الأردن","departmentEn":"Patent Translation","departmentAr":"ترجمة براءات الاختراع","sectionEn":"","sectionAr":"","workType":"Full time","paymentMethod":"Bank Transfer","bankName":"","bankBranch":"","accountNumber":"","ibanNumber":"JO00INVALIDIBAN","basicSalary":"Seven Hundred Fifty","socialSecuritySalary":"","socialSecurityNumber":"","kidsRaw":"","_demoMode":"intentional_mistakes_and_blank_fields","_demoMistakes":["Employee code changed to OWIP-SALEH-001 for the Saleh demo login.","Some required fields are intentionally blank: secondNameEn, secondNameAr, workEmail, phoneNumber, address, passportNumber, bank details, socialSecurityNumber, kidsRaw.","personalEmail is invalid because it has no @ symbol.","mobileNumber contains letters.","passport expiry date is before issue date.","nationalId is too short and contains letters.","endOfProbationDate and endOfContractDate are before hiringDate.","ibanNumber is invalid.","basicSalary contains text instead of a numeric value.","socialSecuritySalary is blank."],"jobTitleOnContractEn":"Patent Translator","jobTitleOnContractAr":"مترجم براءات اختراع"}],"generatedAt":"2026-06-22T00:00:00+03:00"};</script>
   <script defer src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <style>
 
@@ -38,7 +38,7 @@ button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
 
 .brandMark,#secretAdminWord{cursor:pointer}
 
-/* v10.1 employee-first login and easy date controls */
+/* v10.1.1 employee-first login refinements, clean header, stable focus */
 body.employee-login-mode .journeyLayout{display:block;width:min(580px,100%);padding-top:clamp(18px,5vh,72px)}
 body.employee-login-mode .journeyPanel,body.employee-login-mode .topSearch,body.employee-login-mode .topActions > :not(.langToggle){display:none!important}
 body.employee-login-mode .employeeTop{width:min(580px,100%);grid-template-columns:1fr auto;border-radius:24px;padding:14px 16px}
@@ -67,9 +67,6 @@ body.employee-login-mode .formStage{width:100%}
         <button class="btn ghost langToggle" id="langToggle">English</button>
         <button class="btn ghost" id="saveDraftBtn" data-i18n="saveDraft">حفظ مسودة</button>
         <button class="btn ghost" id="scanMissingBtn">فحص النواقص</button>
-        <button class="btn ghost" id="resetBtn" data-i18n="reset">مسح الشاشة</button>
-        <button class="btn status-pill" id="firebaseState" data-i18n="local">وضع محلي</button>
-        <div class="autosave" id="autosaveStatus"><span class="autosaveDot"></span><span>الحفظ التلقائي جاهز</span></div>
       </div>
     </header>
     <div class="journeyLayout">
@@ -118,7 +115,7 @@ body.employee-login-mode .formStage{width:100%}
       appId: "1:1003852548044:web:5702e871713e47ea32ff69"
     };
     const FIREBASE_ENABLED = !firebaseConfig.apiKey.includes('REPLACE_WITH');
-    const APP_VERSION = '10.1.0';
+    const APP_VERSION = '10.1.1';
     const ADMIN_UID = 'PwyarKYD7iTs1sbE0rTLqHrkqdv1';
     let fb = {enabled:false, db:null, auth:null, currentUser:null};
     let adminAllowed = false;
@@ -133,8 +130,8 @@ body.employee-login-mode .formStage{width:100%}
         fb = {enabled:true, db:fsMod.getFirestore(app), auth, ...fsMod, ...authMod};
         fb.onAuthStateChanged(auth, async user => { fb.currentUser = user; if(user) adminAllowed = await checkAdmin(); });
         try { if(!auth.currentUser) await fb.signInAnonymously(auth); } catch(e) { console.warn('Anonymous sign-in failed', e); }
-        $('#firebaseState').textContent = uiLang === 'ar' ? 'متصل' : 'Connected';
-      }catch(err){ console.warn(err); $('#firebaseState').textContent = uiLang === 'ar' ? 'تعذر الاتصال' : 'Connection issue'; }
+        const stateEl = $('#firebaseState'); if(stateEl) stateEl.textContent = uiLang === 'ar' ? 'متصل' : 'Connected';
+      }catch(err){ console.warn(err); const stateEl = $('#firebaseState'); if(stateEl) stateEl.textContent = uiLang === 'ar' ? 'تعذر الاتصال' : 'Connection issue'; }
     }
 
     /******************** Constants ********************/
@@ -168,13 +165,13 @@ body.employee-login-mode .formStage{width:100%}
     let uiLang = localStorage.getItem('zenhr_ui_lang') || 'ar';
     const I18N = {
       ar:{
-        saveDraft:'حفظ مسودة', reset:'مسح الشاشة', connected:'متصل', local:'وضع محلي', connectionIssue:'تعذر الاتصال',
+        saveDraft:'حفظ مسودة', connected:'متصل', connectionIssue:'تعذر الاتصال',
         formTitle:'نموذج بيانات الموظف', formSubtitle:'يرجى مراجعة بياناتك وتعبئة الحقول المطلوبة بدقة لاعتمادها في سجلات الشركة.',
         progress:'التقدم', completed:'مكتملة', remaining:'متبقية', steps:'الخطوات', guidance:'إرشادات التعبئة',
         guidanceText:'اكتب الأسماء الإنجليزية بالأحرف الإنجليزية فقط، والأسماء العربية باللغة العربية فقط. الحقول المعبأة مسبقًا يمكن تعديلها عند وجود خطأ، وسيتم حفظ التعديل للمراجعة.',
         topTitle:'تحديث بيانات الموظف', next:'التالي', prev:'السابق', select:'اختر...',
         loginTitle:'دخول الموظف', loginHero:'مرحبًا، يرجى إدخال بيانات التحقق', loginLead:'سيتم عرض البيانات المتوفرة لدينا للمراجعة والتكميل.', loginDob:'تاريخ الميلاد', loginInitial:'أول حرف من الاسم بالإنجليزية', loginInitialTip:'مثال: O إذا كان الاسم Omar', showData:'عرض بياناتي',
-        reviewTitle:'مراجعة البيانات الموجودة', reviewHero:'هذه البيانات المسجلة لدينا', reviewLead:'راجع البيانات المعروضة. إذا وجدت خطأ يمكنك تعديله في الخطوات التالية، وسيظهر التعديل للإدارة.', hiddenSalary:'الراتب وبيانات الضمان غير ظاهرة للموظف، وتستخدم فقط لأغراض الإدارة والتصدير.',
+        reviewTitle:'مراجعة البيانات الموجودة', reviewHero:'هذه البيانات المسجلة لدينا', reviewLead:'راجع البيانات المعروضة. إذا وجدت خطأ يمكنك تعديله في الخطوات التالية، وسيظهر التعديل للإدارة.',
         namesTitle:'الأسماء الرسمية', namesSub:'تأكد من كتابة الاسم كما يجب أن يظهر في سجلات الشركة.', identityTitle:'الهوية والجواز', identitySub:'تظهر بعض الحقول تلقائيًا حسب الجنسية والحالة الاجتماعية.', contactTitle:'معلومات التواصل', contactSub:'يرجى إدخال بيانات تواصل فعّالة وصحيحة.', employmentTitle:'الوظيفة والعقد', employmentSub:'بعض القيم تكون ثابتة أو محسوبة تلقائيًا حسب بيانات الشركة.', bankTitle:'المعلومات البنكية', bankSub:'يرجى التأكد من صحة بيانات البنك والآيبان.',
         assetsTitle:'العهد', assetsHero:'هل لديك عهدة من الشركة؟', assetsLead:'اختر “ليس لدي عهدة” أو حدد العهد الموجودة لديك. كل عهدة محددة تحتاج اسم/وصف وتاريخ استلام.', noAssets:'ليس لدي عهدة', hasAssets:'لدي عهدة',
         familyTitle:'العائلة', familyNotRequired:'لا توجد أسئلة عائلة لهذه الحالة', familyNotRequiredLead:'حسب الحالة الاجتماعية المختارة لا تظهر أسئلة أفراد العائلة.', familyRequiredNote:'أسئلة العائلة تظهر فقط للمتزوجين أو المطلقين أو الأرامل.', familyHero:'بيانات أفراد العائلة', familyLead:'أضف الزوج/الزوجة والأولاد حسب الحاجة. كل حقل داخل الفرد المضاف إجباري.', addFamily:'+ إضافة فرد عائلة',
@@ -184,13 +181,13 @@ body.employee-login-mode .formStage{width:100%}
         langOther:'English'
       },
       en:{
-        saveDraft:'Save draft', reset:'Clear form', connected:'جاهز', local:'جاهز', connectionIssue:'تنبيه اتصال',
+        saveDraft:'Save draft', connected:'جاهز', connectionIssue:'تنبيه اتصال',
         formTitle:'Employee Information Form', formSubtitle:'Please review your details and complete all required fields accurately for company records.',
         progress:'Progress', completed:'Completed', remaining:'Remaining', steps:'Steps', guidance:'Filling guidance',
         guidanceText:'English name fields must be completed in English letters only, and Arabic name fields in Arabic only. Pre-filled values may be corrected when needed; changes are recorded for review.',
         topTitle:'Employee Data Update', next:'Next', prev:'Previous', select:'Select...',
         loginTitle:'Employee verification', loginHero:'Welcome, please enter your verification details', loginLead:'We will show the data available in company records for your review and completion.', loginDob:'Date of birth', loginInitial:'First letter of English first name', loginInitialTip:'Example: O if the name is Omar', showData:'Show my data',
-        reviewTitle:'Review existing information', reviewHero:'Information currently on record', reviewLead:'Review the details below. If anything is incorrect, you may correct it in the next steps and the change will be visible to management.', hiddenSalary:'Salary and social security details are hidden from employees and used only for administration and export.',
+        reviewTitle:'Review existing information', reviewHero:'Information currently on record', reviewLead:'Review the details below. If anything is incorrect, you may correct it in the next steps and the change will be visible to management.',
         namesTitle:'Official names', namesSub:'Please make sure the name is written exactly as it should appear in company records.', identityTitle:'Identity and passport', identitySub:'Some fields appear automatically depending on nationality and marital status.', contactTitle:'Contact information', contactSub:'Please provide accurate and active contact details.', employmentTitle:'Employment and contract', employmentSub:'Some values are fixed or calculated automatically based on company records.', bankTitle:'Bank information', bankSub:'Please verify your bank details and IBAN carefully.',
         assetsTitle:'Assets', assetsHero:'Do you hold any company assets?', assetsLead:'Select “I do not have company assets” or choose the assets you currently hold. Each selected asset requires a name/description and holding date.', noAssets:'I do not have company assets', hasAssets:'I have company assets',
         familyTitle:'Family', familyNotRequired:'Family information is not required for this status', familyNotRequiredLead:'Based on the selected marital status, family member questions are not shown.', familyRequiredNote:'Family member questions appear only for married, divorced, or widowed employees.', familyHero:'Family members', familyLead:'Add spouse and/or children where applicable. All fields inside each added member are required.', addFamily:'+ Add family member',
@@ -331,13 +328,13 @@ body.employee-login-mode .formStage{width:100%}
       return `<div class="screenCard"><div class="sectionIntro"><div class="sectionIcon">${meta.icon||'•'}</div><div class="sectionMeta"><strong>${stepTitle(steps[state.current])}</strong><h1>${title}</h1><p class="lead">${desc}</p></div><div class="sectionProgress"><div class="sideTitle"><span>${tr('إكمال القسم','Section completion')}</span><span>${secStats.pct}%</span></div><div class="progress"><div class="bar" style="width:${secStats.pct}%"></div></div><p class="tiny" style="margin:8px 0 0">${secStats.done}/${secStats.total} ${tr('حقول مكتملة','fields complete')}</p></div></div>${state.scanOpen?missingPanelHtml():''}${body}<div class="navrow">${prev}${next}</div></div>`;
     }
     function screenLogin(){
-      return `<div class="screenCard employeeLoginCard"><div class="employeeLoginBrand"><div class="brandMark">HR</div><div><strong>${t('loginTitle')}</strong><span>Human Resources Department</span></div></div><h1>${t('loginHero')}</h1><p class="lead">${t('loginLead')}</p><div class="formgrid loginFormGrid"><div class="field"><div class="fieldTop"><label class="required">${t('loginDob')}</label><span class="fieldStatus">YYYY-MM-DD</span></div>${dateControl('loginDob','',{birthdate:true})}<div class="tip">${tr('اختر السنة مباشرة ثم الشهر واليوم.','Choose the year directly, then month and day.')}</div></div><div class="field"><div class="fieldTop"><label class="required">${t('loginInitial')}</label><span class="fieldStatus">A-Z</span></div><input class="input ltr" id="loginInitial" maxlength="1" placeholder="A"><div class="tip">${t('loginInitialTip')}</div></div></div><button class="btn primary loginSubmitBtn" id="loginBtn" type="button">${t('showData')}</button><div id="loginResult"></div></div>`;
+      return `<div class="screenCard employeeLoginCard"><div class="employeeLoginBrand loginBrandTextOnly"><div><strong>${t('loginTitle')}</strong><span>Human Resources Department</span></div></div><h1>${t('loginHero')}</h1><p class="lead">${t('loginLead')}</p><div class="formgrid loginFormGrid"><div class="field"><div class="fieldTop"><label class="required">${t('loginDob')}</label><span class="fieldStatus">YYYY-MM-DD</span></div>${dateControl('loginDob','',{birthdate:true})}<div class="tip">${tr('اختر السنة مباشرة ثم الشهر واليوم.','Choose the year directly, then month and day.')}</div></div><div class="field"><div class="fieldTop"><label class="required">${t('loginInitial')}</label><span class="fieldStatus">A-Z</span></div><input class="input ltr" id="loginInitial" maxlength="1" placeholder="A"><div class="tip">${t('loginInitialTip')}</div></div></div><button class="btn primary loginSubmitBtn" id="loginBtn" type="button">${t('showData')}</button><div id="loginResult"></div></div>`;
     }
     function screenReview(){
-      const r = state.matched || {}; const draft = r.employmentNumber ? loadDraft(r.employmentNumber) : null;
+      const r = state.matched || {};
       const labels = uiLang === 'ar' ? ['الرقم المؤقت','الاسم الإنجليزي','الاسم العربي','الشركة','الإيميل العملي','الجنسية','الحالة الاجتماعية','تاريخ الميلاد','المسمى','الدائرة'] : ['Temporary ID','English name','Arabic name','Company','Work email','Nationality','Marital status','Birthdate','Position','Department'];
       const vals = [r.employmentNumber,r.fullNameEn,r.fullNameAr,r.company,r.workEmail,r.nationality,r.maritalStatus,r.birthdate,r.positionEn||r.jobTitle,r.departmentEn];
-      const body = `${draft?`<div class="notice warn">${tr('تم العثور على مسودة محفوظة من محاولة سابقة وتم تحميلها تلقائيًا.','A saved draft was found and loaded automatically.')}</div>`:''}<div class="notice">${t('hiddenSalary')}</div><div class="review">${labels.map((l,i)=>`<div class="reviewItem"><span>${l}</span><strong>${escapeHtml(vals[i]||'—')}</strong></div>`).join('')}</div>`;
+      const body = `<div class="review">${labels.map((l,i)=>`<div class="reviewItem"><span>${l}</span><strong>${escapeHtml(vals[i]||'—')}</strong></div>`).join('')}</div>`;
       return screenWrap('review',body);
     }
     function screenFields(sectionId){
@@ -420,7 +417,7 @@ body.employee-login-mode .formStage{width:100%}
       $('#loginInitial')?.addEventListener('input',e=>e.target.value=e.target.value.replace(/[^A-Za-z]/g,'').toUpperCase());
       $$('.input').forEach(el=>el.addEventListener('input',onFieldInput));
       $$('.input').forEach(el=>el.addEventListener('change',onFieldInput));
-      bindDateControls();
+      bindDateControls(); bindLogicalTabOrder();
       $$('[data-jump-field]').forEach(b=>b.addEventListener('click',()=>jumpToField(b.dataset.jumpField)));
       if($('#assetArea')) bindAssets(); if($('#familyCards')) bindFamily(); $('#submitBtn')?.addEventListener('click',submitForm);
     }
@@ -445,6 +442,22 @@ body.employee-login-mode .formStage{width:100%}
     function datalistFor(f){ if(f.k==='nationality') return 'nationalityList'; if(f.k==='workLocationEn') return 'countryList'; if(f.k==='bankBranch') return 'cityList'; return ''; }
     function renderFieldSearchResults(){ const box=$('#searchResults'); const input=$('#fieldSearch'); if(!box || !input) return; const q=(input.value||'').trim().toLowerCase(); if(!q){box.classList.remove('active'); box.innerHTML=''; return;} const found=fields.filter(f=>f.label.toLowerCase().includes(q)||String(f.tip||'').toLowerCase().includes(q)).slice(0,8); box.innerHTML=found.length?found.map(f=>`<button class="searchItem" data-search-field="${f.k}">${escapeHtml(f.label)}</button>`).join(''):`<div class="small" style="padding:10px">${tr('لا توجد نتائج','No results')}</div>`; box.classList.add('active'); $$('[data-search-field]').forEach(b=>b.onclick=()=>{ input.value=''; box.classList.remove('active'); jumpToField(b.dataset.searchField); }); }
     function updateAutosaveStatus(msg){ const el=$('#autosaveStatus'); if(!el) return; el.innerHTML=`<span class="autosaveDot"></span><span>${escapeHtml(msg||tr('تم الحفظ تلقائيًا','Auto-saved'))}</span>`; el.classList.add('savePulse'); setTimeout(()=>el.classList.remove('savePulse'),800); }
+    function focusNextLogicalField(from, backwards=false){
+      const focusables=$$('#content input:not([type="hidden"]):not([disabled]), #content select:not([disabled]), #content textarea:not([disabled]), #content button:not([disabled])').filter(el=>el.offsetParent!==null && el.tabIndex!==-1);
+      const i=focusables.indexOf(from);
+      const target=focusables[i+(backwards?-1:1)];
+      if(target){ target.focus({preventScroll:true}); return true; }
+      return false;
+    }
+    function bindLogicalTabOrder(){
+      $$('.dateControl').forEach(ctrl=>{
+        ctrl.querySelectorAll('[data-date-part]').forEach(part=>part.addEventListener('keydown',e=>{
+          if(e.key!=='Tab') return;
+          e.preventDefault();
+          focusNextLogicalField(e.currentTarget, e.shiftKey);
+        }));
+      });
+    }
 
 /******************** Login and data ********************/
     async function loginEmployee(){
@@ -816,7 +829,6 @@ body.employee-login-mode .formStage{width:100%}
     function applyStaticI18n(){
       document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.dataset.i18n); });
       const btn = document.getElementById('langToggle'); if(btn) btn.textContent=t('langOther');
-      const fs = document.getElementById('firebaseState'); if(fs && (fs.textContent==='Local Mode' || fs.textContent==='وضع محلي' || fs.textContent==='Offline draft')) fs.textContent=t('local');
     }
 
     
@@ -845,8 +857,7 @@ body.employee-login-mode .formStage{width:100%}
     $('#scanMissingBtn')?.addEventListener('click',()=>{state.scanOpen=!state.scanOpen; render();});
     $('#fieldSearch')?.addEventListener('input',renderFieldSearchResults);
     applyStaticI18n();
-    $('#saveDraftBtn').onclick=()=>saveDraft(true);
-    $('#resetBtn').onclick=()=>{ if(confirm('مسح بيانات الشاشة الحالية؟')){ state.current=1; state.matched=null; state.data={}; state.family=[]; state.assets=[]; state.noAssets=false; render(); }};
+    $('#saveDraftBtn')?.addEventListener('click',()=>saveDraft(true));
     window.addEventListener('keydown',e=>{ if(e.key==='Enter' && (e.metaKey||e.ctrlKey)) nextStep(); if(e.key==='Escape') closeAdmin(); });
     setInterval(()=>{ if(state.matched) saveDraft(false); },5000);
 
