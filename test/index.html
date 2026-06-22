@@ -35,6 +35,16 @@ button,input,select,textarea{font-family:inherit} h1,h2,h3,p{margin-top:0} h1{fo
 .openingHero > *,.heroPanel > *{position:relative;z-index:1;}
 button,[role="button"],input,select,textarea,label{position:relative;z-index:2;}
 
+
+
+/* Global select/dropdown contrast repair — v10.2.1 */
+select,.input,.datePart{color-scheme:light;}
+select option,select optgroup,.input option,.input optgroup,.datePart option,.datePart optgroup{background-color:#ffffff;color:#102033;}
+select option:checked,.input option:checked,.datePart option:checked{background-color:#0d2d50;color:#ffffff;}
+select option:disabled,.input option:disabled,.datePart option:disabled{color:#78869a;background-color:#f5f8fb;}
+.adminLayout select,.adminContentCard select,.adminTools select,.adminCard select{color-scheme:dark;}
+.adminLayout select option,.adminLayout select optgroup,.adminContentCard select option,.adminContentCard select optgroup,.adminTools select option,.adminTools select optgroup,.adminCard select option,.adminCard select optgroup{background-color:#0d213a;color:#f8fbff;}
+.adminLayout select option:checked,.adminContentCard select option:checked,.adminTools select option:checked,.adminCard select option:checked{background-color:#099999;color:#ffffff;}
 </style>
 </head>
 <body>

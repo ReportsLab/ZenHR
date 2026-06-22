@@ -6,7 +6,7 @@
   <title>Employee Information Form | نموذج بيانات الموظف</title>
   <meta name="description" content="Official employee information form for company records." />
   <meta name="theme-color" content="#0b1f3a" />
-  <meta name="app-version" content="10.2.0" />
+  <meta name="app-version" content="10.2.1" />
   <link rel="icon" href="./favicon.ico" sizes="any" />
   <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
@@ -49,6 +49,16 @@ body.employee-login-mode .formStage{width:100%}
 .dateControl{display:grid;grid-template-columns:minmax(110px,1fr) minmax(90px,.75fr) minmax(90px,.75fr);gap:8px;align-items:end}.dateHidden{display:none!important}.dateSegment{display:grid;gap:5px;margin:0}.dateSegment span{font-size:10px;font-weight:950;color:var(--muted);letter-spacing:.02em}.datePart{width:100%;min-height:46px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);padding:0 12px;outline:none;font-weight:800}.datePart:focus{border-color:#275b91;box-shadow:0 0 0 4px rgba(18,62,104,.11)}.datePart:disabled{background:#f1f5f9;color:#738296;cursor:not-allowed}
 @media (max-width:640px){body.employee-login-mode .enterpriseApp{padding:10px}body.employee-login-mode .journeyLayout{padding-top:18px}.employeeLoginCard{border-radius:24px}.dateControl{grid-template-columns:1fr 1fr}.dateSegment:first-child{grid-column:1/-1}.employeeTop{gap:8px}.brandMini strong{font-size:13px}}
 
+
+
+/* Global select/dropdown contrast repair — v10.2.1 */
+select,.input,.datePart{color-scheme:light;}
+select option,select optgroup,.input option,.input optgroup,.datePart option,.datePart optgroup{background-color:#ffffff;color:#102033;}
+select option:checked,.input option:checked,.datePart option:checked{background-color:#0d2d50;color:#ffffff;}
+select option:disabled,.input option:disabled,.datePart option:disabled{color:#78869a;background-color:#f5f8fb;}
+.adminLayout select,.adminContentCard select,.adminTools select,.adminCard select{color-scheme:dark;}
+.adminLayout select option,.adminLayout select optgroup,.adminContentCard select option,.adminContentCard select optgroup,.adminTools select option,.adminTools select optgroup,.adminCard select option,.adminCard select optgroup{background-color:#0d213a;color:#f8fbff;}
+.adminLayout select option:checked,.adminContentCard select option:checked,.adminTools select option:checked,.adminCard select option:checked{background-color:#099999;color:#ffffff;}
 </style>
 </head>
 <body>
@@ -115,7 +125,7 @@ body.employee-login-mode .formStage{width:100%}
       appId: "1:1003852548044:web:5702e871713e47ea32ff69"
     };
     const FIREBASE_ENABLED = !firebaseConfig.apiKey.includes('REPLACE_WITH');
-    const APP_VERSION = '10.2.0';
+    const APP_VERSION = '10.2.1';
     const ADMIN_UID = 'PwyarKYD7iTs1sbE0rTLqHrkqdv1';
     let fb = {enabled:false, db:null, auth:null, currentUser:null};
     let adminAllowed = false;

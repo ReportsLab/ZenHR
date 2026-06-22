@@ -1,10 +1,11 @@
 {
-  "version": "10.2.0",
-  "build": "2026-06-22-admin-login-access-repair",
+  "version": "10.2.1",
+  "build": "2026-06-22-dropdown-contrast-repair",
   "files": [
     "index.html",
     "admin.html",
     "employee-demo-seed.json",
-    "firestore.rules"
+    "firestore.rules",
+    "test/index.html"
   ]
 }

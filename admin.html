@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="app-version" content="10.2.0" />
+  <meta name="app-version" content="10.2.1" />
   <title>Management Console | Admin</title>
   <meta name="description" content="Separated enterprise administration console for employee data management." />
   <meta name="theme-color" content="#071d36" />
@@ -18,7 +18,15 @@
 .adminFormGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.adminFormGrid .wide,.formGroup.wide{grid-column:1/-1}.addEmployeeLayout{grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr)}.formGroup.wide .textarea{min-height:120px;font-family:var(--font);font-size:13px}.dateControl{display:grid;grid-template-columns:minmax(98px,1fr) minmax(80px,.75fr) minmax(80px,.75fr);gap:7px}.dateHidden{display:none!important}.dateSegment{display:grid;gap:5px;margin:0}.dateSegment span{font-size:10px;font-weight:950;color:#9fb0c6}.datePart{width:100%;min-height:48px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;border-radius:16px;padding:0 12px;outline:none;font-weight:850}.datePart:focus{border-color:rgba(9,153,153,.78);box-shadow:0 0 0 4px rgba(9,153,153,.16)}
 @media(max-width:980px){.adminFormGrid,.addEmployeeLayout{grid-template-columns:1fr}.dateControl{grid-template-columns:1fr 1fr}.dateSegment:first-child{grid-column:1/-1}}
 
-  </style>
+  
+
+/* Global select/dropdown contrast repair — v10.2.1 */
+select,.select,.datePart{color-scheme:dark;}
+select option,select optgroup,.select option,.select optgroup,.datePart option,.datePart optgroup{background-color:#0d213a;color:#f8fbff;}
+select option:checked,.select option:checked,.datePart option:checked{background-color:#099999;color:#ffffff;}
+select option:disabled,.select option:disabled,.datePart option:disabled{color:#8fa1b6;background-color:#0d213a;}
+select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
+</style>
 
   <style>
     .loginAccessSummary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px}
@@ -87,7 +95,7 @@
   <input id="seedInput" type="file" accept="application/json,.json" class="hidden" />
 
 <script type="module">
-  const APP_VERSION = '10.2.0';
+  const APP_VERSION = '10.2.1';
   const ADMIN_UID = 'PwyarKYD7iTs1sbE0rTLqHrkqdv1';
   const firebaseConfig = { apiKey:"AIzaSyBKleLDK-Dg9smbhwIDuNz-0j3j0lX39eI", authDomain:"rawan-f903d.firebaseapp.com", projectId:"rawan-f903d", storageBucket:"rawan-f903d.firebasestorage.app", messagingSenderId:"1003852548044", appId:"1:1003852548044:web:5702e871713e47ea32ff69" };
   let appMod, fs, authMod, app, db, auth, currentUser=null, adminAllowed=false;
