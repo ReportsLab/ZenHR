@@ -768,7 +768,23 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
     function renderMissingHeatmap(submitted){
       const box=$('#missingHeatmap'); if(!box) return;
       const important=['workEmail','personalEmail','passportNumber','ibanNumber','commercialRegister','family','assets','departmentAr','sectionAr','nationalId'];
-      box.innerHTML=important.map(k=>{ let miss=0; submitted.forEach(s=>{ const a=submissionEmployee(s); if(k==='family'){ if(needsFamily(a)&&!(s.familyMembers||[]).length) miss++; } else if(k==='assets'){ if(!(s.assets||[]).length) miss++; } else if(!String(a[k]||'').trim()) miss++; }); return `<div class="heatCell"><strong>${miss}</strong>${escapeHtml(k)}</div>`; }).join('');
+      const submissionById=new Map(submitted.map(s=>[s.employeeId,s]));
+      const mergedRecord=e=>{
+        const s=submissionById.get(e.employmentNumber);
+        return s ? {...e,...submissionEmployee(s),assets:s.assets||submissionEmployee(s).assets||[],familyMembers:s.familyMembers||submissionEmployee(s).familyMembers||[],noAssets:!!(s.noAssets||submissionEmployee(s).noAssets)} : e;
+      };
+      box.innerHTML=important.map(k=>{
+        let miss=0;
+        EMPLOYEES.forEach(e=>{
+          const a=mergedRecord(e);
+          if(k==='family'){
+            if(needsFamily(a)&&!(a.familyMembers||[]).length) miss++;
+          }else if(k==='assets'){
+            if(!a.noAssets&&!(a.assets||[]).length) miss++;
+          }else if(!String(a[k]||'').trim()) miss++;
+        });
+        return `<div class="heatCell"><strong>${miss}</strong>${escapeHtml(k)}</div>`;
+      }).join('');
     }
     function tableHtml(headers, rows){ return `<div class="tableWrap"><table class="adminTable"><thead><tr>${headers.map(h=>`<th>${escapeHtml(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${escapeHtml(c??'')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`; }
     async function importSeedToFirebase(){

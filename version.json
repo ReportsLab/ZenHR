@@ -1,6 +1,6 @@
 {
-  "version": "10.2.1",
-  "build": "2026-06-22-dropdown-contrast-repair",
+  "version": "10.2.2",
+  "build": "2026-06-22-missing-heatmap-directory-aware",
   "files": [
     "index.html",
     "admin.html",

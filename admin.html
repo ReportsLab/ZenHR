@@ -146,7 +146,27 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
   function paginate(rows){ const start=(state.page-1)*state.pageSize; return [rows.slice(start,start+state.pageSize), Math.max(1,Math.ceil(rows.length/state.pageSize))]; }
   function renderOverview(){ const ids=submittedIds(); const missing=data.employees.filter(e=>!ids.has(e.employmentNumber)); const changes=data.submissions.reduce((n,s)=>n+(s.changeSummary||s.changes||[]).length,0); const blocked=loginAccessRows().length; $('#adminContent').innerHTML=`<div class="kpiGrid"><div class="kpi"><span>Total employees</span><strong>${data.employees.length}</strong></div><div class="kpi"><span>Completed</span><strong>${data.submissions.length}</strong></div><div class="kpi"><span>Pending</span><strong>${missing.length}</strong></div><div class="kpi"><span>Login issues</span><strong>${blocked}</strong></div></div><div class="grid2"><div class="panel"><h3>Completion Rate by Company</h3>${companyChart()}</div><div class="panel"><h3>Missing Fields Heatmap</h3>${missingHeatmap()}</div></div><div class="panel" style="margin-top:12px"><h3>Recent Activity</h3>${recentActivity()}</div>`; }
   function companyChart(){ const companies=[...new Set(data.employees.map(e=>e.company||'Unknown'))]; if(!companies.length)return `<div class="empty">No directory data loaded.</div>`; return companies.map(c=>{const total=data.employees.filter(e=>(e.company||'Unknown')===c).length; const done=data.submissions.filter(s=>(subCompany(s)||'Unknown')===c).length; const pct=Math.round(done/Math.max(1,total)*100); return `<div class="chartRow"><span>${esc(c)}</span><div class="track"><div class="fill" style="width:${pct}%"></div></div><b>${pct}%</b></div>`}).join(''); }
-  function missingHeatmap(){ const fields=['workEmail','personalEmail','passportNumber','ibanNumber','commercialRegister','departmentAr','sectionAr','nationalId','assets','familyMembers']; return `<div class="heat">${fields.map(k=>{let m=0;data.submissions.forEach(s=>{const a=subEmployee(s); if(k==='assets'){if(!(s.assets||[]).length)m++;}else if(k==='familyMembers'){if(['Married','Divorced','Widowed'].includes(a.maritalStatus)&&!(s.familyMembers||[]).length)m++;}else if(!String(a[k]||'').trim())m++;});return `<div class="heatCell"><strong>${m}</strong><span>${esc(k)}</span></div>`}).join('')}</div>`; }
+  function missingHeatmap(){
+    const fields=['workEmail','personalEmail','passportNumber','ibanNumber','commercialRegister','departmentAr','sectionAr','nationalId','assets','familyMembers'];
+    const submissionById=new Map(data.submissions.map(s=>[s.employeeId,s]));
+    const needsFamily=a=>['Married','Divorced','Widowed'].includes(String(a.maritalStatus||'').trim());
+    const mergedRecord=e=>{
+      const s=submissionById.get(e.employmentNumber);
+      return s ? {...e,...subEmployee(s),assets:s.assets||subEmployee(s).assets||[],familyMembers:s.familyMembers||subEmployee(s).familyMembers||[],noAssets:!!(s.noAssets||subEmployee(s).noAssets)} : e;
+    };
+    return `<div class="heat">${fields.map(k=>{
+      let m=0;
+      data.employees.forEach(e=>{
+        const a=mergedRecord(e);
+        if(k==='assets'){
+          if(!a.noAssets && !(a.assets||[]).length) m++;
+        }else if(k==='familyMembers'){
+          if(needsFamily(a) && !(a.familyMembers||[]).length) m++;
+        }else if(!String(a[k]||'').trim()) m++;
+      });
+      return `<div class="heatCell"><strong>${m}</strong><span>${esc(k)}</span></div>`;
+    }).join('')}</div>`;
+  }
   function recentActivity(){ const rows=[...data.logs].sort((a,b)=>String(b.changedAt||b.at||'').localeCompare(String(a.changedAt||a.at||''))).slice(0,8); if(!rows.length)return `<div class="empty">No audit records yet.</div>`; return table(['Action','Employee','Field','At'], rows.map(r=>[r.action||'change',r.employeeId||'',r.field||'',fmt(r.changedAt||r.at)])); }
   function renderSubmissions(){ const rows=filteredRows(data.submissions,'submission'); const [page,total]=paginate(rows); $('#adminContent').innerHTML=renderFilters()+table(['Actions','Status','Employee ID','Name','Company','Department','Submitted','Changes'], page.map(s=>[actionBtns('submission',s.employeeId),`<span class="badge ok">${esc(s.status||'Completed')}</span>`,s.employeeId,subName(s),subCompany(s),subDepartment(s),fmt(s.submittedAt),(s.changeSummary||s.changes||[]).length]),true)+pager(total); bindFilters(); bindActionButtons(); }
   function renderDirectory(){ const rows=filteredRows(data.employees,'employee'); const ids=submittedIds(); const [page,total]=paginate(rows); $('#adminContent').innerHTML=renderFilters()+table(['Actions','Status','Employee ID','Name EN','Name AR','Company','Work email','Birthdate'], page.map(e=>[actionBtns('employee',e.employmentNumber),ids.has(e.employmentNumber)?'<span class="badge ok">Submitted</span>':'<span class="badge warn">Pending</span>',e.employmentNumber,e.fullNameEn,e.fullNameAr,e.company,e.workEmail,e.birthdate]),true)+pager(total); bindFilters(); bindActionButtons(); }
