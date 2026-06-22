@@ -1,5 +1,5 @@
 {
-  "version": "10.2.2",
+  "version": "10.2.3",
   "build": "2026-06-22-missing-heatmap-directory-aware",
   "files": [
     "index.html",
@@ -7,5 +7,7 @@
     "employee-demo-seed.json",
     "firestore.rules",
     "test/index.html"
-  ]
+  ],
+  "releasedAt": "2026-06-22T07:30:00+03:00",
+  "notes": "Jordan verified HR data enrichment, social security number field, contract start date, Jordan-only bank branch locations, passport removed from assets, and blank company fallback cleaned."
 }
