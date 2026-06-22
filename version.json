@@ -1,13 +1,14 @@
 {
-  "version": "10.2.3",
-  "build": "2026-06-22-missing-heatmap-directory-aware",
+  "version": "10.3.0",
+  "build": "2026-06-23-data-migration-workbook-tool",
   "files": [
-    "index.html",
     "admin.html",
+    "data-migration.html",
     "employee-demo-seed.json",
     "firestore.rules",
+    "index.html",
     "test/index.html"
   ],
-  "releasedAt": "2026-06-22T07:30:00+03:00",
-  "notes": "Jordan verified HR data enrichment, social security number field, contract start date, Jordan-only bank branch locations, passport removed from assets, and blank company fallback cleaned."
+  "releasedAt": "2026-06-23T00:00:00+03:00",
+  "notes": "Added admin-only data-migration.html to export Firebase collections to Excel/JSON and import edited Excel workbooks as safe merge patches with audit logs."
 }

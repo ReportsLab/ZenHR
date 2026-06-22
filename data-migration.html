@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="app-version" content="10.3.0" />
+  <title>Data Migration Workbook | Admin</title>
+  <meta name="description" content="Admin-only Firebase Excel export and patch import utility for HR data migration." />
+  <meta name="theme-color" content="#071d36" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <script defer src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+  <style>
+    :root{--navy:#071d36;--navy2:#0d2d50;--teal:#099999;--teal2:#e7f7f7;--gold:#d9b766;--green:#14865a;--green2:#eaf7f1;--red:#c63d32;--red2:#fff1ef;--ink:#102033;--muted:#7b8798;--line:#d9e2ee;--soft:#f4f7fb;--paper:#fff;--dark:#061320;--stroke:rgba(255,255,255,.13);--shadow:0 22px 70px rgba(0,0,0,.28);--font:"Inter","Segoe UI",Tahoma,Arial,sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:var(--font);background:linear-gradient(135deg,#061320,#0c2037 52%,#101a26);color:#eaf0f7;overflow-x:hidden}button,input,select,textarea{font-family:inherit}button{cursor:pointer}a{color:inherit}.hidden{display:none!important}.shell{min-height:100vh;padding:22px}.wrap{width:min(1280px,100%);margin:0 auto}.topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:26px;padding:16px 18px;backdrop-filter:blur(12px)}.brand{display:flex;align-items:center;gap:12px}.logo{width:52px;height:52px;border-radius:18px;background:linear-gradient(145deg,var(--gold),#f1d68d);display:grid;place-items:center;color:#14110b;font-weight:950}.topbar h1{font-size:clamp(22px,3.5vw,36px);margin:0;letter-spacing:-.05em}.topbar p{margin:5px 0 0;color:#aab9ca;font-size:13px;line-height:1.6}.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.btn{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#f8fbff;min-height:42px;border-radius:14px;padding:0 15px;font-weight:900;box-shadow:0 12px 28px rgba(0,0,0,.12);transition:.18s ease;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.12)}.primary{background:linear-gradient(135deg,var(--teal),#0e6f84);border-color:transparent}.gold{background:linear-gradient(135deg,var(--gold),#f1d68d);color:#14110b;border-color:transparent}.danger{background:rgba(198,61,50,.16);border-color:rgba(198,61,50,.36);color:#ffcbc7}.ghost{background:rgba(255,255,255,.06)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.16)}.panel h2{margin:0 0 8px;font-size:20px;letter-spacing:-.03em}.panel p{color:#b3c3d7;line-height:1.65;font-size:13px}.input,.select,.textarea{width:100%;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;border-radius:16px;min-height:48px;padding:0 14px;outline:none}.textarea{min-height:160px;padding:14px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;line-height:1.55}.label{display:block;font-size:12px;color:#c7d5e7;font-weight:900;margin:14px 0 8px}.checkGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.check{display:flex;align-items:flex-start;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:12px}.check input{width:18px;height:18px;margin-top:1px}.check strong{display:block;color:#fff;font-size:13px}.check span{display:block;color:#9fb0c6;font-size:11px;margin-top:4px;line-height:1.4}.kpiGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}.kpi{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:16px}.kpi span{font-size:11px;color:#9fb0c6;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.kpi strong{display:block;font-size:32px;letter-spacing:-.06em;margin-top:7px}.tableWrap{overflow:auto;border:1px solid rgba(255,255,255,.12);border-radius:22px;background:rgba(255,255,255,.04);margin-top:12px}table{width:100%;border-collapse:separate;border-spacing:0;min-width:900px}th,td{padding:12px 13px;border-bottom:1px solid rgba(255,255,255,.09);font-size:13px;text-align:left;vertical-align:top}th{position:sticky;top:0;background:#0b1a2c;color:#b9c8db;font-size:11px;text-transform:uppercase;letter-spacing:.06em;z-index:1}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:950;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);white-space:nowrap}.ok{background:rgba(20,134,90,.16);color:#b9f5dc;border-color:rgba(20,134,90,.34)}.warn{background:rgba(217,183,102,.15);color:#f7df9f;border-color:rgba(217,183,102,.34)}.bad{background:rgba(198,61,50,.16);color:#ffc9c4;border-color:rgba(198,61,50,.34)}.empty{padding:28px;text-align:center;color:#9fb0c6}.log{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:14px;color:#d9e5f2;max-height:320px;overflow:auto}.login{min-height:calc(100vh - 44px);display:grid;place-items:center}.loginCard{width:min(520px,100%);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);box-shadow:var(--shadow);border-radius:30px;padding:28px;backdrop-filter:blur(18px)}.loginCard h1{margin:0 0 8px}.toast{position:fixed;bottom:18px;left:18px;z-index:120;background:rgba(255,255,255,.96);color:#102033;border-radius:16px;padding:12px 16px;box-shadow:var(--shadow);font-weight:900;max-width:min(560px,calc(100vw - 36px))}.small{font-size:12px;color:#9fb0c6;line-height:1.55}.fileDrop{border:1px dashed rgba(255,255,255,.28);border-radius:20px;padding:18px;background:rgba(255,255,255,.045)}.fileDrop strong{display:block;margin-bottom:5px}.progress{height:10px;background:rgba(255,255,255,.10);border-radius:999px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .2s ease}.rtl{direction:rtl;text-align:right}.rtl th,.rtl td{text-align:right}@media(max-width:900px){.grid,.kpiGrid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}.checkGrid{grid-template-columns:1fr}.shell{padding:14px}table{min-width:760px}}
+  </style>
+</head>
+<body>
+  <div id="loginView" class="login">
+    <form class="loginCard" id="loginForm">
+      <div class="brand" style="margin-bottom:18px"><div class="logo">HR</div><div><h1>Data Migration</h1><p class="small">Admin-only Excel export and patch import utility.</p></div></div>
+      <label class="label" for="email">Admin Email</label>
+      <input class="input" id="email" type="email" autocomplete="username" required />
+      <label class="label" for="password">Password</label>
+      <input class="input" id="password" type="password" autocomplete="current-password" required />
+      <div class="actions" style="margin-top:18px"><button class="btn primary" type="submit">Sign in</button><a class="btn ghost" href="./admin.html">Back to Admin</a></div>
+      <div class="small" id="loginError" style="margin-top:14px;color:#ffcbc7"></div>
+    </form>
+  </div>
+
+  <div id="appView" class="shell hidden">
+    <div class="wrap">
+      <section class="topbar">
+        <div class="brand"><div class="logo">DM</div><div><h1>Data Migration Workbook</h1><p>Export current Firebase data to Excel, edit it, then upload the edited workbook as safe merge patches.</p></div></div>
+        <div class="actions"><button class="btn ghost" id="langBtn" type="button">العربية</button><button class="btn ghost" id="refreshBtn" type="button">Refresh counts</button><a class="btn ghost" href="./admin.html">Admin Console</a><button class="btn danger" id="signOutBtn" type="button">Sign out</button></div>
+      </section>
+
+      <div class="kpiGrid" id="kpis">
+        <div class="kpi"><span>employeeDirectory</span><strong>—</strong></div>
+        <div class="kpi"><span>submissions</span><strong>—</strong></div>
+        <div class="kpi"><span>loginIndex</span><strong>—</strong></div>
+        <div class="kpi"><span>editLogs</span><strong>—</strong></div>
+      </div>
+
+      <section class="grid">
+        <div class="panel">
+          <h2>1. Export current website data</h2>
+          <p>The workbook includes one sheet per collection, with <b>__docId</b>, <b>__rawJson</b>, and editable flattened columns. Keep the meta columns unchanged.</p>
+          <label class="label">Collections to export</label>
+          <div class="checkGrid" id="exportChecks"></div>
+          <div class="actions" style="margin-top:16px"><button class="btn gold" id="exportWorkbookBtn" type="button">Export Excel Backup</button><button class="btn ghost" id="exportJsonBtn" type="button">Export Raw JSON</button></div>
+          <p class="small">Recommended: save the first export as the official backup before editing any file.</p>
+        </div>
+
+        <div class="panel">
+          <h2>2. Upload edited workbook</h2>
+          <p>Upload the edited Excel file. The system previews changes first. Nothing is written to Firebase until you press <b>Apply patches</b>.</p>
+          <div class="fileDrop">
+            <strong>Edited Excel file</strong>
+            <span class="small">Accepted: .xlsx, .xls. Rows with <b>__importAction = skip</b> will be ignored.</span>
+            <input class="input" id="importFile" type="file" accept=".xlsx,.xls" style="margin-top:12px" />
+          </div>
+          <label class="label" for="importMode">Import scope</label>
+          <select class="select" id="importMode">
+            <option value="employeeDirectory">Patch employeeDirectory only</option>
+            <option value="directoryAndSubmissions">Patch employeeDirectory + submissions</option>
+            <option value="allOperational">Patch employeeDirectory + submissions + loginIndex</option>
+          </select>
+          <div class="actions" style="margin-top:16px"><button class="btn primary" id="previewImportBtn" type="button">Preview import</button><button class="btn gold hidden" id="applyImportBtn" type="button">Apply patches</button></div>
+        </div>
+      </section>
+
+      <section class="panel" style="margin-top:14px">
+        <h2>Import Preview</h2>
+        <div class="progress hidden" id="progress"><div class="bar" id="bar"></div></div>
+        <div id="previewBox" class="empty">No workbook uploaded yet.</div>
+      </section>
+
+      <section class="panel" style="margin-top:14px">
+        <h2>Rules used by this tool</h2>
+        <div class="log">- Export reads: employeeDirectory, submissions, loginIndex, editLogs.
+- Import never deletes documents.
+- Import never uses full replacement.
+- Import uses set(..., { merge: true }) / batch.set(..., { merge: true }).
+- editLogs is exported for backup only and is not imported back.
+- Blank cells only clear fields that already existed in the exported row. Blank cells for fields that did not exist originally are ignored.
+- __docId and __collection must remain unchanged for reliable patching.</div>
+      </section>
+    </div>
+  </div>
+
+<script type="module">
+  const APP_VERSION = `10.3.0`;
+  const FIREBASE_CONFIG = { apiKey:`AIzaSyBKleLDK-Dg9smbhwIDuNz-0j3j0lX39eI`, authDomain:`rawan-f903d.firebaseapp.com`, projectId:`rawan-f903d`, storageBucket:`rawan-f903d.firebasestorage.app`, messagingSenderId:`1003852548044`, appId:`1:1003852548044:web:5702e871713e47ea32ff69` };
+  const COLLECTIONS = [`employeeDirectory`, `submissions`, `loginIndex`, `editLogs`];
+  const IMPORT_SCOPES = {
+    employeeDirectory: new Set([`employeeDirectory`]),
+    directoryAndSubmissions: new Set([`employeeDirectory`, `submissions`]),
+    allOperational: new Set([`employeeDirectory`, `submissions`, `loginIndex`])
+  };
+  const META_COLUMNS = new Set([`__collection`, `__docId`, `__importAction`, `__rawJson`, `__fieldKeysJson`, `__exportedAt`, `__appVersion`]);
+  let appMod, fs, authMod, app, db, auth, currentUser = null;
+  let cache = { employeeDirectory: [], submissions: [], loginIndex: [], editLogs: [] };
+  let preparedPatches = [];
+  let uiLang = localStorage.getItem(`zenhrMigrationLang`) || `en`;
+
+  const $ = selector => document.querySelector(selector);
+  const $$ = selector => [...document.querySelectorAll(selector)];
+
+  async function init(){
+    renderExportChecks();
+    applyLang();
+    try{
+      appMod = await import(`https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js`);
+      fs = await import(`https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js`);
+      authMod = await import(`https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js`);
+      app = appMod.initializeApp(FIREBASE_CONFIG);
+      db = fs.getFirestore(app);
+      auth = authMod.getAuth(app);
+      authMod.onAuthStateChanged(auth, async user => {
+        currentUser = user;
+        if(!user){ showLogin(); return; }
+        const allowed = await checkAdmin();
+        if(!allowed){ showLogin(`Access denied. This account is not authorized as admin.`); return; }
+        await showApp();
+      });
+    }catch(error){
+      console.error(error);
+      showLogin(`Firebase connection failed. Check project settings and authorized domain.`);
+    }
+  }
+
+  async function checkAdmin(){
+    if(!currentUser) return false;
+    try{
+      const snap = await fs.getDoc(fs.doc(db, `admins`, currentUser.uid));
+      return snap.exists() && snap.data().active === true;
+    }catch(error){
+      console.warn(error);
+      return false;
+    }
+  }
+
+  function showLogin(message = ``){
+    $(`#loginView`).classList.remove(`hidden`);
+    $(`#appView`).classList.add(`hidden`);
+    $(`#loginError`).textContent = message;
+  }
+
+  async function showApp(){
+    $(`#loginView`).classList.add(`hidden`);
+    $(`#appView`).classList.remove(`hidden`);
+    await loadCounts();
+  }
+
+  $(`#loginForm`).addEventListener(`submit`, async event => {
+    event.preventDefault();
+    const email = $(`#email`).value.trim();
+    const password = $(`#password`).value;
+    $(`#loginError`).textContent = ``;
+    try{
+      await authMod.signInWithEmailAndPassword(auth, email, password);
+    }catch(error){
+      console.error(error);
+      $(`#loginError`).textContent = `Invalid admin email or password.`;
+    }
+  });
+
+  $(`#signOutBtn`).addEventListener(`click`, async () => {
+    await authMod.signOut(auth);
+    showLogin();
+  });
+
+  $(`#refreshBtn`).addEventListener(`click`, loadCounts);
+  $(`#exportWorkbookBtn`).addEventListener(`click`, exportWorkbook);
+  $(`#exportJsonBtn`).addEventListener(`click`, exportRawJson);
+  $(`#previewImportBtn`).addEventListener(`click`, previewImport);
+  $(`#applyImportBtn`).addEventListener(`click`, applyImport);
+  $(`#langBtn`).addEventListener(`click`, () => {
+    uiLang = uiLang === `en` ? `ar` : `en`;
+    localStorage.setItem(`zenhrMigrationLang`, uiLang);
+    applyLang();
+  });
+
+  function applyLang(){
+    document.documentElement.lang = uiLang;
+    document.documentElement.dir = uiLang === `ar` ? `rtl` : `ltr`;
+    document.body.classList.toggle(`rtl`, uiLang === `ar`);
+    $(`#langBtn`) && ($(`#langBtn`).textContent = uiLang === `ar` ? `English` : `العربية`);
+  }
+
+  function renderExportChecks(){
+    $(`#exportChecks`).innerHTML = COLLECTIONS.map(collection => `
+      <label class="check">
+        <input type="checkbox" data-export-collection="${collection}" checked />
+        <span><strong>${collection}</strong><span>${collection === `editLogs` ? `Backup only; not imported.` : `Export and patch-capable.`}</span></span>
+      </label>
+    `).join(``);
+  }
+
+  async function loadCounts(){
+    requireAdminReady();
+    const counts = {};
+    await Promise.all(COLLECTIONS.map(async collection => {
+      try{
+        const snap = await fs.getDocs(fs.collection(db, collection));
+        counts[collection] = snap.size;
+      }catch(error){
+        console.warn(error);
+        counts[collection] = `ERR`;
+      }
+    }));
+    $(`#kpis`).innerHTML = COLLECTIONS.map(collection => `<div class="kpi"><span>${collection}</span><strong>${counts[collection]}</strong></div>`).join(``);
+  }
+
+  async function loadSelectedCollections(){
+    requireAdminReady();
+    const selected = $$(`[data-export-collection]:checked`).map(input => input.dataset.exportCollection);
+    if(!selected.length) throw new Error(`Select at least one collection.`);
+    const result = {};
+    for(const collection of selected){
+      const snap = await fs.getDocs(fs.collection(db, collection));
+      result[collection] = [];
+      snap.forEach(documentSnap => {
+        const normalized = normalizeForExport(documentSnap.data());
+        result[collection].push({ id: documentSnap.id, data: normalized });
+      });
+    }
+    cache = { ...cache, ...result };
+    return result;
+  }
+
+  async function exportWorkbook(){
+    if(!window.XLSX){ toast(`SheetJS library is not loaded yet.`); return; }
+    try{
+      setBusy(true, `Exporting workbook...`);
+      const exportedAt = new Date().toISOString();
+      const collections = await loadSelectedCollections();
+      const wb = XLSX.utils.book_new();
+      const readmeRows = [
+        { Field:`Purpose`, Value:`Firebase raw backup and editable patch workbook` },
+        { Field:`Exported At`, Value: exportedAt },
+        { Field:`App Version`, Value: APP_VERSION },
+        { Field:`Important`, Value:`Do not edit __collection or __docId.` },
+        { Field:`Import Action`, Value:`Keep __importAction as patch, or write skip to ignore a row.` },
+        { Field:`Raw JSON`, Value:`__rawJson is kept as a safety copy. Editable flat columns override it during import.` },
+        { Field:`Audit`, Value:`Import creates editLogs entries automatically.` }
+      ];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(readmeRows), `_README`);
+      for(const collection of Object.keys(collections)){
+        const rows = collections[collection].map(record => toWorkbookRow(collection, record.id, record.data, exportedAt));
+        const ws = XLSX.utils.json_to_sheet(rows.length ? rows : [{ __collection: collection, __docId: ``, __importAction: `patch`, __rawJson: `{}`, __fieldKeysJson: `[]`, __exportedAt: exportedAt, __appVersion: APP_VERSION }]);
+        ws[`!cols`] = buildColumnWidths(rows);
+        XLSX.utils.book_append_sheet(wb, ws, collection.slice(0,31));
+      }
+      XLSX.writeFile(wb, `zenhr-firebase-backup-${dateStamp()}.xlsx`);
+      await writeAudit(`export-data-migration-workbook`, `meta`, `data-migration`, null, { collections: Object.keys(collections), exportedAt });
+      toast(`Workbook exported.`);
+    }catch(error){
+      console.error(error);
+      toast(error.message || `Export failed.`);
+    }finally{
+      setBusy(false);
+    }
+  }
+
+  async function exportRawJson(){
+    try{
+      setBusy(true, `Exporting JSON...`);
+      const exportedAt = new Date().toISOString();
+      const collections = await loadSelectedCollections();
+      downloadBlob(JSON.stringify({ exportedAt, appVersion: APP_VERSION, collections }, null, 2), `zenhr-firebase-raw-${dateStamp()}.json`, `application/json;charset=utf-8`);
+      await writeAudit(`export-data-migration-json`, `meta`, `data-migration`, null, { collections: Object.keys(collections), exportedAt });
+      toast(`Raw JSON exported.`);
+    }catch(error){
+      console.error(error);
+      toast(error.message || `JSON export failed.`);
+    }finally{
+      setBusy(false);
+    }
+  }
+
+  function toWorkbookRow(collection, docId, data, exportedAt){
+    const flat = flatten(data);
+    const row = {
+      __collection: collection,
+      __docId: docId,
+      __importAction: `patch`,
+      __rawJson: JSON.stringify(data),
+      __fieldKeysJson: JSON.stringify(Object.keys(flat)),
+      __exportedAt: exportedAt,
+      __appVersion: APP_VERSION
+    };
+    Object.keys(flat).sort((a,b) => a.localeCompare(b)).forEach(key => {
+      row[key] = formatCellValue(flat[key]);
+    });
+    return row;
+  }
+
+  function buildColumnWidths(rows){
+    const sample = rows.slice(0, 25);
+    const keys = Object.keys(rows[0] || {});
+    return keys.map(key => {
+      if(key === `__rawJson`) return { wch: 42 };
+      if(key === `__fieldKeysJson`) return { wch: 28 };
+      const max = Math.max(key.length, ...sample.map(row => String(row[key] ?? ``).length));
+      return { wch: Math.min(Math.max(max + 2, 12), 34) };
+    });
+  }
+
+  async function previewImport(){
+    const file = $(`#importFile`).files?.[0];
+    if(!file){ toast(`Choose an edited Excel file first.`); return; }
+    if(!window.XLSX){ toast(`SheetJS library is not loaded yet.`); return; }
+    try{
+      setBusy(true, `Reading workbook...`);
+      preparedPatches = [];
+      $(`#applyImportBtn`).classList.add(`hidden`);
+      const workbook = XLSX.read(await file.arrayBuffer(), { type: `array`, cellDates: false });
+      const rows = workbook.SheetNames
+        .filter(sheetName => !sheetName.startsWith(`_`))
+        .flatMap(sheetName => XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: ``, raw: true }));
+      const allowed = IMPORT_SCOPES[$(`#importMode`).value] || IMPORT_SCOPES.employeeDirectory;
+      const parsed = rows.map((row, index) => parsePatchRow(row, index + 2, allowed)).filter(Boolean);
+      const issues = parsed.filter(item => item.issue);
+      const candidates = parsed.filter(item => !item.issue);
+      const changed = [];
+      for(const item of candidates){
+        const beforeSnap = await fs.getDoc(fs.doc(db, item.collection, item.docId));
+        const before = beforeSnap.exists() ? normalizeForExport(beforeSnap.data()) : {};
+        const diff = diffPatch(before, item.patch);
+        if(Object.keys(diff).length){
+          changed.push({ ...item, before, patch: diff });
+        }
+      }
+      preparedPatches = changed;
+      renderPreview({ totalRows: rows.length, candidates: candidates.length, changed, issues });
+      if(changed.length){
+        $(`#applyImportBtn`).classList.remove(`hidden`);
+      }
+    }catch(error){
+      console.error(error);
+      $(`#previewBox`).innerHTML = `<div class="empty"><span class="badge bad">Preview failed</span><br><br>${esc(error.message || error)}</div>`;
+      toast(error.message || `Preview failed.`);
+    }finally{
+      setBusy(false);
+    }
+  }
+
+  function parsePatchRow(row, rowNumber, allowed){
+    const collection = String(row.__collection || ``).trim();
+    const docId = String(row.__docId || ``).trim();
+    const action = String(row.__importAction || `patch`).trim().toLowerCase();
+    if(action === `skip`) return null;
+    if(!collection || !docId) return { issue: `Row ${rowNumber}: missing __collection or __docId.` };
+    if(collection === `editLogs`) return { issue: `Row ${rowNumber}: editLogs is backup-only and cannot be imported.` };
+    if(!allowed.has(collection)) return { issue: `Row ${rowNumber}: ${collection} is outside the selected import scope.` };
+    let base = {};
+    let originalKeys = [];
+    try{ base = row.__rawJson ? JSON.parse(row.__rawJson) : {}; }catch(error){ return { issue: `Row ${rowNumber}: invalid __rawJson.` }; }
+    try{ originalKeys = row.__fieldKeysJson ? JSON.parse(row.__fieldKeysJson) : Object.keys(flatten(base)); }catch(error){ originalKeys = Object.keys(flatten(base)); }
+    const originalKeySet = new Set(Array.isArray(originalKeys) ? originalKeys : []);
+    const patch = {};
+    Object.keys(row).forEach(key => {
+      if(META_COLUMNS.has(key)) return;
+      const value = normalizeImportValue(row[key]);
+      const originalValue = getByPath(base, key);
+      if(originalKeySet.has(key)){
+        if(!sameValue(originalValue, value)) setByPath(patch, key, value);
+        return;
+      }
+      if(!isBlank(value)) setByPath(patch, key, value);
+    });
+    return { collection, docId, patch, rowNumber };
+  }
+
+  function renderPreview(summary){
+    const rows = summary.changed.slice(0, 80).map(item => {
+      const fields = Object.keys(item.patch);
+      return `<tr><td>${esc(item.collection)}</td><td>${esc(item.docId)}</td><td><span class="badge ok">PATCH</span></td><td>${fields.length}</td><td>${esc(fields.slice(0, 12).join(`, `))}${fields.length > 12 ? `...` : ``}</td></tr>`;
+    }).join(``);
+    const issueRows = summary.issues.slice(0, 80).map(item => `<tr><td colspan="5"><span class="badge bad">Issue</span> ${esc(item.issue)}</td></tr>`).join(``);
+    $(`#previewBox`).innerHTML = `
+      <div class="kpiGrid">
+        <div class="kpi"><span>Workbook rows</span><strong>${summary.totalRows}</strong></div>
+        <div class="kpi"><span>Valid candidates</span><strong>${summary.candidates}</strong></div>
+        <div class="kpi"><span>Changed docs</span><strong>${summary.changed.length}</strong></div>
+        <div class="kpi"><span>Issues</span><strong>${summary.issues.length}</strong></div>
+      </div>
+      ${summary.issues.length ? `<p><span class="badge warn">Review required</span> Rows with issues are skipped automatically.</p>` : `<p><span class="badge ok">Ready</span> Only changed fields will be patched.</p>`}
+      <div class="tableWrap"><table><thead><tr><th>Collection</th><th>Document ID</th><th>Action</th><th>Changed Fields</th><th>Fields</th></tr></thead><tbody>${rows || `<tr><td colspan="5" class="empty">No changed documents found.</td></tr>`}${issueRows}</tbody></table></div>
+    `;
+  }
+
+  async function applyImport(){
+    if(!preparedPatches.length){ toast(`No prepared patches to apply.`); return; }
+    const confirmation = prompt(`Type APPLY to patch ${preparedPatches.length} changed documents. This cannot be undone automatically.`);
+    if(confirmation !== `APPLY`) return;
+    try{
+      setBusy(true, `Applying patches...`);
+      let done = 0;
+      const chunks = chunk(preparedPatches, 220);
+      for(const group of chunks){
+        const batch = fs.writeBatch(db);
+        group.forEach(item => {
+          batch.set(fs.doc(db, item.collection, item.docId), item.patch, { merge: true });
+          const auditRef = fs.doc(fs.collection(db, `editLogs`));
+          batch.set(auditRef, {
+            action: `data-migration-excel-patch`,
+            collection: item.collection,
+            docId: item.docId,
+            before: smallForAudit(item.before),
+            after: smallForAudit(item.patch),
+            changedFields: Object.keys(item.patch),
+            adminUid: currentUser?.uid || ``,
+            adminEmail: currentUser?.email || ``,
+            changedAt: new Date().toISOString(),
+            at: new Date().toISOString(),
+            source: `data-migration.html`,
+            appVersion: APP_VERSION
+          });
+        });
+        await batch.commit();
+        done += group.length;
+        setProgress(Math.round(done / preparedPatches.length * 100));
+      }
+      toast(`Applied ${preparedPatches.length} document patches.`);
+      $(`#applyImportBtn`).classList.add(`hidden`);
+      preparedPatches = [];
+      await loadCounts();
+    }catch(error){
+      console.error(error);
+      toast(error.message || `Import failed.`);
+    }finally{
+      setBusy(false);
+      setProgress(0);
+    }
+  }
+
+  function diffPatch(before, incomingPatch){
+    const incomingFlat = flatten(incomingPatch);
+    const changedFlat = {};
+    Object.entries(incomingFlat).forEach(([key, value]) => {
+      const currentValue = getByPath(before, key);
+      if(!sameValue(currentValue, value)) changedFlat[key] = value;
+    });
+    const result = {};
+    Object.entries(changedFlat).forEach(([key, value]) => setByPath(result, key, value));
+    return result;
+  }
+
+  function normalizeForExport(value){
+    if(value == null) return value;
+    if(typeof value?.toDate === `function`) return value.toDate().toISOString();
+    if(Array.isArray(value)) return value.map(normalizeForExport);
+    if(typeof value === `object`){
+      const output = {};
+      Object.entries(value).forEach(([key, inner]) => { output[key] = normalizeForExport(inner); });
+      return output;
+    }
+    return value;
+  }
+
+  function flatten(input, prefix = ``, output = {}){
+    Object.entries(input || {}).forEach(([key, value]) => {
+      const path = prefix ? `${prefix}.${key}` : key;
+      if(value && typeof value === `object` && !Array.isArray(value)){
+        flatten(value, path, output);
+      }else{
+        output[path] = value;
+      }
+    });
+    return output;
+  }
+
+  function setByPath(target, path, value){
+    const parts = String(path).split(`.`).filter(Boolean);
+    if(!parts.length) return;
+    let cursor = target;
+    parts.slice(0, -1).forEach(part => {
+      if(!cursor[part] || typeof cursor[part] !== `object` || Array.isArray(cursor[part])) cursor[part] = {};
+      cursor = cursor[part];
+    });
+    cursor[parts[parts.length - 1]] = value;
+  }
+
+  function getByPath(source, path){
+    return String(path).split(`.`).filter(Boolean).reduce((cursor, part) => cursor && Object.prototype.hasOwnProperty.call(cursor, part) ? cursor[part] : undefined, source);
+  }
+
+  function normalizeImportValue(value){
+    if(typeof value !== `string`) return value;
+    const trimmed = value.trim();
+    if(trimmed === ``) return ``;
+    if((trimmed.startsWith(`{`) && trimmed.endsWith(`}`)) || (trimmed.startsWith(`[`) && trimmed.endsWith(`]`))){
+      try{ return JSON.parse(trimmed); }catch(error){ return value; }
+    }
+    return value;
+  }
+
+  function formatCellValue(value){
+    if(value == null) return ``;
+    if(Array.isArray(value) || typeof value === `object`) return JSON.stringify(value);
+    return value;
+  }
+
+  function sameValue(left, right){
+    return JSON.stringify(left ?? ``) === JSON.stringify(right ?? ``);
+  }
+
+  function isBlank(value){
+    return value == null || String(value).trim() === ``;
+  }
+
+  function smallForAudit(value){
+    const json = JSON.stringify(value || {});
+    if(json.length <= 9000) return value;
+    return { truncated: true, preview: json.slice(0, 9000) };
+  }
+
+  async function writeAudit(action, collection, docId, before, after){
+    try{
+      await fs.setDoc(fs.doc(fs.collection(db, `editLogs`)), {
+        action,
+        collection,
+        docId,
+        before: smallForAudit(before),
+        after: smallForAudit(after),
+        adminUid: currentUser?.uid || ``,
+        adminEmail: currentUser?.email || ``,
+        changedAt: new Date().toISOString(),
+        at: new Date().toISOString(),
+        source: `data-migration.html`,
+        appVersion: APP_VERSION
+      });
+    }catch(error){
+      console.warn(`Audit write failed`, error);
+    }
+  }
+
+  function requireAdminReady(){
+    if(!db || !currentUser) throw new Error(`Admin session is not ready.`);
+  }
+
+  function setBusy(active, text = ``){
+    document.body.style.cursor = active ? `progress` : ``;
+    $(`#progress`).classList.toggle(`hidden`, !active);
+    if(active){ $(`#previewBox`).innerHTML = `<div class="empty">${esc(text || `Working...`)}</div>`; setProgress(12); }
+  }
+
+  function setProgress(percent){
+    $(`#bar`).style.width = `${Math.max(0, Math.min(100, percent))}%`;
+  }
+
+  function chunk(items, size){
+    const groups = [];
+    for(let index = 0; index < items.length; index += size) groups.push(items.slice(index, index + size));
+    return groups;
+  }
+
+  function dateStamp(){
+    return new Date().toISOString().slice(0, 19).replace(/[-:T]/g, ``);
+  }
+
+  function downloadBlob(content, filename, type){
+    const blob = new Blob([content], { type });
+    const link = document.createElement(`a`);
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  }
+
+  function toast(message){
+    const element = document.createElement(`div`);
+    element.className = `toast`;
+    element.textContent = message;
+    document.body.appendChild(element);
+    setTimeout(() => element.remove(), 3600);
+  }
+
+  function esc(value){
+    return String(value ?? ``).replace(/[&<>"]/g, char => ({ '&':`&amp;`, '<':`&lt;`, '>':`&gt;`, '"':`&quot;` }[char]));
+  }
+
+  init();
+</script>
+</body>
+</html>
