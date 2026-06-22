@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="app-version" content="10.3.0" />
+  <meta name="app-version" content="10.3.1" />
   <title>Data Migration Workbook | Admin</title>
   <meta name="description" content="Admin-only Firebase Excel export and patch import utility for HR data migration." />
   <meta name="theme-color" content="#071d36" />
@@ -23,7 +23,7 @@
       <input class="input" id="email" type="email" autocomplete="username" required />
       <label class="label" for="password">Password</label>
       <input class="input" id="password" type="password" autocomplete="current-password" required />
-      <div class="actions" style="margin-top:18px"><button class="btn primary" type="submit">Sign in</button><a class="btn ghost" href="./admin.html">Back to Admin</a></div>
+      <div class="actions" style="margin-top:18px"><button class="btn primary" type="submit">Sign in</button><button class="btn gold hidden" id="bootstrapAdminBtn" type="button">Initialize admin access</button><a class="btn ghost" href="./admin.html">Back to Admin</a></div>
       <div class="small" id="loginError" style="margin-top:14px;color:#ffcbc7"></div>
     </form>
   </div>
@@ -90,8 +90,9 @@
   </div>
 
 <script type="module">
-  const APP_VERSION = `10.3.0`;
+  const APP_VERSION = `10.3.1`;
   const FIREBASE_CONFIG = { apiKey:`AIzaSyBKleLDK-Dg9smbhwIDuNz-0j3j0lX39eI`, authDomain:`rawan-f903d.firebaseapp.com`, projectId:`rawan-f903d`, storageBucket:`rawan-f903d.firebasestorage.app`, messagingSenderId:`1003852548044`, appId:`1:1003852548044:web:5702e871713e47ea32ff69` };
+  const ADMIN_UID = `PwyarKYD7iTs1sbE0rTLqHrkqdv1`;
   const COLLECTIONS = [`employeeDirectory`, `submissions`, `loginIndex`, `editLogs`];
   const IMPORT_SCOPES = {
     employeeDirectory: new Set([`employeeDirectory`]),
@@ -99,7 +100,7 @@
     allOperational: new Set([`employeeDirectory`, `submissions`, `loginIndex`])
   };
   const META_COLUMNS = new Set([`__collection`, `__docId`, `__importAction`, `__rawJson`, `__fieldKeysJson`, `__exportedAt`, `__appVersion`]);
-  let appMod, fs, authMod, app, db, auth, currentUser = null;
+  let appMod, fs, authMod, app, db, auth, currentUser = null, adminAllowed = false;
   let cache = { employeeDirectory: [], submissions: [], loginIndex: [], editLogs: [] };
   let preparedPatches = [];
   let uiLang = localStorage.getItem(`zenhrMigrationLang`) || `en`;
@@ -119,9 +120,19 @@
       auth = authMod.getAuth(app);
       authMod.onAuthStateChanged(auth, async user => {
         currentUser = user;
+        adminAllowed = false;
         if(!user){ showLogin(); return; }
         const allowed = await checkAdmin();
-        if(!allowed){ showLogin(`Access denied. This account is not authorized as admin.`); return; }
+        adminAllowed = allowed;
+        if(!allowed){
+          const bootstrapMessage = user.uid === ADMIN_UID
+            ? `Admin document is missing or Firestore rules are not published. Press Initialize admin access once, then export again.`
+            : `Access denied. This account is authenticated but is not authorized as admin.`;
+          showLogin(bootstrapMessage);
+          toggleBootstrapButton(user.uid === ADMIN_UID);
+          return;
+        }
+        toggleBootstrapButton(false);
         await showApp();
       });
     }catch(error){
@@ -145,6 +156,44 @@
     $(`#loginView`).classList.remove(`hidden`);
     $(`#appView`).classList.add(`hidden`);
     $(`#loginError`).textContent = message;
+    toggleBootstrapButton(!!currentUser && currentUser.uid === ADMIN_UID && !adminAllowed);
+  }
+
+  function toggleBootstrapButton(visible){
+    const button = $(`#bootstrapAdminBtn`);
+    if(button) button.classList.toggle(`hidden`, !visible);
+  }
+
+  async function bootstrapAdminAccess(){
+    if(!currentUser || currentUser.uid !== ADMIN_UID){
+      showLogin(`Sign in with the bootstrap admin account first.`);
+      return;
+    }
+    try{
+      setLoginBusy(true);
+      await fs.setDoc(fs.doc(db, `admins`, ADMIN_UID), {
+        role: `admin`,
+        active: true,
+        createdAt: new Date().toISOString(),
+        source: `data-migration.html`,
+        appVersion: APP_VERSION
+      }, { merge: true });
+      adminAllowed = true;
+      toggleBootstrapButton(false);
+      await writeAudit(`bootstrap-admin`, `admins`, ADMIN_UID, null, { role:`admin`, active:true });
+      await showApp();
+      toast(`Admin access initialized.`);
+    }catch(error){
+      console.error(error);
+      showLogin(`Bootstrap failed. Publish the included firestore.rules first, then try again.`);
+    }finally{
+      setLoginBusy(false);
+    }
+  }
+
+  function setLoginBusy(active){
+    const button = $(`#bootstrapAdminBtn`);
+    if(button) button.disabled = active;
   }
 
   async function showApp(){
@@ -168,8 +217,11 @@
 
   $(`#signOutBtn`).addEventListener(`click`, async () => {
     await authMod.signOut(auth);
+    adminAllowed = false;
     showLogin();
   });
+
+  $(`#bootstrapAdminBtn`)?.addEventListener(`click`, bootstrapAdminAccess);
 
   $(`#refreshBtn`).addEventListener(`click`, loadCounts);
   $(`#exportWorkbookBtn`).addEventListener(`click`, exportWorkbook);
@@ -206,11 +258,15 @@
         const snap = await fs.getDocs(fs.collection(db, collection));
         counts[collection] = snap.size;
       }catch(error){
-        console.warn(error);
+        console.warn(`Count denied for ${collection}`, error);
         counts[collection] = `ERR`;
       }
     }));
     $(`#kpis`).innerHTML = COLLECTIONS.map(collection => `<div class="kpi"><span>${collection}</span><strong>${counts[collection]}</strong></div>`).join(``);
+    const denied = Object.entries(counts).filter(([,value]) => value === `ERR`).map(([key]) => key);
+    if(denied.length){
+      $(`#previewBox`).innerHTML = `<div class="empty"><span class="badge bad">Firestore permissions issue</span><br><br>${esc(denied.join(`, `))} could not be read. Publish the included firestore.rules and make sure your signed-in account is active in admins/{uid}.</div>`;
+    }
   }
 
   async function loadSelectedCollections(){
@@ -218,13 +274,22 @@
     const selected = $$(`[data-export-collection]:checked`).map(input => input.dataset.exportCollection);
     if(!selected.length) throw new Error(`Select at least one collection.`);
     const result = {};
+    const denied = [];
     for(const collection of selected){
-      const snap = await fs.getDocs(fs.collection(db, collection));
-      result[collection] = [];
-      snap.forEach(documentSnap => {
-        const normalized = normalizeForExport(documentSnap.data());
-        result[collection].push({ id: documentSnap.id, data: normalized });
-      });
+      try{
+        const snap = await fs.getDocs(fs.collection(db, collection));
+        result[collection] = [];
+        snap.forEach(documentSnap => {
+          const normalized = normalizeForExport(documentSnap.data());
+          result[collection].push({ id: documentSnap.id, data: normalized });
+        });
+      }catch(error){
+        console.error(`Export denied for ${collection}`, error);
+        denied.push(collection);
+      }
+    }
+    if(denied.length){
+      throw new Error(`Missing Firestore permission for: ${denied.join(`, `)}. Publish firestore.rules and verify admins/${currentUser?.uid || `currentUid`} has active=true.`);
     }
     cache = { ...cache, ...result };
     return result;
@@ -540,6 +605,7 @@
 
   function requireAdminReady(){
     if(!db || !currentUser) throw new Error(`Admin session is not ready.`);
+    if(!adminAllowed) throw new Error(`Admin permission is not confirmed. Sign in again or initialize admin access.`);
   }
 
   function setBusy(active, text = ``){
