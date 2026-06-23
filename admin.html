@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="app-version" content="10.3.1" />
+  <meta name="app-version" content="10.3.3" />
   <title>Management Console | Admin</title>
   <meta name="description" content="Separated enterprise administration console for employee data management." />
   <meta name="theme-color" content="#071d36" />
@@ -97,7 +97,7 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
   <input id="seedInput" type="file" accept="application/json,.json" class="hidden" />
 
 <script type="module">
-  const APP_VERSION = '10.3.1';
+  const APP_VERSION = '10.3.3';
   const ADMIN_UID = 'PwyarKYD7iTs1sbE0rTLqHrkqdv1';
   const firebaseConfig = { apiKey:"AIzaSyBKleLDK-Dg9smbhwIDuNz-0j3j0lX39eI", authDomain:"rawan-f903d.firebaseapp.com", projectId:"rawan-f903d", storageBucket:"rawan-f903d.firebasestorage.app", messagingSenderId:"1003852548044", appId:"1:1003852548044:web:5702e871713e47ea32ff69" };
   let appMod, fs, authMod, app, db, auth, currentUser=null, adminAllowed=false;
@@ -206,7 +206,9 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
   function missingHeatmap(){
     const fields=['workEmail','personalEmail','passportNumber','ibanNumber','commercialRegister','departmentAr','sectionAr','nationalId','assets','familyMembers'];
     const submissionById=new Map(data.submissions.map(s=>[s.employeeId,s]));
-    const needsFamily=a=>['Married','Divorced','Widowed'].includes(String(a.maritalStatus||'').trim());
+    const needsFamily=a=>['married','divorced','widowed'].includes(String(a.maritalStatus||'').trim().toLowerCase());
+    const needsSpouse=a=>String(a.maritalStatus||'').trim().toLowerCase()==='married';
+    const spouseSelected=family=>(family||[]).some(m=>String(m.relation||'').trim().toLowerCase()==='spouse');
     const mergedRecord=e=>{
       const s=submissionById.get(e.employmentNumber);
       return s ? {...e,...subEmployee(s),assets:s.assets||subEmployee(s).assets||[],familyMembers:s.familyMembers||subEmployee(s).familyMembers||[],noAssets:!!(s.noAssets||subEmployee(s).noAssets)} : e;
@@ -218,7 +220,7 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
         if(k==='assets'){
           if(!a.noAssets && !(a.assets||[]).length) m++;
         }else if(k==='familyMembers'){
-          if(needsFamily(a) && !(a.familyMembers||[]).length) m++;
+          if(needsSpouse(a) && !spouseSelected(a.familyMembers||[])) m++;
         }else if(!String(a[k]||'').trim()) m++;
       });
       return `<div class="heatCell"><strong>${m}</strong><span>${esc(k)}</span></div>`;

@@ -1,6 +1,6 @@
 {
-  "version": "10.3.1",
-  "build": "2026-06-23-data-migration-permissions-fix",
+  "version": "10.3.3",
+  "build": "2026-06-23-family-location-register-lock",
   "files": [
     "admin.html",
     "data-migration.html",
@@ -9,6 +9,6 @@
     "index.html",
     "test/index.html"
   ],
-  "releasedAt": "2026-06-23T00:30:00+03:00",
-  "notes": "Fixed data-migration admin permission handling, added bootstrap admin access, clearer Firestore permission diagnostics, and updated rules to recognize the bootstrap admin UID."
+  "releasedAt": "2026-06-23T01:15:00+03:00",
+  "notes": "Restricted family section to Married only, required Spouse, allowed unlimited children, locked commercial register and Jordan work location, and removed survey/register helper notes."
 }

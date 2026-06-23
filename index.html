@@ -6,7 +6,7 @@
   <title>Employee Information Form | نموذج بيانات الموظف</title>
   <meta name="description" content="Official employee information form for company records." />
   <meta name="theme-color" content="#0b1f3a" />
-  <meta name="app-version" content="10.3.1" />
+  <meta name="app-version" content="10.3.3" />
   <link rel="icon" href="./favicon.ico" sizes="any" />
   <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
@@ -125,7 +125,7 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       appId: "1:1003852548044:web:5702e871713e47ea32ff69"
     };
     const FIREBASE_ENABLED = !firebaseConfig.apiKey.includes('REPLACE_WITH');
-    const APP_VERSION = '10.2.3';
+    const APP_VERSION = '10.3.3';
     const ADMIN_UID = 'PwyarKYD7iTs1sbE0rTLqHrkqdv1';
     let fb = {enabled:false, db:null, auth:null, currentUser:null};
     let adminAllowed = false;
@@ -206,7 +206,7 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       return patch;
     }
     function applyJordanVerifiedData(emp){ return {...emp, ...buildJordanVerifiedPatch(emp)}; }
-    function cleanEmployeePayload(d){ const x={...d}; Object.keys(x).forEach(k=>{ if(k.startsWith('_')) delete x[k]; }); return x; }
+    function cleanEmployeePayload(d){ const x={...d}; Object.keys(x).forEach(k=>{ if(k.startsWith('_')) delete x[k]; }); x.workLocationEn='Jordan'; x.workLocationAr='الأردن'; x.commercialRegister=state.matched?.commercialRegister || state.matched?.company || x.commercialRegister || x.company || ''; return x; }
     
     const RE = {
       enName:/^[A-Za-z][A-Za-z\s.'\-]*$/,
@@ -221,7 +221,9 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
     const $$ = s => [...document.querySelectorAll(s)];
     const todayISO = () => new Date().toISOString().slice(0,10);
     const isJordanian = data => /jordan|اردن|أردن/i.test((data.nationality||'').trim());
-    const needsFamily = data => ['Married','Divorced','Widowed'].includes(data.maritalStatus);
+    const needsFamily = data => ['married','divorced','widowed'].includes(String(data?.maritalStatus || '').trim().toLowerCase());
+    const needsSpouse = data => String(data?.maritalStatus || '').trim().toLowerCase() === 'married';
+    const spouseSelected = family => (family || []).some(m => String(m.relation || '').trim().toLowerCase() === 'spouse');
 
     const state = {
       current:1, matched:null, matches:[], data:{}, family:[], assets:[], noAssets:false, lockedFields:{}, submitted:false, adminTab:'submissions', submissions: loadLocalSubmissions(), scanOpen:false, searchQuery:'', lastSavedAt:null
@@ -307,10 +309,10 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       {k:'endOfContractDate', label:'End_Of_Contract_Date / تاريخ انتهاء العقد', section:'employment', type:'date', req:data=>data.contractType==='Limited', tip:'يمكن للموظف تعديله عند الحاجة. إلزامي للعقد المحدد.'},
       {k:'positionEn', label:'Position in English / المسمى الوظيفي بالإنجليزية', section:'employment', type:'text', req:true, tip:'English job title only.', pattern:'enLoose'},
       {k:'positionAr', label:'Position in Arabic / المسمى الوظيفي بالعربية', section:'employment', type:'text', req:true, tip:'Arabic job title only.', pattern:'arName'},
-      {k:'workLocationEn', label:'Work Location in English / موقع العمل بالإنجليزية', section:'employment', type:'text', req:true, tip:'مثال: Jordan'},
-      {k:'workLocationAr', label:'Work Location in Arabic / موقع العمل بالعربية', section:'employment', type:'text', req:true, tip:'القيمة الافتراضية: الأردن', pattern:'arName'},
-      {k:'departmentEn', label:'Department in English / اسم الدائرة بالإنجليزية', section:'employment', type:'text', req:true, tip:'مأخوذ من الاستبيان إن وجد.'},
-      {k:'departmentAr', label:'Department in Arabic / اسم الدائرة بالعربية', section:'employment', type:'text', req:true, tip:'تمت ترجمتها مبدئيًا ويمكن مراجعتها.', pattern:'arName'},
+      {k:'workLocationEn', label:'Work Location in English / موقع العمل بالإنجليزية', section:'employment', type:'text', req:true, tip:'', readonly:true},
+      {k:'workLocationAr', label:'Work Location in Arabic / موقع العمل بالعربية', section:'employment', type:'text', req:true, tip:'', pattern:'arName', readonly:true},
+      {k:'departmentEn', label:'Department in English / اسم الدائرة بالإنجليزية', section:'employment', type:'text', req:true, tip:''},
+      {k:'departmentAr', label:'Department in Arabic / اسم الدائرة بالعربية', section:'employment', type:'text', req:true, tip:'', pattern:'arName'},
       {k:'sectionEn', label:'Section in English / اسم القسم بالإنجليزية', section:'employment', type:'text', req:true, tip:'اكتب القسم/الفريق باللغة الإنجليزية.'},
       {k:'sectionAr', label:'Section in Arabic / اسم القسم بالعربية', section:'employment', type:'text', req:true, tip:'اكتب القسم/الفريق باللغة العربية.', pattern:'arName'},
       {k:'workType', label:'Work Type', section:'employment', type:'text', req:true, readonly:true, tip:'ثابتة: Full time'},
@@ -319,7 +321,7 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       {k:'bankBranch', label:'Bank Branch / فرع بنك الموظف', section:'bank', type:'text', req:true, tip:'اكتب اسم الفرع.'},
       {k:'accountNumber', label:'Account Number / رقم حساب البنك', section:'bank', type:'text', req:true, tip:'أرقام فقط قدر الإمكان.'},
       {k:'ibanNumber', label:'IBAN Number / رقم الآيبان', section:'bank', type:'text', req:true, tip:'للأردن يجب أن يبدأ JO ويكون 30 خانة.', pattern:'ibanJO'},
-      {k:'commercialRegister', label:'Commercial Register / اسم السجل التجاري', section:'employment', type:'text', req:true, tip:'اكتب اسم الشركة/السجل التجاري كما يجب أن يظهر في ZenHR. يتم تعبئته تلقائيًا من اسم الشركة عند توفره.'}
+      {k:'commercialRegister', label:'Commercial Register / اسم السجل التجاري', section:'employment', type:'text', req:true, tip:'', readonly:true}
     ];
 
     
@@ -334,7 +336,7 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       employment:{icon:'▤', ar:'الوظيفة والعقد', en:'Employment & contract', descAr:'بيانات العمل والعقد والموقع التنظيمي.', descEn:'Employment, contract, and organizational information.'},
       bank:{icon:'◆', ar:'البنك والدفع', en:'Bank & payment', descAr:'معلومات البنك والتحويلات المالية.', descEn:'Bank information for payroll transfer.'},
       assets:{icon:'▦', ar:'العهد', en:'Assets', descAr:'اختر العهد الموجودة لديك أو حدد أنه لا توجد عهدة.', descEn:'Select company assets held by you, or indicate none.'},
-      family:{icon:'◌', ar:'العائلة', en:'Family', descAr:'تظهر هذه الأسئلة فقط للحالات الاجتماعية ذات الصلة.', descEn:'This section appears only for applicable marital statuses.'},
+      family:{icon:'◌', ar:'العائلة', en:'Family', descAr:'تظهر للأطفال عند Married / Divorced / Widowed، ويكون الشريك إلزاميًا فقط عند Married.', descEn:'Children can be added for Married / Divorced / Widowed. Spouse is required only for Married.'},
       submit:{icon:'✓', ar:'المراجعة النهائية', en:'Final review', descAr:'راجع الملخص النهائي قبل الإرسال.', descEn:'Review the final summary before submission.'}
     };
     function tr(ar,en){ return uiLang === 'ar' ? ar : en; }
@@ -418,7 +420,7 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       else if(f.type==='textarea') input=`<textarea ${common} placeholder="${escapeAttr(f.tip||'')}">${escapeHtml(val)}</textarea>`;
       else if(f.type==='date') input=dateControl(f.k,val,{readonly,birthdate:f.k==='birthdate'});
       else input=`<input ${common} type="${f.type||'text'}" value="${escapeAttr(val)}" list="${datalistFor(f)}" placeholder="${escapeAttr(f.tip||'')}">`;
-      return `<div class="field ${f.type==='textarea'?'full':''} ${cls}" data-field="${f.k}"><div class="fieldTop"><label class="${req?'required':''}">${escapeHtml(f.label)}</label><span class="fieldStatus">${status}</span></div>${input}<div class="tip">${escapeHtml(f.tip||'')}</div>${changed?`<div class="changeNote">${tr('تم تعديل هذا الحقل عن القيمة المسجلة لدى الشركة.','This field was changed from the company record.')}</div>`:''}<div class="error"></div></div>`;
+      return `<div class="field ${f.type==='textarea'?'full':''} ${cls}" data-field="${f.k}"><div class="fieldTop"><label class="${req?'required':''}">${escapeHtml(f.label)}</label><span class="fieldStatus">${status}</span></div>${input}${f.tip?`<div class="tip">${escapeHtml(f.tip)}</div>`:''}${changed?`<div class="changeNote">${tr('تم تعديل هذا الحقل عن القيمة المسجلة لدى الشركة.','This field was changed from the company record.')}</div>`:''}<div class="error"></div></div>`;
     }
     function parseISODate(v){
       const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -466,8 +468,14 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       return screenWrap('assets',body);
     }
     function screenFamily(){
-      if(!needsFamily(state.data)) return screenWrap('family',`<div class="notice ok"><h3>${t('familyNotRequired')}</h3><p>${t('familyNotRequiredLead')}</p></div>`);
-      const body=`<div class="notice warn">${t('familyRequiredNote')}</div><div class="topActions" style="margin:14px 0"><button class="btn primary" id="addFamilyBtn">${t('addFamily')}</button></div><div id="familyCards" class="subcards"></div>`;
+      if(!needsFamily(state.data)) return screenWrap('family',`<div class="notice ok"><h3>${t('familyNotRequired')}</h3><p>${tr('هذا السؤال لا يظهر إلا إذا كانت الحالة الاجتماعية Married أو Divorced أو Widowed.','This question appears only when marital status is Married, Divorced, or Widowed.')}</p></div>`);
+      const spouseRequired = needsSpouse(state.data);
+      const hasSpouse = spouseSelected(state.family);
+      const spouseButton = spouseRequired ? `<button class="btn primary" id="addSpouseBtn" ${hasSpouse?'disabled':''}>${tr('إضافة الشريك Spouse','Add Spouse')}</button>` : '';
+      const msg = spouseRequired
+        ? tr('الحالة الاجتماعية Married: يجب إضافة الشريك Spouse، ويمكنك إضافة أي عدد من الأطفال حسب الحاجة.','Marital status is Married: Spouse is required, and you can add any number of children as needed.')
+        : tr('يمكنك إضافة أي عدد من الأطفال. سؤال الشريك Spouse لا يظهر إلا إذا كانت الحالة الاجتماعية Married.','You can add any number of children. Spouse appears only when marital status is Married.');
+      const body=`<div class="notice warn">${msg}</div><div class="topActions" style="margin:14px 0">${spouseButton}<button class="btn ghost" id="addChildBtn">${tr('إضافة طفل','Add Child')}</button></div><div id="familyCards" class="subcards"></div>`;
       return screenWrap('family',body);
     }
     function screenSubmit(){
@@ -495,10 +503,10 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       if(k==='positionAr' && state.data.positionAr && !state.data.positionEn){ const trTitle=translatedJobTitle(state.data.positionAr); if(trTitle) state.data.positionEn=trTitle; }
       fillPositionPair(state.data);
       saveDraft(false); updateProgress(); renderSideAlerts(); updateAutosaveStatus(tr('جارٍ الحفظ...','Saving...'));
-      if(['hiringDate','contractType','nationality','maritalStatus','positionEn','positionAr'].includes(k)) render(); else validateField(k);
+      if(['hiringDate','contractType','nationality','maritalStatus','positionEn','positionAr'].includes(k)){ if(k==='maritalStatus'){ normalizeFamilyForStatus(); saveDraft(false); } render(); } else validateField(k);
     }
     function nextStep(){ const id=steps[state.current].id; if(!['dashboard','login'].includes(id) && !validateCurrent()) return; if(state.current<steps.length-1){ state.current++; render(); } }
-    function sectionStats(id){ const list=fields.filter(f=>f.section===id && shouldShow(f) && isRequired(f)); if(id==='assets') return {total:1, done:(state.noAssets||state.assets.length)?1:0, pct:(state.noAssets||state.assets.length)?100:0}; if(id==='family') return {total:needsFamily(state.data)?1:0, done:!needsFamily(state.data)||state.family.length?1:0, pct:!needsFamily(state.data)||state.family.length?100:0}; const done=list.filter(f=>String(state.data[f.k]||'').trim() && validateFieldNoDom(f)).length; return {total:list.length, done, pct:Math.round((done/Math.max(1,list.length))*100)}; }
+    function sectionStats(id){ const list=fields.filter(f=>f.section===id && shouldShow(f) && isRequired(f)); if(id==='assets') return {total:1, done:(state.noAssets||state.assets.length)?1:0, pct:(state.noAssets||state.assets.length)?100:0}; if(id==='family'){ const done=!needsFamily(state.data)||validateFamily(); return {total:needsFamily(state.data)?1:0, done:done?1:0, pct:done?100:0}; } const done=list.filter(f=>String(state.data[f.k]||'').trim() && validateFieldNoDom(f)).length; return {total:list.length, done, pct:Math.round((done/Math.max(1,list.length))*100)}; }
     function sectionInstruction(id){ const m=SECTION_META[id]||{}; return tr(m.descAr||'راجع هذا القسم بعناية.', m.descEn||'Review this section carefully.'); }
     function isChanged(k){ const before=(state.matched?.[k]??'').toString().trim(); const after=(state.data?.[k]??'').toString().trim(); return !!before && !!after && before!==after; }
     function computeMissingFields(){
@@ -564,7 +572,8 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       state.data = defaultsFromEmployee(emp, previous);
       state.assets = state.submissions[emp.employmentNumber]?.assets || previous.assets || [];
       state.noAssets = state.submissions[emp.employmentNumber]?.noAssets ?? previous.noAssets ?? false;
-      state.family = state.submissions[emp.employmentNumber]?.familyMembers || previous.familyMembers || initialFamilyFromSurvey(emp);
+      state.family = needsFamily(state.data) ? (state.submissions[emp.employmentNumber]?.familyMembers || previous.familyMembers || initialFamilyFromSurvey(emp)) : [];
+      normalizeFamilyForStatus();
       state.current=2; saveDraft(false); render();
     }
     function defaultsFromEmployee(emp, previous={}){
@@ -576,7 +585,7 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       d.directManagerEmploymentNo=''; d.supervisorEmploymentNo='';
       d.allowances1=''; d.allowances2=''; d.allowances3='';
       d.workLocationAr = 'الأردن'; d.workLocationEn = 'Jordan';
-      d.commercialRegister = d.commercialRegister || d.company || '';
+      d.commercialRegister = source.commercialRegister || source.company || d.commercialRegister || d.company || '';
       if(!d.phoneNumber && d.mobileNumber) d.phoneNumber=d.mobileNumber;
       if(!d.endOfProbationDate && d.hiringDate) d.endOfProbationDate=addDays(d.hiringDate,90);
       if(!d.sectionEn && d.departmentEn) d.sectionEn=d.departmentEn;
@@ -584,9 +593,15 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       fillPositionPair(d);
       return d;
     }
+    function enforceLockedBusinessFields(){
+      if(!state.data) return;
+      state.data.workLocationEn='Jordan';
+      state.data.workLocationAr='الأردن';
+      state.data.commercialRegister=state.matched?.commercialRegister || state.matched?.company || state.data.commercialRegister || state.data.company || '';
+    }
     function initialFamilyFromSurvey(emp){
       const raw=(emp.kidsRaw||'').trim(); if(!raw || /^(n\/a|none|not yet|0|-)$/i.test(raw)) return [];
-      return raw.split(/\n|;/).map(x=>x.trim()).filter(Boolean).map(line=>{
+      return raw.split(/\n|;|،|,/).map(x=>x.trim()).filter(Boolean).map(line=>{
         const m=line.match(/(.+?)\s+(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/);
         return {relation:'Child', firstName: m?m[1].split(/\s+/)[0]:line, secondName:'', thirdName:'', lastName:state.data?.lastNameEn||'', birthdate:m?normalizeDateInput(m[2]):'', gender:'', maritalStatus:'Single'};
       });
@@ -659,11 +674,23 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       if(!state.assets.length){ showInline('assetArea','اختر عهدة واحدة على الأقل أو اختر ليس لدي عهدة.'); return false; }
       return state.assets.every(a=>a.assetName && a.description && a.holdingDate);
     }
-    function bindFamily(){ renderFamilyCards(); $('#addFamilyBtn')?.addEventListener('click',()=>{state.family.push({relation:'Child',firstName:'',secondName:'',thirdName:'',lastName:state.data.lastNameEn||'',birthdate:'',gender:'',maritalStatus:'Single'});renderFamilyCards();}); }
+    function bindFamily(){
+      renderFamilyCards();
+      $('#addSpouseBtn')?.addEventListener('click',()=>{
+        if(!spouseSelected(state.family)) state.family.unshift({relation:'Spouse',firstName:'',secondName:'',thirdName:'',lastName:'',birthdate:'',gender:'',maritalStatus:'Married'});
+        renderFamilyCards(); saveDraft(false);
+      });
+      $('#addChildBtn')?.addEventListener('click',()=>{
+        state.family.push({relation:'Child',firstName:'',secondName:'',thirdName:'',lastName:state.data.lastNameEn||'',birthdate:'',gender:'',maritalStatus:'Single'});
+        renderFamilyCards(); saveDraft(false);
+      });
+    }
     function renderFamilyCards(){
       const box=$('#familyCards'); if(!box) return;
+      const relationOptions = needsSpouse(state.data) ? ['Spouse','Child'] : ['Child'];
+      const emptyMessage = needsSpouse(state.data) ? tr('أضف الشريك Spouse، ثم أضف الأطفال إن وجدوا.','Add the Spouse, then add children if any.') : tr('أضف الأطفال إن وجدوا. يمكنك إضافة أي عدد من الأطفال.','Add children if any. You can add any number of children.');
       box.innerHTML = state.family.map((m,i)=>`<div class="subcard"><div class="subHead"><strong>${tr('فرد عائلة','Family member')} ${i+1}</strong><button class="btn danger" data-remove-family="${i}">${tr('حذف','Remove')}</button></div><div class="formgrid">
-        ${familyField(i,'relation','Relation / صلة القرابة','select',['Spouse','Child','Father','Mother','Other'])}${familyField(i,'firstName','First Name','text')}${familyField(i,'secondName','Second Name','text')}${familyField(i,'thirdName','Third Name','text')}${familyField(i,'lastName','Last Name','text')}${familyField(i,'birthdate','Birthdate','date')}${familyField(i,'gender','Gender','select',['Male','Female'])}${familyField(i,'maritalStatus','Marital Status','select',['Single','Married','Divorced','Widowed'])}</div></div>`).join('') || '<div class="notice warn">أضف فرد عائلة واحد على الأقل، أو راجع الحالة الاجتماعية إذا لا يوجد.</div>';
+        ${familyField(i,'relation','Relation / صلة القرابة','select',relationOptions)}${familyField(i,'firstName','First Name','text')}${familyField(i,'secondName','Second Name','text')}${familyField(i,'thirdName','Third Name','text')}${familyField(i,'lastName','Last Name','text')}${familyField(i,'birthdate','Birthdate','date')}${familyField(i,'gender','Gender','select',['Male','Female'])}${familyField(i,'maritalStatus','Marital Status','select',['Single','Married','Divorced','Widowed'])}</div></div>`).join('') || `<div class="notice warn">${emptyMessage}</div>`;
       $$('[data-family]').forEach(el=>el.oninput=el.onchange=()=>{state.family[+el.dataset.family][el.dataset.fk]=el.value;saveDraft(false);});
       $$('[data-remove-family]').forEach(b=>b.onclick=()=>{state.family.splice(+b.dataset.removeFamily,1);renderFamilyCards();});
       bindDateControls($('#familyCards')||document);
@@ -676,8 +703,15 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
     }
     function validateFamily(){
       if(!needsFamily(state.data)) return true;
-      if(!state.family.length) return false;
+      normalizeFamilyForStatus();
+      if(needsSpouse(state.data) && !spouseSelected(state.family)) return false;
       return state.family.every(m=>m.relation&&m.firstName&&m.secondName&&m.thirdName&&m.lastName&&m.birthdate&&m.gender&&m.maritalStatus);
+    }
+    function normalizeFamilyForStatus(){
+      if(!needsFamily(state.data)){ state.family=[]; return; }
+      if(!needsSpouse(state.data)){
+        state.family = (state.family || []).filter(m => String(m.relation || '').trim().toLowerCase() !== 'spouse').map(m => ({...m, relation:'Child'}));
+      }
     }
 
     /******************** Save, submit, admin ********************/
@@ -686,6 +720,7 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
     function loadDraft(id){ try{return JSON.parse(localStorage.getItem('zenhrDraft_'+id)||'null')}catch{return null} }
     function saveDraft(show=true){ if(!state.matched) return; const now=new Date().toISOString(); const payload={...state.data, assets:state.assets, noAssets:state.noAssets, familyMembers:state.family, savedAt:now}; localStorage.setItem('zenhrDraft_'+state.matched.employmentNumber,JSON.stringify(payload)); state.lastSavedAt=now; updateAutosaveStatus(show ? (uiLang==='ar'?'تم حفظ المسودة على هذا الجهاز.':'Draft saved on this device.') : (uiLang==='ar'?'تم الحفظ تلقائيًا':'Auto-saved')); if(show) toast(uiLang==='ar'?'تم حفظ المسودة على هذا الجهاز.':'Draft saved on this device.'); }
     async function submitForm(){
+      enforceLockedBusinessFields();
       const ok=validateAll(); if(!ok){ $('#finalErrors').innerHTML='<div class="notice bad" style="margin-top:12px">يوجد حقول ناقصة أو غير صحيحة. ارجع للخطوات السابقة.</div>'; return; }
       if(fb.enabled && !fb.auth.currentUser){ try { await fb.signInAnonymously(fb.auth); } catch(e) { console.warn(e); } }
       const id=state.matched.employmentNumber;
@@ -845,7 +880,7 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
         EMPLOYEES.forEach(e=>{
           const a=mergedRecord(e);
           if(k==='family'){
-            if(needsFamily(a)&&!(a.familyMembers||[]).length) miss++;
+            if(needsSpouse(a)&&!spouseSelected(a.familyMembers||[])) miss++;
           }else if(k==='assets'){
             if(!a.noAssets&&!(a.assets||[]).length) miss++;
           }else if(!String(a[k]||'').trim()) miss++;
@@ -906,7 +941,7 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
     function submissionCompany(s){ const a=submissionEmployee(s); return a.company || s.company || ''; }
     function findEmployeeSeed(id){ return EMPLOYEES.find(e=>e.employmentNumber===id || e.temporaryId===id) || {}; }
     function updateProgress(){
-      const visible=fields.filter(f=>shouldShow(f)); const total=visible.filter(f=>isRequired(f)).length; const done=visible.filter(f=>isRequired(f) && (state.data[f.k]||'').trim()).length + (state.noAssets||state.assets.length?1:0) + (!needsFamily(state.data)||state.family.length?1:0);
+      const visible=fields.filter(f=>shouldShow(f)); const total=visible.filter(f=>isRequired(f)).length; const done=visible.filter(f=>isRequired(f) && (state.data[f.k]||'').trim()).length + (state.noAssets||state.assets.length?1:0) + ((!needsFamily(state.data)||validateFamily())?1:0);
       const denominator=total+2; const pct=Math.round((done/Math.max(1,denominator))*100); $('#progressBar').style.width=Math.min(100,pct)+'%'; $('#progressText').textContent=Math.min(100,pct)+'%'; $('#completedFields').textContent=done; $('#remainingFields').textContent=Math.max(0,denominator-done);
     }
     function fullNameFromData(){ return [state.data.firstNameEn,state.data.secondNameEn,state.data.thirdNameEn,state.data.lastNameEn].filter(Boolean).join(' ') || state.data.fullNameEn || state.data.fullNameAr || ''; }
