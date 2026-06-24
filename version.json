@@ -1,6 +1,6 @@
 {
-  "version": "10.3.3",
-  "build": "2026-06-23-family-location-register-lock",
+  "version": "10.3.4",
+  "build": "2026-06-24-passport-no-passport-cache-bump",
   "files": [
     "admin.html",
     "data-migration.html",
@@ -9,6 +9,6 @@
     "index.html",
     "test/index.html"
   ],
-  "releasedAt": "2026-06-23T01:15:00+03:00",
-  "notes": "Restricted family section to Married only, required Spouse, allowed unlimited children, locked commercial register and Jordan work location, and removed survey/register helper notes."
+  "releasedAt": "2026-06-24T12:20:00+03:00",
+  "notes": "Added No passport option and disabled passport issue/expiry date requirements when selected; bumped app version to force refresh without Ctrl+F5."
 }
