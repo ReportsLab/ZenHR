@@ -114,6 +114,7 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
   <datalist id="nationalityList"><option value="Jordanian"><option value="Egyptian"><option value="Saudi"><option value="Emirati"><option value="Kuwaiti"><option value="Qatari"><option value="Lebanese"><option value="Syrian"><option value="Palestinian"><option value="Iraqi"></datalist>
   <datalist id="countryList"><option value="Jordan"></datalist>
   <datalist id="cityList"><option value="Amman"><option value="Irbid"><option value="Zarqa"><option value="Aqaba"><option value="Salt"><option value="Madaba"><option value="Karak"><option value="Tafilah"><option value="Ma'an"><option value="Jerash"><option value="Ajloun"><option value="Mafraq"><option value="Sweifieh"><option value="Shmeisani"><option value="Abdali"><option value="Jabal Amman"><option value="Gardens"><option value="Wadi Saqra"><option value="Mecca Street"><option value="University Street"><option value="Bayader"><option value="Marj Al Hamam"><option value="Khalda"><option value="Tabarbour"><option value="Marka"><option value="Jubeiha"><option value="Dabouq"></datalist>
+  <datalist id="passportStatusList"><option value="No passport"></datalist>
 <script type="module">
     /******************** Firebase optional config ********************/
     const firebaseConfig = {
@@ -223,6 +224,7 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
     const isJordanian = data => /jordan|اردن|أردن/i.test((data.nationality||'').trim());
     const needsFamily = data => ['married','divorced','widowed'].includes(String(data?.maritalStatus || '').trim().toLowerCase());
     const needsSpouse = data => String(data?.maritalStatus || '').trim().toLowerCase() === 'married';
+    const noPassportSelected = data => String(data?.passportNumber || '').trim().toLowerCase() === 'no passport';
     const spouseSelected = family => (family || []).some(m => String(m.relation || '').trim().toLowerCase() === 'spouse');
 
     const state = {
@@ -280,9 +282,9 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       {k:'secondNameAr', label:'الاسم الثاني - باللغة العربية / Second Name Ar', section:'names', type:'text', req:true, tip:'عربي فقط.', pattern:'arName'},
       {k:'thirdNameAr', label:'الاسم الثالث - باللغة العربية / Third Name Ar', section:'names', type:'text', req:true, tip:'عربي فقط.', pattern:'arName'},
       {k:'lastNameAr', label:'الاسم الرابع - باللغة العربية / Last Name Ar', section:'names', type:'text', req:true, tip:'عربي فقط.', pattern:'arName'},
-      {k:'passportNumber', label:'Passport_Number / رقم الجواز', section:'identity', type:'text', req:true, tip:'أرقام وحروف إنجليزية فقط بدون مسافات.', pattern:'passport'},
-      {k:'passportIssueDate', label:'Passport Issue Date / تاريخ إصدار جواز السفر', section:'identity', type:'date', req:true, tip:'yyyy-mm-dd'},
-      {k:'passportExpiryDate', label:'Passport Expiry Date / تاريخ انتهاء جواز السفر', section:'identity', type:'date', req:true, tip:'يجب أن يكون بعد تاريخ الإصدار.'},
+      {k:'passportNumber', label:'Passport_Number / رقم الجواز', section:'identity', type:'text', req:true, tip:'أدخل رقم الجواز أو اختر No passport إذا لا يوجد جواز سفر.', pattern:'passport'},
+      {k:'passportIssueDate', label:'Passport Issue Date / تاريخ إصدار جواز السفر', section:'identity', type:'date', req:data=>!noPassportSelected(data), show:data=>!noPassportSelected(data), tip:'yyyy-mm-dd'},
+      {k:'passportExpiryDate', label:'Passport Expiry Date / تاريخ انتهاء جواز السفر', section:'identity', type:'date', req:data=>!noPassportSelected(data), show:data=>!noPassportSelected(data), tip:'يجب أن يكون بعد تاريخ الإصدار.'},
       {k:'laborCardId', label:'Labor Card ID / بطاقة العمل', section:'identity', type:'text', req:data=>!isJordanian(data), show:data=>!isJordanian(data), tip:'لغير الأردنيين فقط.'},
       {k:'laborCardExpiry', label:'Labor Card Expiry / تاريخ انتهاء بطاقة العمل', section:'identity', type:'date', req:data=>!isJordanian(data), show:data=>!isJordanian(data), tip:'لغير الأردنيين فقط.'},
       {k:'residentId', label:'Resident ID / رقم الإقامة', section:'identity', type:'text', req:data=>!isJordanian(data), show:data=>!isJordanian(data), tip:'لغير الأردنيين فقط.'},
@@ -497,13 +499,15 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       if($('#assetArea')) bindAssets(); if($('#familyCards')) bindFamily(); $('#submitBtn')?.addEventListener('click',submitForm);
     }
     function onFieldInput(e){
-      const k=e.target.id; state.data[k]=e.target.value;
+      const k=e.target.id; const wasNoPassport=noPassportSelected(state.data); state.data[k]=e.target.value;
+      const passportModeChanged = k==='passportNumber' && wasNoPassport !== noPassportSelected(state.data);
+      if(k==='passportNumber' && noPassportSelected(state.data)){ state.data.passportIssueDate=''; state.data.passportExpiryDate=''; }
       if(k==='hiringDate') state.data.endOfProbationDate=addDays(e.target.value,90);
       if(k==='positionEn' && state.data.positionEn && !state.data.positionAr){ const trTitle=translatedJobTitle(state.data.positionEn); if(trTitle) state.data.positionAr=trTitle; }
       if(k==='positionAr' && state.data.positionAr && !state.data.positionEn){ const trTitle=translatedJobTitle(state.data.positionAr); if(trTitle) state.data.positionEn=trTitle; }
       fillPositionPair(state.data);
       saveDraft(false); updateProgress(); renderSideAlerts(); updateAutosaveStatus(tr('جارٍ الحفظ...','Saving...'));
-      if(['hiringDate','contractType','nationality','maritalStatus','positionEn','positionAr'].includes(k)){ if(k==='maritalStatus'){ normalizeFamilyForStatus(); saveDraft(false); } render(); } else validateField(k);
+      if(['hiringDate','contractType','nationality','maritalStatus','positionEn','positionAr'].includes(k) || passportModeChanged){ if(k==='maritalStatus'){ normalizeFamilyForStatus(); saveDraft(false); } render(); } else validateField(k);
     }
     function nextStep(){ const id=steps[state.current].id; if(!['dashboard','login'].includes(id) && !validateCurrent()) return; if(state.current<steps.length-1){ state.current++; render(); } }
     function sectionStats(id){ const list=fields.filter(f=>f.section===id && shouldShow(f) && isRequired(f)); if(id==='assets') return {total:1, done:(state.noAssets||state.assets.length)?1:0, pct:(state.noAssets||state.assets.length)?100:0}; if(id==='family'){ const done=!needsFamily(state.data)||validateFamily(); return {total:needsFamily(state.data)?1:0, done:done?1:0, pct:done?100:0}; } const done=list.filter(f=>String(state.data[f.k]||'').trim() && validateFieldNoDom(f)).length; return {total:list.length, done, pct:Math.round((done/Math.max(1,list.length))*100)}; }
@@ -517,7 +521,7 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
     }
     function missingPanelHtml(){ const items=computeMissingFields(); if(!items.length) return `<div class="notice ok">${tr('لا توجد نواقص حالية.','No missing information detected.')}</div>`; return `<div class="missingPanel"><h3>${tr('Missing Information Scanner','Missing Information Scanner')}</h3><p class="small">${tr('اضغط على أي عنصر للانتقال إلى مكانه.','Click any item to jump to its section.')}</p><div class="missingList">${items.map(f=>`<button class="missingItem" data-jump-field="${f.k}">${escapeHtml(f.label)}</button>`).join('')}</div></div>`; }
     function jumpToField(k){ const f=fields.find(x=>x.k===k); const section=f?.section || k; const idx=steps.findIndex(s=>s.id===section); if(idx>=0){ state.current=idx; state.scanOpen=true; render(); setTimeout(()=>document.querySelector(`[data-field="${k}"]`)?.scrollIntoView({behavior:'smooth',block:'center'}),150); } }
-    function datalistFor(f){ if(f.k==='nationality') return 'nationalityList'; if(f.k==='workLocationEn') return 'countryList'; if(f.k==='bankBranch') return 'cityList'; return ''; }
+    function datalistFor(f){ if(f.k==='nationality') return 'nationalityList'; if(f.k==='workLocationEn') return 'countryList'; if(f.k==='bankBranch') return 'cityList'; if(f.k==='passportNumber') return 'passportStatusList'; return ''; }
     function renderFieldSearchResults(){ const box=$('#searchResults'); const input=$('#fieldSearch'); if(!box || !input) return; const q=(input.value||'').trim().toLowerCase(); if(!q){box.classList.remove('active'); box.innerHTML=''; return;} const found=fields.filter(f=>f.label.toLowerCase().includes(q)||String(f.tip||'').toLowerCase().includes(q)).slice(0,8); box.innerHTML=found.length?found.map(f=>`<button class="searchItem" data-search-field="${f.k}">${escapeHtml(f.label)}</button>`).join(''):`<div class="small" style="padding:10px">${tr('لا توجد نتائج','No results')}</div>`; box.classList.add('active'); $$('[data-search-field]').forEach(b=>b.onclick=()=>{ input.value=''; box.classList.remove('active'); jumpToField(b.dataset.searchField); }); }
     function updateAutosaveStatus(msg){ const el=$('#autosaveStatus'); if(!el) return; el.innerHTML=`<span class="autosaveDot"></span><span>${escapeHtml(msg||tr('تم الحفظ تلقائيًا','Auto-saved'))}</span>`; el.classList.add('savePulse'); setTimeout(()=>el.classList.remove('savePulse'),800); }
     function focusNextLogicalField(from, backwards=false){
@@ -622,10 +626,10 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
         if(f.pattern==='email' && !RE.email.test(val)) msg='صيغة الإيميل غير صحيحة.';
         if(f.pattern==='mobile' && !RE.mobile.test(val.replace(/\s/g,''))) msg='رقم الهاتف غير صحيح.';
         if(f.pattern==='ibanJO' && !RE.ibanJO.test(val.replace(/\s/g,'').toUpperCase())) msg='الآيبان الأردني يجب أن يبدأ JO ويكون 30 خانة.';
-        if(f.pattern==='passport' && !RE.passport.test(val)) msg='رقم الجواز يجب أن يحتوي أرقام/حروف إنجليزية فقط.';
+        if(f.pattern==='passport' && !noPassportSelected({passportNumber:val}) && !RE.passport.test(val)) msg='رقم الجواز يجب أن يحتوي أرقام/حروف إنجليزية فقط.';
         if(f.pattern==='enLoose' && /[\u0600-\u06FF]/.test(val)) msg='هذا الحقل يجب أن يكون بالإنجليزية.';
       }
-      if(!msg && k==='passportExpiryDate' && state.data.passportIssueDate && val <= state.data.passportIssueDate) msg='تاريخ انتهاء الجواز يجب أن يكون بعد تاريخ الإصدار.';
+      if(!msg && k==='passportExpiryDate' && !noPassportSelected(state.data) && state.data.passportIssueDate && val <= state.data.passportIssueDate) msg='تاريخ انتهاء الجواز يجب أن يكون بعد تاريخ الإصدار.';
       if(!msg && k==='nationalId' && isJordanian(state.data) && !/^\d{10}$/.test(val)) msg='للأردنيين يفضل أن يكون الرقم الوطني 10 أرقام.';
       if(!msg && k==='bankBranch' && /(riyadh|dubai|abu dhabi|doha|kuwait|cairo|ksa|uae|qatar|egypt|saudi|الرياض|دبي|ابوظبي|أبوظبي|الدوحة|الكويت|القاهرة)/i.test(val)) msg='فرع البنك يجب أن يكون داخل الأردن فقط.';
       wrap.classList.toggle('invalid',!!msg); const err=wrap.querySelector('.error'); if(err) err.textContent=msg; return !msg;
@@ -649,9 +653,9 @@ select option:disabled,.input option:disabled,.datePart option:disabled{color:#7
       if(val && f.pattern==='email' && !RE.email.test(val)) return false;
       if(val && f.pattern==='mobile' && !RE.mobile.test(val.replace(/\s/g,''))) return false;
       if(val && f.pattern==='ibanJO' && !RE.ibanJO.test(val.replace(/\s/g,'').toUpperCase())) return false;
-      if(val && f.pattern==='passport' && !RE.passport.test(val)) return false;
+      if(val && f.pattern==='passport' && !noPassportSelected({passportNumber:val}) && !RE.passport.test(val)) return false;
       if(val && f.pattern==='enLoose' && /[\u0600-\u06FF]/.test(val)) return false;
-      if(f.k==='passportExpiryDate' && state.data.passportIssueDate && val <= state.data.passportIssueDate) return false;
+      if(f.k==='passportExpiryDate' && !noPassportSelected(state.data) && state.data.passportIssueDate && val <= state.data.passportIssueDate) return false;
       if(f.k==='bankBranch' && /(riyadh|dubai|abu dhabi|doha|kuwait|cairo|ksa|uae|qatar|egypt|saudi|الرياض|دبي|ابوظبي|أبوظبي|الدوحة|الكويت|القاهرة)/i.test(val)) return false;
       return true;
     }
