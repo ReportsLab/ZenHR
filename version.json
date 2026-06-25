@@ -1,6 +1,6 @@
 {
-  "version": "10.3.4",
-  "build": "2026-06-24-passport-no-passport-cache-bump",
+  "version": "10.3.5",
+  "build": "2026-06-25-visual-employee-edit",
   "files": [
     "admin.html",
     "data-migration.html",
@@ -9,6 +9,6 @@
     "index.html",
     "test/index.html"
   ],
-  "releasedAt": "2026-06-24T12:20:00+03:00",
-  "notes": "Added No passport option and disabled passport issue/expiry date requirements when selected; bumped app version to force refresh without Ctrl+F5."
+  "releasedAt": "2026-06-25T10:10:00+03:00",
+  "notes": "Replaced the raw admin JSON edit flow with a visual employee information editor, organized by sections with field-level change preview, validation, audit logging, and optional advanced JSON fallback."
 }
