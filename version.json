@@ -1,6 +1,6 @@
 {
-  "version": "10.3.6",
-  "build": "2026-06-27-admin-excel-fab",
+  "version": "10.3.7",
+  "build": "2026-06-27-admin-employee-bulk-delete-worklocation-filter",
   "files": [
     "admin.html",
     "data-migration.html",
@@ -9,6 +9,6 @@
     "index.html",
     "test/index.html"
   ],
-  "releasedAt": "2026-06-27T14:20:00+03:00",
-  "notes": "Added a contextual floating Excel download button across admin tabs, including tab-specific exports and templates, without changing existing admin workflows."
+  "releasedAt": "2026-06-27T17:35:00+03:00",
+  "notes": "Added a premium OK/Cancel deletion confirmation, multi-select Work Location En filtering, and bulk employee selection/deletion in admin Employees while keeping the Excel FAB."
 }

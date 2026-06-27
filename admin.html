@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="app-version" content="10.3.6" />
+  <meta name="app-version" content="10.3.7" />
   <title>Management Console | Admin</title>
   <meta name="description" content="Separated enterprise administration console for employee data management." />
   <meta name="theme-color" content="#071d36" />
@@ -42,6 +42,31 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
     .loginInlineForm .input{min-height:40px;border-radius:12px;padding:0 10px;font-size:13px}
     .loginIssueList{display:flex;gap:6px;flex-wrap:wrap}
     .loginIndexNote{color:#9fb0c6;font-size:12px;line-height:1.6;margin:10px 0 0}
+
+
+    /* v10.3.7 employee premium delete, work-location multi-filter, and bulk selection */
+    .filters.hasWorkLocation{grid-template-columns:1.25fr minmax(145px,.55fr) minmax(145px,.55fr) minmax(220px,.85fr) minmax(110px,.4fr)}
+    .multiSelect{position:relative;min-width:220px}
+    .multiSelectBtn{width:100%;min-height:48px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;border-radius:16px;padding:0 13px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:900;text-align:left}
+    .multiSelectBtn:after{content:'⌄';color:#9fb0c6;font-size:15px;line-height:1}
+    .multiSelectPanel{display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:35;max-height:300px;overflow:auto;padding:9px;border:1px solid rgba(255,255,255,.16);border-radius:18px;background:#071a2d;box-shadow:0 22px 55px rgba(0,0,0,.34)}
+    .multiSelect.active .multiSelectPanel{display:grid;gap:6px}
+    .multiOption{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:13px;color:#d9e5f2;font-size:12px;font-weight:850;cursor:pointer}
+    .multiOption:hover{background:rgba(255,255,255,.08)}
+    .multiOption input,.rowCheck{width:17px;height:17px;accent-color:#099999}
+    .multiSelectClear{min-height:34px;border-radius:12px;margin-top:5px;width:100%}
+    .bulkBar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:12px 0;padding:13px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(135deg,rgba(9,153,153,.13),rgba(255,255,255,.05));border-radius:20px}
+    .bulkBar strong{display:block;font-size:14px;color:#fff}.bulkBar span{display:block;margin-top:3px;color:#9fb0c6;font-size:12px;font-weight:850}.selectCell{display:flex;align-items:center;gap:7px;white-space:nowrap}
+    .confirmOverlay{position:fixed;inset:0;z-index:160;display:grid;place-items:center;padding:18px;background:rgba(0,0,0,.62);backdrop-filter:blur(12px);animation:confirmFade .14s ease-out}
+    .confirmCard{width:min(520px,100%);overflow:hidden;border-radius:30px;border:1px solid rgba(255,255,255,.16);background:linear-gradient(145deg,#081827,#0d2138);box-shadow:0 32px 90px rgba(0,0,0,.46);animation:confirmRise .18s ease-out}
+    .confirmTop{padding:22px 22px 16px;background:radial-gradient(circle at 15% 10%,rgba(198,61,50,.22),transparent 15rem),linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border-bottom:1px solid rgba(255,255,255,.1)}
+    .confirmIcon{width:58px;height:58px;border-radius:20px;display:grid;place-items:center;background:rgba(198,61,50,.16);border:1px solid rgba(198,61,50,.36);color:#ffd1ce;font-size:25px;margin-bottom:14px}
+    .confirmTop h3{margin:0;color:#fff;font-size:22px;letter-spacing:-.035em}.confirmTop p{margin:8px 0 0;color:#aebed0;line-height:1.65;font-size:13px}
+    .confirmDetails{margin:16px 22px 0;padding:13px 14px;border-radius:17px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#dce7f4;font-size:12px;line-height:1.6}
+    .confirmActions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;padding:20px 22px 22px}
+    .confirmActions .btn{min-width:126px}
+    @keyframes confirmFade{from{opacity:0}to{opacity:1}}@keyframes confirmRise{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+    @media(max-width:980px){.filters.hasWorkLocation{grid-template-columns:1fr 1fr}.multiSelect{min-width:0}.bulkBar{align-items:stretch;flex-direction:column}.bulkBar .topActions{width:100%}}
     @media(max-width:760px){.loginAccessSummary{grid-template-columns:1fr}.loginInlineForm{grid-template-columns:1fr;min-width:260px}}
   </style>
 
@@ -117,12 +142,12 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
   <input id="seedInput" type="file" accept="application/json,.json" class="hidden" />
 
 <script type="module">
-  const APP_VERSION = '10.3.6';
+  const APP_VERSION = '10.3.7';
   const ADMIN_UID = 'PwyarKYD7iTs1sbE0rTLqHrkqdv1';
   const firebaseConfig = { apiKey:"AIzaSyBKleLDK-Dg9smbhwIDuNz-0j3j0lX39eI", authDomain:"rawan-f903d.firebaseapp.com", projectId:"rawan-f903d", storageBucket:"rawan-f903d.firebasestorage.app", messagingSenderId:"1003852548044", appId:"1:1003852548044:web:5702e871713e47ea32ff69" };
   let appMod, fs, authMod, app, db, auth, currentUser=null, adminAllowed=false;
   let data = { employees: [], submissions: [], logs: [], loginIndex: {}, loginIndexLoaded: false };
-  let state = { tab:'overview', q:'', company:'all', status:'all', sort:'submittedAt', dir:'desc', page:1, pageSize:12 };
+  let state = { tab:'overview', q:'', company:'all', status:'all', workLocations:[], selectedEmployees:new Set(), sort:'submittedAt', dir:'desc', page:1, pageSize:12 };
   const DEMO_EMPLOYEE_RECORD = {"employmentNumber":"OWIP-SALEH-001","temporaryId":"OWIP-SALEH-001","firstInitialKey":"S","birthdateKey":"1988-05-14","firstNameEn":"Saleh","secondNameEn":"","thirdNameEn":"Yousef","lastNameEn":"Haddad","fullNameEn":"Saleh Yousef Haddad","firstNameAr":"صالح","secondNameAr":"","thirdNameAr":"يوسف","lastNameAr":"حداد","fullNameAr":"صالح يوسف حداد","company":"OWIP","commercialRegister":"OWIP","workEmail":"","personalEmail":"saleh.demo.example.com","mobileNumber":"+96279ABC5014","phoneNumber":"","extensionNumber":"","address":"","passportNumber":"","passportIssueDate":"2032-03-10","passportExpiryDate":"2022-03-09","birthdate":"1988-05-14","gender":"Male","maritalStatus":"Married","religion":"Islam","nationality":"Jordanian","nationalId":"98A51","attendanceCardId":"","hiringDate":"2024-01-15","endOfProbationDate":"2023-12-31","contractType":"Limited","contractDuration":"","endOfContractDate":"2024-01-01","positionEn":"Patent Translator","positionAr":"مترجم براءات اختراع","workLocationEn":"Jordan","workLocationAr":"الأردن","departmentEn":"Patent Translation","departmentAr":"ترجمة براءات الاختراع","sectionEn":"","sectionAr":"","workType":"Full time","paymentMethod":"Bank Transfer","bankName":"","bankBranch":"","accountNumber":"","ibanNumber":"JO00INVALIDIBAN","basicSalary":"Seven Hundred Fifty","socialSecuritySalary":"","socialSecurityNumber":"","kidsRaw":"","_demoMode":"intentional_mistakes_and_blank_fields","_demoMistakes":["Employee code changed to OWIP-SALEH-001 for the Saleh demo login.","Some required fields are intentionally blank: secondNameEn, secondNameAr, workEmail, phoneNumber, address, passportNumber, bank details, socialSecurityNumber, kidsRaw.","personalEmail is invalid because it has no @ symbol.","mobileNumber contains letters.","passport expiry date is before issue date.","nationalId is too short and contains letters.","endOfProbationDate and endOfContractDate are before hiringDate.","ibanNumber is invalid.","basicSalary contains text instead of a numeric value.","socialSecuritySalary is blank."],"jobTitleOnContractEn":"Patent Translator","jobTitleOnContractAr":"مترجم براءات اختراع"};
 
   /******************** Jordan verified HR data ********************/
@@ -211,16 +236,35 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
     data.submissions=[]; subSnap.forEach(d=>data.submissions.push({...d.data(), employeeId:d.id}));
     data.logs=[]; logSnap.forEach?.(d=>data.logs.push({...d.data(), id:d.id}));
     data.loginIndex={}; data.loginIndexLoaded=!!idxSnap; idxSnap?.forEach(d=>data.loginIndex[d.id]=d.data());
+    const employeeIds=new Set(data.employees.map(e=>e.employmentNumber));
+    state.selectedEmployees=new Set([...state.selectedEmployees].filter(id=>employeeIds.has(id)));
     const blocked=loginAccessRows().length;
     $('#systemStatus').textContent=`${data.employees.length} employees • ${data.submissions.length} submissions • ${blocked} login issues`;
   }
   function render(){ const map={overview:renderOverview,submissions:renderSubmissions,directory:renderDirectory,loginAccess:renderLoginAccess,addEmployee:renderAddEmployee,missing:renderMissing,audit:renderAudit,exports:renderExports,imports:renderImports,verified:renderVerifiedData}; const titles={overview:['Overview','overviewLead'],submissions:['Submissions','submissionsLead'],directory:['Employee Directory','directoryLead'],loginAccess:['Login Issues','loginAccessLead'],addEmployee:['Add Employee','addEmployeeLead'],missing:['Missing Submissions','missingLead'],audit:['Audit Center','auditLead'],exports:['Export Center','exportsLead'],imports:['Import Center','importsLead'],verified:['Jordan Verified Data','verifiedLead']}; $('#pageTitle').textContent=titles[state.tab]?.[0]||'Overview'; $('#pageLead').textContent=tr(titles[state.tab]?.[1]||'overviewLead'); map[state.tab]?.(); syncExcelFab(); }
-  function renderFilters(){ const companies=['all',...new Set(data.employees.map(e=>e.company||'').filter(Boolean))]; return `<div class="filters"><input class="input" id="q" placeholder="${tr('search')}" value="${escAttr(state.q)}"><select class="select" id="company"><option value="all">${tr('allCompanies')}</option>${companies.filter(c=>c!=='all').map(c=>`<option ${state.company===c?'selected':''}>${esc(c)}</option>`).join('')}</select><select class="select" id="status"><option value="all">${tr('allStatus')}</option><option value="completed" ${state.status==='completed'?'selected':''}>Completed</option><option value="pending" ${state.status==='pending'?'selected':''}>Pending</option></select><select class="select" id="pageSize"><option ${state.pageSize===12?'selected':''}>12</option><option ${state.pageSize===25?'selected':''}>25</option><option ${state.pageSize===50?'selected':''}>50</option></select></div>`; }
+  function renderFilters(kind='generic'){
+    const companies=['all',...new Set(data.employees.map(e=>e.company||'').filter(Boolean))];
+    const showWorkLocation=kind==='employee';
+    const workLocations=[...new Set(data.employees.map(e=>e.workLocationEn||'').filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    const locationLabel=state.workLocations.length?`${state.workLocations.length} work locations`:'All work locations';
+    const locationFilter=showWorkLocation?`<div class="multiSelect" id="workLocationMulti"><button class="multiSelectBtn" id="workLocationBtn" type="button">${esc(locationLabel)}</button><div class="multiSelectPanel">${workLocations.length?workLocations.map(v=>`<label class="multiOption"><input type="checkbox" class="workLocationCheck" value="${escAttr(v)}" ${state.workLocations.includes(v)?'checked':''}> <span>${esc(v)}</span></label>`).join(''):'<div class="empty" style="padding:14px">No work locations</div>'}<button class="btn ghost multiSelectClear" id="clearWorkLocations" type="button">Clear work-location filter</button></div></div>`:'';
+    return `<div class="filters${showWorkLocation?' hasWorkLocation':''}"><input class="input" id="q" placeholder="${tr('search')}" value="${escAttr(state.q)}"><select class="select" id="company"><option value="all">${tr('allCompanies')}</option>${companies.filter(c=>c!=='all').map(c=>`<option ${state.company===c?'selected':''}>${esc(c)}</option>`).join('')}</select><select class="select" id="status"><option value="all">${tr('allStatus')}</option><option value="completed" ${state.status==='completed'?'selected':''}>Completed</option><option value="pending" ${state.status==='pending'?'selected':''}>Pending</option></select>${locationFilter}<select class="select" id="pageSize"><option ${state.pageSize===12?'selected':''}>12</option><option ${state.pageSize===25?'selected':''}>25</option><option ${state.pageSize===50?'selected':''}>50</option></select></div>`;
+  }
   function renderPreservingFocus(id='q', selectionStart=null, selectionEnd=null){ render(); const el=id?$('#'+id):null; if(el){ el.focus({preventScroll:true}); const start=selectionStart ?? el.value.length; const end=selectionEnd ?? start; if(typeof el.setSelectionRange==='function') el.setSelectionRange(start,end); } }
-  function bindFilters(){ $('#q')?.addEventListener('input',e=>{state.q=e.target.value.toLowerCase();state.page=1;renderPreservingFocus('q',e.target.selectionStart,e.target.selectionEnd);}); $('#company')?.addEventListener('change',e=>{state.company=e.target.value;state.page=1;render();}); $('#status')?.addEventListener('change',e=>{state.status=e.target.value;state.page=1;render();}); $('#pageSize')?.addEventListener('change',e=>{state.pageSize=+e.target.value;state.page=1;render();}); }
+  function bindFilters(){
+    $('#q')?.addEventListener('input',e=>{state.q=e.target.value.toLowerCase();state.page=1;renderPreservingFocus('q',e.target.selectionStart,e.target.selectionEnd);});
+    $('#company')?.addEventListener('change',e=>{state.company=e.target.value;state.page=1;render();});
+    $('#status')?.addEventListener('change',e=>{state.status=e.target.value;state.page=1;render();});
+    $('#pageSize')?.addEventListener('change',e=>{state.pageSize=+e.target.value;state.page=1;render();});
+    $('#workLocationBtn')?.addEventListener('click',e=>{e.stopPropagation(); $('#workLocationMulti')?.classList.toggle('active');});
+    $('#workLocationMulti')?.addEventListener('click',e=>e.stopPropagation());
+    $$('.workLocationCheck').forEach(ch=>ch.addEventListener('change',e=>{ const v=e.target.value; const next=new Set(state.workLocations); e.target.checked?next.add(v):next.delete(v); state.workLocations=[...next]; state.page=1; render(); }));
+    $('#clearWorkLocations')?.addEventListener('click',()=>{state.workLocations=[];state.page=1;render();});
+  }
+  document.addEventListener('click',e=>{ if(!e.target.closest?.('#workLocationMulti')) $('#workLocationMulti')?.classList.remove('active'); });
   function submittedIds(){ return new Set(data.submissions.map(s=>s.employeeId)); } function subEmployee(s){return s.employee||s.answers||{};} function subName(s){const a=subEmployee(s); return a.employeeName || [a.firstNameEn,a.secondNameEn,a.thirdNameEn,a.lastNameEn].filter(Boolean).join(' ') || s.employeeName || '';} function subCompany(s){return subEmployee(s).company||s.company||'';} function subDepartment(s){return subEmployee(s).departmentEn||s.departmentEn||'';}
-  function filteredRows(rows, kind){ const q=state.q; const ids=submittedIds(); return rows.filter(r=>{ const company = kind==='submission'?subCompany(r):(r.company||''); const status = kind==='employee' ? (ids.has(r.employmentNumber)?'completed':'pending') : 'completed'; return (state.company==='all'||company===state.company) && (state.status==='all'||status===state.status) && (!q || JSON.stringify(r).toLowerCase().includes(q)); }); }
-  function paginate(rows){ const start=(state.page-1)*state.pageSize; return [rows.slice(start,start+state.pageSize), Math.max(1,Math.ceil(rows.length/state.pageSize))]; }
+  function filteredRows(rows, kind){ const q=state.q; const ids=submittedIds(); const selectedLocations=Array.isArray(state.workLocations)?state.workLocations:[]; return rows.filter(r=>{ const company = kind==='submission'?subCompany(r):(r.company||''); const status = kind==='employee' ? (ids.has(r.employmentNumber)?'completed':'pending') : 'completed'; const location=kind==='employee'?String(r.workLocationEn||''):''; return (state.company==='all'||company===state.company) && (state.status==='all'||status===state.status) && (kind!=='employee'||!selectedLocations.length||selectedLocations.includes(location)) && (!q || JSON.stringify(r).toLowerCase().includes(q)); }); }
+  function paginate(rows){ const total=Math.max(1,Math.ceil(rows.length/state.pageSize)); state.page=Math.min(Math.max(1,state.page),total); const start=(state.page-1)*state.pageSize; return [rows.slice(start,start+state.pageSize), total]; }
   function renderOverview(){ const ids=submittedIds(); const missing=data.employees.filter(e=>!ids.has(e.employmentNumber)); const changes=data.submissions.reduce((n,s)=>n+(s.changeSummary||s.changes||[]).length,0); const blocked=loginAccessRows().length; $('#adminContent').innerHTML=`<div class="kpiGrid"><div class="kpi"><span>Total employees</span><strong>${data.employees.length}</strong></div><div class="kpi"><span>Completed</span><strong>${data.submissions.length}</strong></div><div class="kpi"><span>Pending</span><strong>${missing.length}</strong></div><div class="kpi"><span>Login issues</span><strong>${blocked}</strong></div></div><div class="grid2"><div class="panel"><h3>Completion Rate by Company</h3>${companyChart()}</div><div class="panel"><h3>Missing Fields Heatmap</h3>${missingHeatmap()}</div></div><div class="panel" style="margin-top:12px"><h3>Recent Activity</h3>${recentActivity()}</div>`; }
   function companyChart(){ const companies=[...new Set(data.employees.map(e=>e.company||''))]; if(!companies.length)return `<div class="empty">No directory data loaded.</div>`; return companies.map(c=>{const total=data.employees.filter(e=>(e.company||'')===c).length; const done=data.submissions.filter(s=>(subCompany(s)||'')===c).length; const pct=Math.round(done/Math.max(1,total)*100); return `<div class="chartRow"><span>${esc(c)}</span><div class="track"><div class="fill" style="width:${pct}%"></div></div><b>${pct}%</b></div>`}).join(''); }
   function missingHeatmap(){
@@ -247,9 +291,18 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
     }).join('')}</div>`;
   }
   function recentActivity(){ const rows=[...data.logs].sort((a,b)=>String(b.changedAt||b.at||'').localeCompare(String(a.changedAt||a.at||''))).slice(0,8); if(!rows.length)return `<div class="empty">No audit records yet.</div>`; return table(['Action','Employee','Field','At'], rows.map(r=>[r.action||'change',r.employeeId||'',r.field||'',fmt(r.changedAt||r.at)])); }
-  function renderSubmissions(){ const rows=filteredRows(data.submissions,'submission'); const [page,total]=paginate(rows); $('#adminContent').innerHTML=renderFilters()+table(['Actions','Status','Employee ID','Name','Company','Department','Submitted','Changes'], page.map(s=>[actionBtns('submission',s.employeeId),`<span class="badge ok">${esc(s.status||'Completed')}</span>`,s.employeeId,subName(s),subCompany(s),subDepartment(s),fmt(s.submittedAt),(s.changeSummary||s.changes||[]).length]),true)+pager(total); bindFilters(); bindActionButtons(); }
-  function renderDirectory(){ const rows=filteredRows(data.employees,'employee'); const ids=submittedIds(); const [page,total]=paginate(rows); $('#adminContent').innerHTML=renderFilters()+table(['Actions','Status','Employee ID','Name EN','Name AR','Company','Work email','Birthdate'], page.map(e=>[actionBtns('employee',e.employmentNumber),ids.has(e.employmentNumber)?'<span class="badge ok">Submitted</span>':'<span class="badge warn">Pending</span>',e.employmentNumber,e.fullNameEn,e.fullNameAr,e.company,e.workEmail,e.birthdate]),true)+pager(total); bindFilters(); bindActionButtons(); }
-  function renderMissing(){ const ids=submittedIds(); const rows=filteredRows(data.employees.filter(e=>!ids.has(e.employmentNumber)),'employee'); const [page,total]=paginate(rows); $('#adminContent').innerHTML=renderFilters()+table(['Actions','Employee ID','Name EN','Name AR','Company','Email','DOB'], page.map(e=>[actionBtns('employee',e.employmentNumber),e.employmentNumber,e.fullNameEn,e.fullNameAr,e.company,e.workEmail,e.birthdate]),true)+pager(total); bindFilters(); bindActionButtons(); }
+  function renderSubmissions(){ const rows=filteredRows(data.submissions,'submission'); const [page,total]=paginate(rows); $('#adminContent').innerHTML=renderFilters('submission')+table(['Actions','Status','Employee ID','Name','Company','Department','Submitted','Changes'], page.map(s=>[actionBtns('submission',s.employeeId),`<span class="badge ok">${esc(s.status||'Completed')}</span>`,s.employeeId,subName(s),subCompany(s),subDepartment(s),fmt(s.submittedAt),(s.changeSummary||s.changes||[]).length]),true)+pager(total); bindFilters(); bindActionButtons(); }
+  function renderDirectory(){ const rows=filteredRows(data.employees,'employee'); const ids=submittedIds(); const [page,total]=paginate(rows); $('#adminContent').innerHTML=renderFilters('employee')+renderEmployeeBulkBar(rows,page)+table(['Select','Actions','Status','Employee ID','Name EN','Name AR','Company','Work location','Work email','Birthdate'], page.map(e=>[employeeSelectCell(e),actionBtns('employee',e.employmentNumber),ids.has(e.employmentNumber)?'<span class="badge ok">Submitted</span>':'<span class="badge warn">Pending</span>',e.employmentNumber,e.fullNameEn,e.fullNameAr,e.company,e.workLocationEn,e.workEmail,e.birthdate]),true)+pager(total); bindFilters(); bindDirectorySelection(rows,page); bindActionButtons(); }
+  function renderMissing(){ const ids=submittedIds(); const rows=filteredRows(data.employees.filter(e=>!ids.has(e.employmentNumber)),'employee'); const [page,total]=paginate(rows); $('#adminContent').innerHTML=renderFilters('employee')+table(['Actions','Employee ID','Name EN','Name AR','Company','Work location','Email','DOB'], page.map(e=>[actionBtns('employee',e.employmentNumber),e.employmentNumber,e.fullNameEn,e.fullNameAr,e.company,e.workLocationEn,e.workEmail,e.birthdate]),true)+pager(total); bindFilters(); bindActionButtons(); }
+  function employeeSelectCell(e){ const id=e.employmentNumber||''; return `<label class="selectCell"><input class="rowCheck employeeRowCheck" type="checkbox" value="${escAttr(id)}" ${state.selectedEmployees.has(id)?'checked':''}> Select</label>`; }
+  function renderEmployeeBulkBar(rows,page){ const visibleIds=page.map(e=>e.employmentNumber).filter(Boolean); const filteredIds=new Set(rows.map(e=>e.employmentNumber).filter(Boolean)); const selectedInFilter=[...state.selectedEmployees].filter(id=>filteredIds.has(id)).length; return `<div class="bulkBar"><div><strong>${state.selectedEmployees.size} selected employees</strong><span>${selectedInFilter} selected inside current filter • ${rows.length} employees match filters</span></div><div class="topActions"><button class="btn ghost" id="selectVisibleEmployees" type="button" ${!visibleIds.length?'disabled':''}>Select visible</button><button class="btn ghost" id="selectFilteredEmployees" type="button" ${!rows.length?'disabled':''}>Select filtered</button><button class="btn ghost" id="clearEmployeeSelection" type="button" ${!state.selectedEmployees.size?'disabled':''}>Clear</button><button class="btn danger" id="deleteSelectedEmployees" type="button" ${!state.selectedEmployees.size?'disabled':''}>Delete selected</button></div></div>`; }
+  function bindDirectorySelection(rows,page){
+    $$('.employeeRowCheck').forEach(cb=>cb.addEventListener('change',e=>{ const id=e.target.value; e.target.checked?state.selectedEmployees.add(id):state.selectedEmployees.delete(id); render(); }));
+    $('#selectVisibleEmployees')?.addEventListener('click',()=>{ page.forEach(e=>e.employmentNumber&&state.selectedEmployees.add(e.employmentNumber)); render(); });
+    $('#selectFilteredEmployees')?.addEventListener('click',()=>{ rows.forEach(e=>e.employmentNumber&&state.selectedEmployees.add(e.employmentNumber)); render(); });
+    $('#clearEmployeeSelection')?.addEventListener('click',()=>{ state.selectedEmployees.clear(); render(); });
+    $('#deleteSelectedEmployees')?.addEventListener('click',deleteSelectedEmployees);
+  }
   function employeeLoginKey(e){ const dob=String(e.birthdateKey||e.birthdate||'').trim(); const init=String(e.firstInitialKey||String(e.firstNameEn||e.fullNameEn||'').trim().slice(0,1)).trim().slice(0,1).toUpperCase(); return loginKey(dob,init); }
   function loginIndexHasEmployee(e){ const key=employeeLoginKey(e); const id=e.employmentNumber||e.temporaryId||''; const row=key?data.loginIndex?.[key]:null; return !!(row && Array.isArray(row.employeeIds) && row.employeeIds.includes(id)); }
   function loginAccessIssues(e){
@@ -504,7 +557,46 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
   }
   function visualMissingBasics(source){ const fields=['firstNameEn','lastNameEn','birthdate','company']; return fields.filter(k=>!String(source[k]||'').trim()); }
   async function saveRecord(kind,id,before,after){ const collection=kind==='submission'?'submissions':'employeeDirectory'; const clean={...after}; if(kind==='submission') clean.employeeId=id; if(kind==='employee'){ const oldKey=employeeLoginKey(before||{}); delete clean.temporaryId; clean.employmentNumber=id; await fs.setDoc(fs.doc(db,collection,id),clean,{merge:false}); const key=loginKey(clean.birthdateKey||clean.birthdate, clean.firstInitialKey||String(clean.firstNameEn||clean.fullNameEn||'').slice(0,1)); if(key) await fs.setDoc(fs.doc(db,'loginIndex',key),{employeeIds:fs.arrayUnion(id),updatedAt:new Date().toISOString()},{merge:true}); if(oldKey && key && oldKey!==key) await fs.updateDoc(fs.doc(db,'loginIndex',oldKey),{employeeIds:fs.arrayRemove(id),updatedAt:new Date().toISOString()}).catch(()=>{}); } else { await fs.setDoc(fs.doc(db,collection,id),clean,{merge:false}); } await audit(`admin-edit-${kind}`,collection,id,before,clean); toast('Record updated and audited'); }
-  async function deleteRecord(kind,id,rec){ const word=prompt(`Dangerous action. Type DELETE to remove ${kind} ${id}. This action will be logged.`); if(word!=='DELETE')return; const collection=kind==='submission'?'submissions':'employeeDirectory'; await fs.deleteDoc(fs.doc(db,collection,id)); await audit(`admin-delete-${kind}`,collection,id,rec,null); toast('Record deleted and audited'); await loadAll(); render(); }
+  async function deleteRecord(kind,id,rec){
+    const collection=kind==='submission'?'submissions':'employeeDirectory';
+    const ok=await premiumConfirm({title:`Delete ${kind}?`,message:`This will remove ${kind} ${id} and create an audit record.`,details:kind==='employee'?'The employee directory record will be deleted. Existing submissions are not deleted by this action.':'The submitted record will be deleted from submissions.',confirmText:'OK, delete',cancelText:'Cancel'});
+    if(!ok)return;
+    if(kind==='employee') await deleteEmployeeDirectoryRecord(id,rec,'admin-delete-employee');
+    else { await fs.deleteDoc(fs.doc(db,collection,id)); await audit(`admin-delete-${kind}`,collection,id,rec,null); }
+    state.selectedEmployees.delete(id);
+    toast('Record deleted and audited'); await loadAll(); render();
+  }
+  async function deleteEmployeeDirectoryRecord(id,rec,action='admin-delete-employee'){
+    await fs.deleteDoc(fs.doc(db,'employeeDirectory',id));
+    const key=employeeLoginKey(rec||{});
+    if(key) await fs.updateDoc(fs.doc(db,'loginIndex',key),{employeeIds:fs.arrayRemove(id),updatedAt:new Date().toISOString()}).catch(()=>{});
+    await audit(action,'employeeDirectory',id,rec,null);
+  }
+  async function deleteSelectedEmployees(){
+    const ids=[...state.selectedEmployees].filter(id=>data.employees.some(e=>e.employmentNumber===id));
+    if(!ids.length){toast('No selected employees');return;}
+    const ok=await premiumConfirm({title:'Delete selected employees?',message:`You selected ${ids.length} employee${ids.length===1?'':'s'} for deletion.`,details:'Only employeeDirectory records will be deleted. Existing submissions are not deleted. Login index entries will be cleaned when possible. The action is audited per employee.',confirmText:'OK, delete selected',cancelText:'Cancel'});
+    if(!ok)return;
+    let count=0;
+    for(const id of ids){ const rec=data.employees.find(e=>e.employmentNumber===id); if(!rec) continue; await deleteEmployeeDirectoryRecord(id,rec,'admin-bulk-delete-employee'); count++; }
+    state.selectedEmployees.clear();
+    toast(`${count} employee${count===1?'':'s'} deleted and audited`);
+    await loadAll(); render();
+  }
+  function premiumConfirm({title='Confirm action',message='',details='',confirmText='OK',cancelText='Cancel'}={}){
+    return new Promise(resolve=>{
+      const overlay=document.createElement('div');
+      overlay.className='confirmOverlay';
+      overlay.innerHTML=`<section class="confirmCard" role="dialog" aria-modal="true" aria-label="${escAttr(title)}"><div class="confirmTop"><div class="confirmIcon">!</div><h3>${esc(title)}</h3><p>${esc(message)}</p></div>${details?`<div class="confirmDetails">${esc(details)}</div>`:''}<div class="confirmActions"><button class="btn ghost" data-confirm="cancel" type="button">${esc(cancelText)}</button><button class="btn danger" data-confirm="ok" type="button">${esc(confirmText)}</button></div></section>`;
+      let done=false;
+      const keyHandler=e=>{ if(e.key==='Escape') close(false); };
+      const close=v=>{ if(done)return; done=true; document.removeEventListener('keydown',keyHandler); overlay.remove(); resolve(v); };
+      overlay.addEventListener('click',e=>{ if(e.target===overlay||e.target.closest('[data-confirm="cancel"]')) close(false); if(e.target.closest('[data-confirm="ok"]')) close(true); });
+      document.addEventListener('keydown',keyHandler);
+      document.body.appendChild(overlay);
+      overlay.querySelector('[data-confirm="cancel"]')?.focus({preventScroll:true});
+    });
+  }
   async function handleSeedImport(e){ const file=e.target.files?.[0]; if(!file)return; let json; try{json=JSON.parse(await file.text());}catch(err){toast('Invalid JSON file');return;} const records=(json.records||json.employees||json||[]); if(!Array.isArray(records)||!records.length){toast('No records found');return;} const ids=new Set(); const issues=[]; records.forEach((r,i)=>{const id=r.employmentNumber||r.temporaryId; if(!id)issues.push(`Row ${i+1}: missing employee ID`); if(id&&ids.has(id))issues.push(`Duplicate ID: ${id}`); ids.add(id); if(!r.birthdate&&!r.birthdateKey)issues.push(`${id}: missing birthdate`);}); $('#importPreview').innerHTML=`<strong>${records.length}</strong> records found.<br>${issues.length?`<span class="badge bad">${issues.length} issues</span><pre class="jsonView">${esc(issues.slice(0,40).join('\n'))}</pre>`:'<span class="badge ok">Validation passed</span>'}<br><br><button class="btn gold" id="confirmImport">Import records</button>`; $('#confirmImport').onclick=async()=>{ if(!confirm(`Import ${records.length} employees and create loginIndex?`))return; let count=0; for(const raw of records){ const e=applyJordanVerifiedData({...raw}); const id=e.employmentNumber||e.temporaryId; if(!id)continue; await fs.setDoc(fs.doc(db,'employeeDirectory',id),e,{merge:true}); const key=loginKey(e.birthdateKey||e.birthdate,e.firstInitialKey||String(e.firstNameEn||e.fullNameEn||'').slice(0,1)); if(key) await fs.setDoc(fs.doc(db,'loginIndex',key),{employeeIds:fs.arrayUnion(id),updatedAt:new Date().toISOString()},{merge:true}); count++; } await fs.setDoc(fs.doc(db,'meta','directory'),{count,importedAt:new Date().toISOString()},{merge:true}); await audit('import-directory','employeeDirectory','batch',null,{count}); toast('Import completed'); await loadAll(); render(); }; }
   function table(headers, rows, htmlCells=false){ if(!rows.length)return `<div class="tableWrap"><div class="empty">No records found.</div></div>`; const cell = c => htmlCells && typeof c === 'string' && c.trim().startsWith('<') ? c : esc(c??''); return `<div class="tableWrap"><table><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${cell(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`; }
   function pager(total){ return `<div class="topActions" style="margin-top:12px"><button class="btn ghost" id="prevPage" ${state.page<=1?'disabled':''}>Prev</button><span class="badge">Page ${state.page} / ${total}</span><button class="btn ghost" id="nextPage" ${state.page>=total?'disabled':''}>Next</button></div>`; }
@@ -554,7 +646,7 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
     const text=fab.querySelector('.fabLabel'); if(text) text.textContent=label;
   }
   function dateStamp(){ return new Date().toISOString().slice(0,10); }
-  function currentFilterNote(){ return {Search:state.q||'',Company:state.company||'all',Status:state.status||'all',Exported_At:new Date().toISOString(),Tab:state.tab}; }
+  function currentFilterNote(){ return {Search:state.q||'',Company:state.company||'all',Status:state.status||'all',Work_Location_En:(state.workLocations||[]).join('; ')||'all',Selected_Employees:state.selectedEmployees?.size||0,Exported_At:new Date().toISOString(),Tab:state.tab}; }
   function employeeFlatRow(e){ return flatten(cleanEmployeePayload(e)); }
   function submissionFlatRow(s){ const a=subEmployee(s); return {Employment_Number:s.employeeId||'',Status:s.status||'Completed',Name:subName(s),Company:subCompany(s),Department:subDepartment(s),Submitted_At:s.submittedAt||'',Changes_Count:(s.changeSummary||s.changes||[]).length,...flatten(a)}; }
   function auditFlatRow(r){ return {Action:r.action||'change',Collection:r.collection||'',Document:r.docId||'',Employee:r.employeeId||'',Field:r.field||'',Before:typeof r.before==='object'?JSON.stringify(r.before):r.before||'',After:typeof r.after==='object'?JSON.stringify(r.after):r.after||'',By:r.adminEmail||r.authUid||'',At:r.changedAt||r.at||''}; }
