@@ -1,6 +1,6 @@
 {
-  "version": "10.3.5",
-  "build": "2026-06-25-visual-employee-edit",
+  "version": "10.3.6",
+  "build": "2026-06-27-admin-excel-fab",
   "files": [
     "admin.html",
     "data-migration.html",
@@ -9,6 +9,6 @@
     "index.html",
     "test/index.html"
   ],
-  "releasedAt": "2026-06-25T10:10:00+03:00",
-  "notes": "Replaced the raw admin JSON edit flow with a visual employee information editor, organized by sections with field-level change preview, validation, audit logging, and optional advanced JSON fallback."
+  "releasedAt": "2026-06-27T14:20:00+03:00",
+  "notes": "Added a contextual floating Excel download button across admin tabs, including tab-specific exports and templates, without changing existing admin workflows."
 }

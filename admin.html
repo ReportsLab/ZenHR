@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="app-version" content="10.3.5" />
+  <meta name="app-version" content="10.3.6" />
   <title>Management Console | Admin</title>
   <meta name="description" content="Separated enterprise administration console for employee data management." />
   <meta name="theme-color" content="#071d36" />
@@ -43,6 +43,18 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
     .loginIssueList{display:flex;gap:6px;flex-wrap:wrap}
     .loginIndexNote{color:#9fb0c6;font-size:12px;line-height:1.6;margin:10px 0 0}
     @media(max-width:760px){.loginAccessSummary{grid-template-columns:1fr}.loginInlineForm{grid-template-columns:1fr;min-width:260px}}
+  </style>
+
+  <style>
+    /* v10.3.6 admin Excel FAB */
+    .excelFab{position:fixed;right:24px;bottom:24px;z-index:70;display:inline-flex;align-items:center;gap:10px;min-height:56px;border:0;border-radius:999px;padding:0 19px;background:linear-gradient(135deg,#14865a,#099999);color:#fff;font-weight:950;letter-spacing:.01em;box-shadow:0 18px 45px rgba(9,153,153,.28),0 8px 18px rgba(0,0,0,.28);transition:transform .18s ease,box-shadow .18s ease,opacity .18s ease}
+    .excelFab:hover{transform:translateY(-2px);box-shadow:0 22px 58px rgba(9,153,153,.34),0 12px 22px rgba(0,0,0,.34)}
+    .excelFab:active{transform:translateY(0) scale(.98)}
+    .excelFab .fabIcon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.18);font-size:17px;line-height:1}
+    .excelFab .fabLabel{white-space:nowrap}
+    .excelFab:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .rtl .excelFab{right:auto;left:24px}
+    @media(max-width:720px){.excelFab{right:16px;bottom:16px;min-height:54px;padding:0 14px}.rtl .excelFab{right:auto;left:16px}.excelFab .fabLabel{display:none}.excelFab .fabIcon{width:38px;height:38px}}
   </style>
 </head>
 <body>
@@ -96,6 +108,7 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
           <div class="topActions"><button class="btn ghost" id="refreshBtn" type="button" data-i18n="refresh">Refresh</button><a class="btn ghost" href="./index.html" data-i18n="employeePortal">Employee portal</a></div>
         </section>
         <section id="adminContent"></section>
+        <button class="excelFab hidden" id="excelFab" type="button" title="Download current tab as Excel" aria-label="Download current tab as Excel"><span class="fabIcon">⬇</span><span class="fabLabel">Excel</span></button>
       </main>
     </div>
   </div>
@@ -104,7 +117,7 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
   <input id="seedInput" type="file" accept="application/json,.json" class="hidden" />
 
 <script type="module">
-  const APP_VERSION = '10.3.4';
+  const APP_VERSION = '10.3.6';
   const ADMIN_UID = 'PwyarKYD7iTs1sbE0rTLqHrkqdv1';
   const firebaseConfig = { apiKey:"AIzaSyBKleLDK-Dg9smbhwIDuNz-0j3j0lX39eI", authDomain:"rawan-f903d.firebaseapp.com", projectId:"rawan-f903d", storageBucket:"rawan-f903d.firebasestorage.app", messagingSenderId:"1003852548044", appId:"1:1003852548044:web:5702e871713e47ea32ff69" };
   let appMod, fs, authMod, app, db, auth, currentUser=null, adminAllowed=false;
@@ -183,7 +196,7 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
   $('#adminLoginForm').addEventListener('submit', async ev=>{ ev.preventDefault(); clearError(); const email=$('#adminEmail').value.trim(); const pass=$('#adminPassword').value; if(!email||!pass){showError('Enter email and password.');return;} $('#adminLoginBtn').disabled=true; try{ const persistence=$('#rememberAdmin').checked?authMod.browserLocalPersistence:authMod.browserSessionPersistence; await authMod.setPersistence(auth,persistence); await authMod.signInWithEmailAndPassword(auth,email,pass); }catch(e){ console.warn(e); const code=e?.code||''; showError(code==='auth/invalid-credential'?'Invalid email or password. Check Firebase Authentication user.':'Login failed. Check Firebase Authentication and authorized domain.'); } finally{$('#adminLoginBtn').disabled=false;} });
   $('#bootstrapAdminBtn').onclick=async()=>{ if(!currentUser || currentUser.uid!==ADMIN_UID){showError('Sign in with the bootstrap admin UID first.');return;} try{ await fs.setDoc(fs.doc(db,'admins',ADMIN_UID),{role:'admin',active:true,createdAt:new Date().toISOString()},{merge:true}); await audit('bootstrap-admin','admins',ADMIN_UID,null,{role:'admin',active:true}); adminAllowed=true; await showApp(); }catch(e){console.error(e); showError('Bootstrap failed. Publish the v10 Firestore rules first.');}};
   $('#adminLangBtn').onclick=()=>{lang=lang==='en'?'ar':'en'; applyLang();}; $('#sideLangBtn').onclick=$('#adminLangBtn').onclick;
-  $('#signOutBtn').onclick=async()=>{await authMod.signOut(auth); location.href='./admin.html';}; $('#refreshBtn').onclick=async()=>{await loadAll(); render(); toast('Data refreshed');};
+  $('#signOutBtn').onclick=async()=>{await authMod.signOut(auth); location.href='./admin.html';}; $('#refreshBtn').onclick=async()=>{await loadAll(); render(); toast('Data refreshed');}; $('#excelFab').onclick=()=>downloadCurrentTabExcel();
   $('#adminNav').addEventListener('click',e=>{ const b=e.target.closest('button[data-tab]'); if(!b)return; state.tab=b.dataset.tab; state.page=1; $$('#adminNav button').forEach(x=>x.classList.toggle('active',x===b)); render(); });
   $('#modalCloseBtn').onclick=closeModal; $('#recordModal').addEventListener('click',e=>{ if(e.target.id==='recordModal') closeModal(); });
   async function loadAll(){
@@ -201,7 +214,7 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
     const blocked=loginAccessRows().length;
     $('#systemStatus').textContent=`${data.employees.length} employees • ${data.submissions.length} submissions • ${blocked} login issues`;
   }
-  function render(){ const map={overview:renderOverview,submissions:renderSubmissions,directory:renderDirectory,loginAccess:renderLoginAccess,addEmployee:renderAddEmployee,missing:renderMissing,audit:renderAudit,exports:renderExports,imports:renderImports,verified:renderVerifiedData}; const titles={overview:['Overview','overviewLead'],submissions:['Submissions','submissionsLead'],directory:['Employee Directory','directoryLead'],loginAccess:['Login Issues','loginAccessLead'],addEmployee:['Add Employee','addEmployeeLead'],missing:['Missing Submissions','missingLead'],audit:['Audit Center','auditLead'],exports:['Export Center','exportsLead'],imports:['Import Center','importsLead'],verified:['Jordan Verified Data','verifiedLead']}; $('#pageTitle').textContent=titles[state.tab]?.[0]||'Overview'; $('#pageLead').textContent=tr(titles[state.tab]?.[1]||'overviewLead'); map[state.tab]?.(); }
+  function render(){ const map={overview:renderOverview,submissions:renderSubmissions,directory:renderDirectory,loginAccess:renderLoginAccess,addEmployee:renderAddEmployee,missing:renderMissing,audit:renderAudit,exports:renderExports,imports:renderImports,verified:renderVerifiedData}; const titles={overview:['Overview','overviewLead'],submissions:['Submissions','submissionsLead'],directory:['Employee Directory','directoryLead'],loginAccess:['Login Issues','loginAccessLead'],addEmployee:['Add Employee','addEmployeeLead'],missing:['Missing Submissions','missingLead'],audit:['Audit Center','auditLead'],exports:['Export Center','exportsLead'],imports:['Import Center','importsLead'],verified:['Jordan Verified Data','verifiedLead']}; $('#pageTitle').textContent=titles[state.tab]?.[0]||'Overview'; $('#pageLead').textContent=tr(titles[state.tab]?.[1]||'overviewLead'); map[state.tab]?.(); syncExcelFab(); }
   function renderFilters(){ const companies=['all',...new Set(data.employees.map(e=>e.company||'').filter(Boolean))]; return `<div class="filters"><input class="input" id="q" placeholder="${tr('search')}" value="${escAttr(state.q)}"><select class="select" id="company"><option value="all">${tr('allCompanies')}</option>${companies.filter(c=>c!=='all').map(c=>`<option ${state.company===c?'selected':''}>${esc(c)}</option>`).join('')}</select><select class="select" id="status"><option value="all">${tr('allStatus')}</option><option value="completed" ${state.status==='completed'?'selected':''}>Completed</option><option value="pending" ${state.status==='pending'?'selected':''}>Pending</option></select><select class="select" id="pageSize"><option ${state.pageSize===12?'selected':''}>12</option><option ${state.pageSize===25?'selected':''}>25</option><option ${state.pageSize===50?'selected':''}>50</option></select></div>`; }
   function renderPreservingFocus(id='q', selectionStart=null, selectionEnd=null){ render(); const el=id?$('#'+id):null; if(el){ el.focus({preventScroll:true}); const start=selectionStart ?? el.value.length; const end=selectionEnd ?? start; if(typeof el.setSelectionRange==='function') el.setSelectionRange(start,end); } }
   function bindFilters(){ $('#q')?.addEventListener('input',e=>{state.q=e.target.value.toLowerCase();state.page=1;renderPreservingFocus('q',e.target.selectionStart,e.target.selectionEnd);}); $('#company')?.addEventListener('change',e=>{state.company=e.target.value;state.page=1;render();}); $('#status')?.addEventListener('change',e=>{state.status=e.target.value;state.page=1;render();}); $('#pageSize')?.addEventListener('change',e=>{state.pageSize=+e.target.value;state.page=1;render();}); }
@@ -529,6 +542,58 @@ select:disabled,.select:disabled,.datePart:disabled{opacity:.72;}
     toast(`Applied ${fieldCount} corrections for ${employeeCount} employees`);
     await loadAll(); render();
   }
+
+  function syncExcelFab(){
+    const fab=$('#excelFab'); if(!fab)return;
+    const labels={overview:'Overview Excel',submissions:'Submissions Excel',directory:'Employees Excel',loginAccess:'Login Issues Excel',addEmployee:'Employee Template',missing:'Missing Excel',audit:'Audit Excel',exports:'All Exports Excel',imports:'Import Template',verified:'Verified Data Excel'};
+    const label=labels[state.tab]||'Excel';
+    fab.classList.toggle('hidden',!adminAllowed);
+    fab.disabled=!adminAllowed;
+    fab.title=`Download ${label}`;
+    fab.setAttribute('aria-label',`Download ${label}`);
+    const text=fab.querySelector('.fabLabel'); if(text) text.textContent=label;
+  }
+  function dateStamp(){ return new Date().toISOString().slice(0,10); }
+  function currentFilterNote(){ return {Search:state.q||'',Company:state.company||'all',Status:state.status||'all',Exported_At:new Date().toISOString(),Tab:state.tab}; }
+  function employeeFlatRow(e){ return flatten(cleanEmployeePayload(e)); }
+  function submissionFlatRow(s){ const a=subEmployee(s); return {Employment_Number:s.employeeId||'',Status:s.status||'Completed',Name:subName(s),Company:subCompany(s),Department:subDepartment(s),Submitted_At:s.submittedAt||'',Changes_Count:(s.changeSummary||s.changes||[]).length,...flatten(a)}; }
+  function auditFlatRow(r){ return {Action:r.action||'change',Collection:r.collection||'',Document:r.docId||'',Employee:r.employeeId||'',Field:r.field||'',Before:typeof r.before==='object'?JSON.stringify(r.before):r.before||'',After:typeof r.after==='object'?JSON.stringify(r.after):r.after||'',By:r.adminEmail||r.authUid||'',At:r.changedAt||r.at||''}; }
+  function companyCompletionRows(){ const companies=[...new Set(data.employees.map(e=>e.company||''))]; return companies.map(c=>{ const total=data.employees.filter(e=>(e.company||'')===c).length; const completed=data.submissions.filter(s=>(subCompany(s)||'')===c).length; return {Company:c||'Unassigned',Total_Employees:total,Completed_Submissions:completed,Pending_Submissions:Math.max(0,total-completed),Completion_Rate:`${Math.round(completed/Math.max(1,total)*100)}%`}; }); }
+  function missingFieldRows(){
+    const fields=['workEmail','personalEmail','passportNumber','ibanNumber','commercialRegister','departmentAr','sectionAr','nationalId','assets','familyMembers'];
+    const submissionById=new Map(data.submissions.map(s=>[s.employeeId,s]));
+    const needsSpouse=a=>String(a.maritalStatus||'').trim().toLowerCase()==='married';
+    const spouseSelected=family=>(family||[]).some(m=>String(m.relation||'').trim().toLowerCase()==='spouse');
+    const mergedRecord=e=>{ const s=submissionById.get(e.employmentNumber); return s ? {...e,...subEmployee(s),assets:s.assets||subEmployee(s).assets||[],familyMembers:s.familyMembers||subEmployee(s).familyMembers||[],noAssets:!!(s.noAssets||subEmployee(s).noAssets)} : e; };
+    return fields.map(k=>{ let missing=0; data.employees.forEach(e=>{ const a=mergedRecord(e); if(k==='assets'){ if(!a.noAssets && !(a.assets||[]).length) missing++; } else if(k==='familyMembers'){ if(needsSpouse(a) && !spouseSelected(a.familyMembers||[])) missing++; } else if(!String(a[k]||'').trim()) missing++; }); return {Field:k,Missing_Count:missing}; });
+  }
+  function loginAccessExportRows(){ return loginAccessRows().filter(e=>{ const company=e.company||''; const q=state.q; return (state.company==='all'||company===state.company) && (!q || JSON.stringify(e).toLowerCase().includes(q)); }).map(e=>({'Employment_Number':e.employmentNumber,'Name_EN':e.fullNameEn||'','Company':e.company||'','Birthdate':e.birthdateKey||e.birthdate||'','First_Name_En':e.firstNameEn||'','First_Initial_Key':e.firstInitialKey||'','Issues':loginAccessIssues(e).join('; ')})); }
+  function employeeTemplateRows(){ const row={}; NEW_EMPLOYEE_FIELDS.forEach(f=>row[f.k]=f.req?'Required':''); return [row]; }
+  function buildCurrentTabSheets(){
+    const ids=submittedIds();
+    const missingEmployees=filteredRows(data.employees.filter(e=>!ids.has(e.employmentNumber)),'employee').map(employeeFlatRow);
+    const auditRows=data.logs.filter(r=>!state.q || JSON.stringify(r).toLowerCase().includes(state.q)).sort((a,b)=>String(b.changedAt||b.at||'').localeCompare(String(a.changedAt||a.at||''))).map(auditFlatRow);
+    const meta=[currentFilterNote()];
+    if(state.tab==='overview') return [{name:'Summary',rows:[{Metric:'Total employees',Value:data.employees.length},{Metric:'Completed',Value:data.submissions.length},{Metric:'Pending',Value:data.employees.length-data.submissions.length},{Metric:'Login issues',Value:loginAccessRows().length}]},{name:'Company Completion',rows:companyCompletionRows()},{name:'Missing Fields',rows:missingFieldRows()},{name:'Recent Activity',rows:auditRows.slice(0,50)}];
+    if(state.tab==='submissions') return [{name:'Submissions',rows:filteredRows(data.submissions,'submission').map(submissionFlatRow)},{name:'Export Filters',rows:meta}];
+    if(state.tab==='directory') return [{name:'Employees',rows:filteredRows(data.employees,'employee').map(employeeFlatRow)},{name:'Export Filters',rows:meta}];
+    if(state.tab==='loginAccess') return [{name:'Login Issues',rows:loginAccessExportRows()},{name:'Export Filters',rows:meta}];
+    if(state.tab==='addEmployee') return [{name:'Employee Template',rows:employeeTemplateRows()}];
+    if(state.tab==='missing') return [{name:'Missing Employees',rows:missingEmployees},{name:'Export Filters',rows:meta}];
+    if(state.tab==='audit') return [{name:'Audit Log',rows:auditRows},{name:'Export Filters',rows:meta}];
+    if(state.tab==='exports') return [{name:'Employees',rows:buildEmployeeRows()},{name:'Family',rows:buildFamilyRows()},{name:'Assets',rows:buildAssetRows()},{name:'Missing',rows:data.employees.filter(e=>!ids.has(e.employmentNumber)).map(employeeFlatRow)},{name:'Login Issues',rows:buildLoginAccessRows()},{name:'Audit Log',rows:data.logs.map(auditFlatRow)}];
+    if(state.tab==='imports') return [{name:'Import Template',rows:employeeTemplateRows()}];
+    if(state.tab==='verified') return [{name:'Verified Corrections',rows:verifiedChangeRows().filter(r=>!state.q || JSON.stringify(r).toLowerCase().includes(state.q))},{name:'Export Filters',rows:meta}];
+    return [{name:'Employees',rows:data.employees.map(employeeFlatRow)}];
+  }
+  function exportWorkbook(sheets,filename){
+    const usable=(sheets||[]).map(s=>({name:String(s.name||'Sheet').slice(0,31),rows:Array.isArray(s.rows)?s.rows:[]})).filter(s=>s.rows.length);
+    if(!usable.length){toast('No rows to export');return false;}
+    if(window.XLSX){ const wb=XLSX.utils.book_new(); usable.forEach(s=>{ const ws=XLSX.utils.json_to_sheet(s.rows); XLSX.utils.book_append_sheet(wb,ws,s.name); }); XLSX.writeFile(wb,filename); }
+    else { const csv=usable.map(s=>`### ${s.name} ###\n${toCSV(s.rows)}`).join('\n\n'); downloadBlob(csv,filename.replace(/\.xlsx$/i,'.csv'),'text/csv;charset=utf-8'); }
+    return true;
+  }
+  function downloadCurrentTabExcel(){ const filename=`zenhr-admin-${state.tab}-${dateStamp()}.xlsx`; const ok=exportWorkbook(buildCurrentTabSheets(),filename); if(ok) audit('export-fab',state.tab,'download',null,{file:filename}).catch(()=>{}); }
 
   function handleExport(kind){ const rows = kind==='employees'?buildEmployeeRows():kind==='family'?buildFamilyRows():kind==='assets'?buildAssetRows():kind==='missing'?data.employees.filter(e=>!submittedIds().has(e.employmentNumber)):kind==='loginAccess'?buildLoginAccessRows():data.logs; if(!rows.length){toast('No rows to export');return;} exportRows(rows,`zenhr-${kind}.xlsx`,kind); audit('export',kind,'download',null,{rows:rows.length}).catch(()=>{}); }
   function buildLoginAccessRows(){ return loginAccessRows().map(e=>({'Employment_Number':e.employmentNumber,'Name_EN':e.fullNameEn||'','Company':e.company||'','Birthdate':e.birthdateKey||e.birthdate||'','First_Name_En':e.firstNameEn||'','First_Initial_Key':e.firstInitialKey||'','Issues':loginAccessIssues(e).join('; ')})); }
